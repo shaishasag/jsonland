@@ -245,8 +245,6 @@ public:
     };
 
 private:
-    template<typename INT>
-    using IsInt = std::enable_if_t<std::is_integral<INT>::value && !std::is_same<bool, INT>::value && !std::is_same<char, INT>::value>;
 
     template<typename NUM> using IsNum = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) || std::is_floating_point<NUM>::value>;
     
@@ -455,13 +453,13 @@ public:
     inline jsonland::node_type type() const {return m_node_type;}
     inline bool is_type(jsonland::node_type in_type) {return in_type == m_node_type;}
     inline bool is_null() const {return _null == m_node_type;}
-    inline bool is_obj() const {return _object == m_node_type;}
+    inline bool is_object() const {return _object == m_node_type;}
     inline bool is_array() const {return _array == m_node_type;}
     inline bool is_string() const {return _string == m_node_type;}
     inline bool is_num() const {return _number == m_node_type;}
     inline bool is_bool() const {return _bool == m_node_type;}
     inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
-    inline bool is_valid() const {return is_scalar() || is_array() || is_obj() || is_null();}
+    inline bool is_valid() const {return is_scalar() || is_array() || is_object() || is_null();}
 
     size_t size() const
     {
@@ -481,6 +479,16 @@ public:
         return retVal;
     }
 
+    size_t count(const char* in_key) const
+    {
+        size_t retVal = 0;
+        if (is_object())
+        {
+            retVal = m_obj_key_to_index.count(std::string_view(in_key));
+        }
+        
+        return retVal;
+    }
 
     std::string   dump() const;
     std::ostream& dump(std::ostream& os) const;
@@ -520,15 +528,16 @@ public:
         return retVal;
     }
 
-    int64_t as_int(const int64_t in_default_int=0) const
+    template<typename TINT>
+    TINT as_int(const TINT in_default_int=0) const
     {
-        int64_t retVal = in_default_int;
+        TINT retVal = in_default_int;
         if (JSONLAND_LIKELY(is_num()))
         {
             if (is_number_assigned())
-                return static_cast<int64_t>(m_num);
+                return static_cast<TINT>(m_num);
             else
-                retVal = static_cast<int64_t>(std::atoll(m_str_v.data()));
+                retVal = static_cast<TINT>(std::atoll(m_str_v.data()));
         }
 
         return retVal;
@@ -542,6 +551,27 @@ public:
             return in_default_bool;
     }
 
+    
+    template<typename TASTYPE>
+    TASTYPE as(const TASTYPE in_default={})
+    {
+        if constexpr (std::is_same<bool, TASTYPE>::value) {
+            return as_bool(in_default);
+        }
+        else if constexpr (std::is_floating_point_v<TASTYPE>) {
+            return as_double(in_default);
+        }
+        else if constexpr (std::is_integral_v<TASTYPE>) {
+            return as_int(in_default);
+        }
+        else if (std::is_same<const char*, TASTYPE>::value) {
+            return as_string(in_default);
+        }
+        else if constexpr (std::is_null_pointer_v<TASTYPE>) {
+            return nullptr;
+        }
+    }
+    
     const char* key() const
     {
         m_key.unescape_internal();
@@ -570,17 +600,17 @@ public:
 
     void reserve(const size_t in_num_to_reserve)
     {
-        if (JSONLAND_LIKELY(is_array() || is_obj()))
+        if (JSONLAND_LIKELY(is_array() || is_object()))
         {
             m_values.reserve(in_num_to_reserve);
-            if (is_obj())
+            if (is_object())
                 m_obj_key_to_index.reserve(in_num_to_reserve);
         }
     }
 
 //    json_node& operator[](const string_or_view& in_str)
 //    {
-//        if (JSONLAND_LIKELY(is_obj()))
+//        if (JSONLAND_LIKELY(is_object()))
 //        {
 //            int index = -1;
 //            string_or_view key(in_str);
@@ -602,7 +632,7 @@ public:
 
     json_node& operator[](const char* in_key)
     {
-        if (JSONLAND_LIKELY(is_obj()))
+        if (JSONLAND_LIKELY(is_object()))
         {
             int index = -1;
             string_or_view key;
@@ -629,7 +659,7 @@ public:
 
     const json_node& operator[](const char* in_str) const
     {
-        if (JSONLAND_LIKELY(is_obj()))
+        if (JSONLAND_LIKELY(is_object()))
         {
             string_or_view key;
             key.reference_value(in_str);
@@ -653,7 +683,7 @@ public:
         return m_values.back();
     }
 
-    template <typename INT, IsInt<INT>* = nullptr >
+    template <typename INT, IsInteger<INT>* = nullptr >
     json_node& operator[](const INT in_dex)
     {
         if (JSONLAND_LIKELY(is_array()))
@@ -664,7 +694,7 @@ public:
             return *this;  // what to return here?
     }
 
-    template <typename INT, IsInt<INT>* = nullptr >
+    template <typename INT, IsInteger<INT>* = nullptr >
     const json_node& operator[](INT in_dex) const
     {
         if (JSONLAND_LIKELY(is_array()))
@@ -777,14 +807,23 @@ public:
 //    json_doc& operator=(const json_node& in_node);
 //    json_node& operator=(json_node&& in_node);
 
+    
+    inline json_doc& operator=(jsonland::node_type in_type)
+    {
+        json_node::operator=(in_type);
+        return *this;
+    }
+    
     friend class jsonland::parser_impl::Parser;
 
 
     int parse_insitu(char* in_json_str, char* in_json_str_end);
+    int parse_insitu(char* in_json_str, const size_t in_json_str_size);
     int parse_insitu(std::string& in_json_str);
     int parse_insitu(std::string_view in_json_str);
 
     int parse(const char* in_json_str, const char* in_json_str_end=nullptr);
+    int parse(const char* in_json_str, const size_t in_json_str_size);
     int parse(const std::string& in_json_str);
     int parse(const std::string_view in_json_str);
 

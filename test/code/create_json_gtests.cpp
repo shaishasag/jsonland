@@ -81,9 +81,9 @@ TEST(TestArray, set_and_get)
 {
     json_node jn(jsonland::node_type::_array);
     jn.push_back(9);
-    EXPECT_EQ(jn[0].as_int(), 9);
+    EXPECT_EQ(jn[0].as_int<int>(), 9);
     jn.push_back(0.1234);
-    EXPECT_EQ(jn[0].as_int(), 9);
+    EXPECT_EQ(jn[0].as_int<int>(), 9);
     EXPECT_EQ(jn[1].as_double(), 0.1234);
     
     json_node jn2(jsonland::node_type::_array);
@@ -94,7 +94,7 @@ TEST(TestArray, set_and_get)
     int n = 0;
     for (auto i = jn2.begin(); i != jn2.end(); ++i)
     {
-        int64_t the_int = i->as_int();
+        int64_t the_int = i->as_int<int>();
         EXPECT_EQ(the_int, n++);
     }
 
@@ -119,21 +119,40 @@ TEST(TestGetValue, bool_value)
     
     EXPECT_FALSE(json_node().as_bool())
                 << "json_node().as_bool() should return " << "false";
+    EXPECT_FALSE(json_node().as<bool>())
+                << "json_node().as_bool() should return " << "false";
     EXPECT_TRUE(json_node().as_bool(true))
                 << "json_node().as_bool(true) should return " << "true";
-    
+    EXPECT_TRUE(json_node().as<bool>(true))
+                << "json_node().as_bool(true) should return " << "true";
+
     EXPECT_FALSE(json_node(jsonland::node_type::_bool).as_bool())
+                << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
+    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as<bool>())
                 << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
     EXPECT_FALSE(json_node(jsonland::node_type::_bool).as_bool(true))
                 << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
-    
+    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as<bool>(true))
+                << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
+
     EXPECT_FALSE(json_node(false).as_bool())
                 << "json_node(" << "false" << ").as_bool() should return " << "false";
+    EXPECT_FALSE(json_node(false).as<bool>())
+                << "json_node(" << "false" << ").as_bool() should return " << "false";
+    
     EXPECT_TRUE(json_node(true).as_bool())
                 << "json_node(" << "true" << ").as_bool() should return " << "true";
+    EXPECT_TRUE(json_node(true).as<bool>())
+                << "json_node(" << "true" << ").as_bool() should return " << "true";
+    
     EXPECT_FALSE(json_node(false).as_bool(true))
                 << "json_node(" << "false" << ").as_bool(true) should return " << "false";
+    EXPECT_FALSE(json_node(false).as<bool>(true))
+                << "json_node(" << "false" << ").as_bool(true) should return " << "false";
+    
     EXPECT_TRUE(json_node(true).as_bool(false))
+                << "json_node(" << "true" << ").as_bool(false) should return " << "true";
+    EXPECT_TRUE(json_node(true).as<bool>(false))
                 << "json_node(" << "true" << ").as_bool(false) should return " << "true";
 }
 
@@ -142,17 +161,25 @@ TEST(TestGetValue, integer_value)
     const int64_t int_num = 17.19;
     const int64_t another_int_number = 23.45;
     
-    EXPECT_EQ(json_node(int_num).as_int(), int_num)
+    EXPECT_EQ(json_node(int_num).as_int<int>(), int_num)
                 << "json_node(" << int_num << ").as_double() should return " << int_num;
+    
     EXPECT_EQ(json_node(int_num).as_int(another_int_number), int_num)
                 << "json_node(" << int_num << ").as_double(" << another_int_number << ") should return " << int_num;
+    
     EXPECT_STREQ(json_node(int_num).as_string(), "")
                 << "json_node(" << int_num << ").as_string() should return " << '"' << '"';
+    
     EXPECT_STREQ(json_node(int_num).as_string("babushka"), "babushka")
                 << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
+    EXPECT_STREQ(json_node(int_num).as<const char*>("babushka"), "babushka")
+                << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
 
-    EXPECT_EQ(json_node("babushka").as_int(), 0);
+    EXPECT_EQ(json_node("babushka").as_int<int>(), 0);
+    EXPECT_EQ(json_node("babushka").as<int>(), 0);
+
     EXPECT_EQ(json_node("babushka").as_int(190888), 190888);
+    EXPECT_EQ(json_node("babushka").as<int>(190888), 190888);
 }
 
 TEST(TestGetValue, floating_point_value)

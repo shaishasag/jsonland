@@ -93,7 +93,7 @@ TEST(TestAssign, str_value)
     // check that default value is initialized correctly
     EXPECT_STREQ(jn_str.as_string("????"), "Shmulik") << R"(jn_str = "Shmulik", as_string('????') should return "Shmulik")";
 
-    EXPECT_FALSE(jn_str.is_obj()) << R"(jn_str = "Shmulik", is_obj() should return false)";
+    EXPECT_FALSE(jn_str.is_object()) << R"(jn_str = "Shmulik", is_object() should return false)";
     EXPECT_FALSE(jn_str.is_array()) << R"(jn_str = "Shmulik", is_array() should return false)";
     EXPECT_FALSE(jn_str.is_num()) << R"(jn_str = "Shmulik", is_num() should return false)";
     EXPECT_FALSE(jn_str.is_bool()) << R"(jn_str = "Shmulik", is_bool() should return false)";
@@ -110,10 +110,10 @@ TEST(TestAssign, num_value)
 
     // check that default value is initialized correctly
     EXPECT_EQ(jn17.as_double(), 17.3) << "json_node = 17.3, as_double() should return 17.3";
-    EXPECT_EQ(jn17.as_int(), 17) << "json_node = 17.3, as_int() should return 17";
+    EXPECT_EQ(jn17.as_int<int>(), 17) << "json_node = 17.3, as_int() should return 17";
 
     // check that type is not set incorrectly as another node_type
-    EXPECT_FALSE(jn17.is_obj()) << "json_node = 17.3, is_obj() should return false";
+    EXPECT_FALSE(jn17.is_object()) << "json_node = 17.3, is_object() should return false";
     EXPECT_FALSE(jn17.is_array()) << "json_node = 17.3, is_array() should return false";
     EXPECT_FALSE(jn17.is_string()) << "json_node = 17.3, is_string() should return false";
     EXPECT_FALSE(jn17.is_bool()) << "json_node = 17.3, is_bool() should return false";
@@ -136,8 +136,8 @@ TEST(TestAssign, bool_value)
     EXPECT_TRUE(bool_json_true.as_bool()) << "json_node = true, as_bool() should return true";
 
     // check that type is not set incorrectly as another node_type
-    EXPECT_FALSE(bool_json_false.is_obj()) << "json_node = false, is_obj() should return false";
-    EXPECT_FALSE(bool_json_true.is_obj()) << "json_node = true, is_obj() should return false";
+    EXPECT_FALSE(bool_json_false.is_object()) << "json_node = false, is_object() should return false";
+    EXPECT_FALSE(bool_json_true.is_object()) << "json_node = true, is_object() should return false";
     EXPECT_FALSE(bool_json_false.is_array()) << "json_node = false, is_array() should return false";
     EXPECT_FALSE(bool_json_true.is_array()) << "json_node = true, is_array() should return false";
     EXPECT_FALSE(bool_json_false.is_string()) << "json_node = false, is_string() should return false";
@@ -157,7 +157,7 @@ TEST(TestAssign, null_value)
     EXPECT_TRUE(jn_null.is_null()) << "json_node = nullptr, is_null() should return true";
 
     // check that type is not set incorrectly as another node_type
-    EXPECT_FALSE(jn_null.is_obj()) << "json_node = nullptr, is_obj() should return false";
+    EXPECT_FALSE(jn_null.is_object()) << "json_node = nullptr, is_object() should return false";
     EXPECT_FALSE(jn_null.is_array()) << "json_node = nullptr, is_array() should return false";
     EXPECT_FALSE(jn_null.is_string()) << "json_node = nullptr, is_string() should return false";
     EXPECT_FALSE(jn_null.is_num()) << "json_node = nullptr, is_num() should return false";

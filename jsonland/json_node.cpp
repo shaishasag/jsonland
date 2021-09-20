@@ -291,7 +291,7 @@ std::string json_node::dump() const
 
 std::ostream& json_node::dump(std::ostream& os) const
 {
-    if (is_obj())
+    if (is_object())
     {
         os << '{';
         if (!m_values.empty())
@@ -326,7 +326,7 @@ std::ostream& json_node::dump(std::ostream& os) const
     else if (is_num() && is_number_assigned())
     {
         if (m_hints & _num_is_int)
-            os << as_int();
+            os << as_int<int64_t>();
         else
             os << as_double();
     }
@@ -1038,6 +1038,12 @@ int json_doc::parse_insitu(char* in_json_str, char* in_json_str_end)
     return retVal;
 }
 
+int json_doc::parse_insitu(char* in_json_str, const size_t in_json_str_size)
+{
+    int retVal = parse_insitu(in_json_str, in_json_str+in_json_str_size);
+    return retVal;
+}
+
 int json_doc::parse_insitu(std::string& in_json_str)
 {
     int retVal = parse_insitu(in_json_str.data(), in_json_str.data() + in_json_str.size());
@@ -1059,6 +1065,12 @@ int json_doc::parse(const char* in_json_str, const char* in_json_str_end)
 
     int retVal = parse_insitu(m_json_text);
 
+    return retVal;
+}
+
+int json_doc::parse(const char* in_json_str, const size_t in_json_str_size)
+{
+    int retVal = parse(in_json_str, in_json_str+in_json_str_size);
     return retVal;
 }
 
