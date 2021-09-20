@@ -1,0 +1,720 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC63126D3F8930035D17F /* benchmark_main.cpp */; };
+		F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */; };
+		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
+		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
+		F64C7EF426D79245006E4F12 /* libgtest_main.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F65C68C626C9624900E4AA5F /* libgtest_main.a */; };
+		F64C7EF526D79248006E4F12 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F65C68C726C9624900E4AA5F /* libgtest.a */; };
+		F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611015926CD66F600A01C16 /* create_json_gtests.cpp */; };
+		F64C7EF726D79256006E4F12 /* nlohmann_show.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61926D2527F0035D17F /* nlohmann_show.cpp */; };
+		F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */; };
+		F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC62526D3D9AE0035D17F /* test_compare.cpp */; };
+		F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61C26D2723A0035D17F /* test_ctors.cpp */; };
+		F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6963C5626D4D81000C71771 /* test_escapse.cpp */; };
+		F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61F26D272C40035D17F /* test_assign.cpp */; };
+		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6A8319E26EE636B00806E20 /* test_unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6A8319D26EE636B00806E20 /* test_unicode.cpp */; };
+		F6B0A4BD26D9208600EBBB95 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6B0A4BC26D9208600EBBB95 /* main.cpp */; };
+		F6B18CEE26DBF337000D1F24 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F5A08626EB975E007E11BE /* test_iter.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F64C7F0C26D79718006E4F12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6963C6426D51C1700C71771;
+			remoteInfo = jsonland;
+		};
+		F6963CA326D55F9500C71771 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6963C6426D51C1700C71771;
+			remoteInfo = jsonland;
+		};
+		F6B18CEC26DBF332000D1F24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6963C6426D51C1700C71771;
+			remoteInfo = jsonland;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F60CC62D26D3F8930035D17F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		F64C7EE126D7921C006E4F12 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		F6B0A4B826D9208600EBBB95 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F60CC61726D23F920035D17F /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = nlohmann/single_include/nlohmann/json.hpp; sourceTree = SOURCE_ROOT; };
+		F60CC61926D2527F0035D17F /* nlohmann_show.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = nlohmann_show.cpp; path = jsonland/nlohmann_show.cpp; sourceTree = "<group>"; };
+		F60CC61C26D2723A0035D17F /* test_ctors.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ctors.cpp; path = jsonland/test_ctors.cpp; sourceTree = "<group>"; };
+		F60CC61F26D272C40035D17F /* test_assign.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_assign.cpp; path = jsonland/test_assign.cpp; sourceTree = "<group>"; };
+		F60CC62526D3D9AE0035D17F /* test_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_compare.cpp; path = jsonland/test_compare.cpp; sourceTree = "<group>"; };
+		F60CC62F26D3F8930035D17F /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
+		F60CC63126D3F8930035D17F /* benchmark_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = benchmark_main.cpp; path = benchmark/code/benchmark_main.cpp; sourceTree = SOURCE_ROOT; };
+		F611015926CD66F600A01C16 /* create_json_gtests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = create_json_gtests.cpp; path = jsonland/create_json_gtests.cpp; sourceTree = "<group>"; };
+		F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_json_gtests.cpp; path = jsonland/parse_json_gtests.cpp; sourceTree = "<group>"; };
+		F611016E26CFF47E00A01C16 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
+		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = jsonland/test_parsing_Suites.cpp; sourceTree = "<group>"; };
+		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = jsonland/test_numbers.cpp; sourceTree = "<group>"; };
+		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		F65C68BE26C95D1B00E4AA5F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		F65C68C626C9624900E4AA5F /* libgtest_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest_main.a; path = googletest/build/lib/libgtest_main.a; sourceTree = "<group>"; };
+		F65C68C726C9624900E4AA5F /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = googletest/build/lib/libgtest.a; sourceTree = "<group>"; };
+		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
+		F68EC13E26E23A7600B8BA77 /* json_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_node.h; path = jsonland/json_node.h; sourceTree = SOURCE_ROOT; };
+		F68EC13F26E23A7600B8BA77 /* json_node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_node.cpp; path = jsonland/json_node.cpp; sourceTree = SOURCE_ROOT; };
+		F6963C4526D4C75600C71771 /* rapidjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rapidjson.h; path = rapidjson/include/rapidjson/rapidjson.h; sourceTree = SOURCE_ROOT; };
+		F6963C4826D4C82A00C71771 /* istreamwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = istreamwrapper.h; path = rapidjson/include/rapidjson/istreamwrapper.h; sourceTree = SOURCE_ROOT; };
+		F6963C4926D4C82A00C71771 /* document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = document.h; path = rapidjson/include/rapidjson/document.h; sourceTree = SOURCE_ROOT; };
+		F6963C4A26D4C82A00C71771 /* ostreamwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ostreamwrapper.h; path = rapidjson/include/rapidjson/ostreamwrapper.h; sourceTree = SOURCE_ROOT; };
+		F6963C4B26D4C82A00C71771 /* reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = reader.h; path = rapidjson/include/rapidjson/reader.h; sourceTree = SOURCE_ROOT; };
+		F6963C4C26D4C82A00C71771 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memorystream.h; path = rapidjson/include/rapidjson/memorystream.h; sourceTree = SOURCE_ROOT; };
+		F6963C4D26D4C82A00C71771 /* writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = writer.h; path = rapidjson/include/rapidjson/writer.h; sourceTree = SOURCE_ROOT; };
+		F6963C4E26D4C82A00C71771 /* stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stream.h; path = rapidjson/include/rapidjson/stream.h; sourceTree = SOURCE_ROOT; };
+		F6963C4F26D4C82A00C71771 /* memorybuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memorybuffer.h; path = rapidjson/include/rapidjson/memorybuffer.h; sourceTree = SOURCE_ROOT; };
+		F6963C5026D4C82A00C71771 /* filereadstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filereadstream.h; path = rapidjson/include/rapidjson/filereadstream.h; sourceTree = SOURCE_ROOT; };
+		F6963C5126D4C82A00C71771 /* stringbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringbuffer.h; path = rapidjson/include/rapidjson/stringbuffer.h; sourceTree = SOURCE_ROOT; };
+		F6963C5226D4C82A00C71771 /* filewritestream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filewritestream.h; path = rapidjson/include/rapidjson/filewritestream.h; sourceTree = SOURCE_ROOT; };
+		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = jsonland/test_escapse.cpp; sourceTree = "<group>"; };
+		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = jsonland/test_unicode.cpp; sourceTree = "<group>"; };
+		F6B0A4BA26D9208600EBBB95 /* scrible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scrible; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6B0A4BC26D9208600EBBB95 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = jsonland/test_iter.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F60CC62C26D3F8930035D17F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F64C7EE026D7921C006E4F12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */,
+				F64C7EF426D79245006E4F12 /* libgtest_main.a in Frameworks */,
+				F64C7EF526D79248006E4F12 /* libgtest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6963C6326D51C1700C71771 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6B0A4B726D9208600EBBB95 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6B18CEE26DBF337000D1F24 /* libjsonland.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F60CC63026D3F8930035D17F /* benchmark */ = {
+			isa = PBXGroup;
+			children = (
+				F60CC63126D3F8930035D17F /* benchmark_main.cpp */,
+				F6963C4426D4C6D700C71771 /* rapidjson */,
+				F60CC63826D3F8B10035D17F /* nlohmann */,
+			);
+			path = benchmark;
+			sourceTree = "<group>";
+		};
+		F60CC63826D3F8B10035D17F /* nlohmann */ = {
+			isa = PBXGroup;
+			children = (
+				F60CC61726D23F920035D17F /* json.hpp */,
+			);
+			name = nlohmann;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		F64C7EE426D7921C006E4F12 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
+				F611015926CD66F600A01C16 /* create_json_gtests.cpp */,
+				F60CC61926D2527F0035D17F /* nlohmann_show.cpp */,
+				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
+				F60CC61F26D272C40035D17F /* test_assign.cpp */,
+				F60CC62526D3D9AE0035D17F /* test_compare.cpp */,
+				F6963C5626D4D81000C71771 /* test_escapse.cpp */,
+				F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */,
+				F62C079626E8AAAB004DDA5D /* test_numbers.cpp */,
+				F6F5A08626EB975E007E11BE /* test_iter.cpp */,
+				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		F65C68B226C95D1A00E4AA5F = {
+			isa = PBXGroup;
+			children = (
+				F611016E26CFF47E00A01C16 /* todo.txt */,
+				F65C68BD26C95D1B00E4AA5F /* jsonland */,
+				F60CC63026D3F8930035D17F /* benchmark */,
+				F65C68CA26C9624F00E4AA5F /* gtest */,
+				F64C7EE426D7921C006E4F12 /* test */,
+				F6B0A4BB26D9208600EBBB95 /* scrible */,
+				F65C68BC26C95D1B00E4AA5F /* Products */,
+				F6963CA526D55F9B00C71771 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		F65C68BC26C95D1B00E4AA5F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F60CC62F26D3F8930035D17F /* benchmark */,
+				F6963C6526D51C1700C71771 /* libjsonland.a */,
+				F64C7EE326D7921C006E4F12 /* test */,
+				F6B0A4BA26D9208600EBBB95 /* scrible */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F65C68BD26C95D1B00E4AA5F /* jsonland */ = {
+			isa = PBXGroup;
+			children = (
+				F68EC13E26E23A7600B8BA77 /* json_node.h */,
+				F68EC13F26E23A7600B8BA77 /* json_node.cpp */,
+				F65C68BE26C95D1B00E4AA5F /* main.cpp */,
+			);
+			path = jsonland;
+			sourceTree = "<group>";
+		};
+		F65C68CA26C9624F00E4AA5F /* gtest */ = {
+			isa = PBXGroup;
+			children = (
+				F65C68CB26C9629100E4AA5F /* gtest.h */,
+				F65C68C626C9624900E4AA5F /* libgtest_main.a */,
+				F65C68C726C9624900E4AA5F /* libgtest.a */,
+			);
+			name = gtest;
+			sourceTree = "<group>";
+		};
+		F6963C4426D4C6D700C71771 /* rapidjson */ = {
+			isa = PBXGroup;
+			children = (
+				F6963C4926D4C82A00C71771 /* document.h */,
+				F6963C5026D4C82A00C71771 /* filereadstream.h */,
+				F6963C5226D4C82A00C71771 /* filewritestream.h */,
+				F6963C4826D4C82A00C71771 /* istreamwrapper.h */,
+				F6963C4F26D4C82A00C71771 /* memorybuffer.h */,
+				F6963C4C26D4C82A00C71771 /* memorystream.h */,
+				F6963C4A26D4C82A00C71771 /* ostreamwrapper.h */,
+				F6963C4B26D4C82A00C71771 /* reader.h */,
+				F6963C4E26D4C82A00C71771 /* stream.h */,
+				F6963C5126D4C82A00C71771 /* stringbuffer.h */,
+				F6963C4D26D4C82A00C71771 /* writer.h */,
+				F6963C4526D4C75600C71771 /* rapidjson.h */,
+			);
+			name = rapidjson;
+			sourceTree = "<group>";
+		};
+		F6963CA526D55F9B00C71771 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F6B0A4BB26D9208600EBBB95 /* scrible */ = {
+			isa = PBXGroup;
+			children = (
+				F6B0A4BC26D9208600EBBB95 /* main.cpp */,
+			);
+			path = scrible;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F6963C6126D51C1700C71771 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		F60CC62E26D3F8930035D17F /* benchmark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F60CC63526D3F8930035D17F /* Build configuration list for PBXNativeTarget "benchmark" */;
+			buildPhases = (
+				F60CC62B26D3F8930035D17F /* Sources */,
+				F60CC62C26D3F8930035D17F /* Frameworks */,
+				F60CC62D26D3F8930035D17F /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6963CA426D55F9500C71771 /* PBXTargetDependency */,
+			);
+			name = benchmark;
+			productName = benchmark;
+			productReference = F60CC62F26D3F8930035D17F /* benchmark */;
+			productType = "com.apple.product-type.tool";
+		};
+		F64C7EE226D7921C006E4F12 /* test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test" */;
+			buildPhases = (
+				F64C7EDF26D7921C006E4F12 /* Sources */,
+				F64C7EE026D7921C006E4F12 /* Frameworks */,
+				F64C7EE126D7921C006E4F12 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F64C7F0D26D79718006E4F12 /* PBXTargetDependency */,
+			);
+			name = test;
+			productName = test;
+			productReference = F64C7EE326D7921C006E4F12 /* test */;
+			productType = "com.apple.product-type.tool";
+		};
+		F6963C6426D51C1700C71771 /* jsonland */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6963C6626D51C1700C71771 /* Build configuration list for PBXNativeTarget "jsonland" */;
+			buildPhases = (
+				F6963C6126D51C1700C71771 /* Headers */,
+				F6963C6226D51C1700C71771 /* Sources */,
+				F6963C6326D51C1700C71771 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = jsonland;
+			productName = jsonland;
+			productReference = F6963C6526D51C1700C71771 /* libjsonland.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		F6B0A4B926D9208600EBBB95 /* scrible */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6B0A4BE26D9208600EBBB95 /* Build configuration list for PBXNativeTarget "scrible" */;
+			buildPhases = (
+				F6B0A4B626D9208600EBBB95 /* Sources */,
+				F6B0A4B726D9208600EBBB95 /* Frameworks */,
+				F6B0A4B826D9208600EBBB95 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6B18CED26DBF332000D1F24 /* PBXTargetDependency */,
+			);
+			name = scrible;
+			productName = scrible;
+			productReference = F6B0A4BA26D9208600EBBB95 /* scrible */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F65C68B326C95D1A00E4AA5F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					F60CC62E26D3F8930035D17F = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					F64C7EE226D7921C006E4F12 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					F6963C6426D51C1700C71771 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					F6B0A4B926D9208600EBBB95 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = F65C68B626C95D1A00E4AA5F /* Build configuration list for PBXProject "jsonland" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F65C68B226C95D1A00E4AA5F;
+			productRefGroup = F65C68BC26C95D1B00E4AA5F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F60CC62E26D3F8930035D17F /* benchmark */,
+				F6963C6426D51C1700C71771 /* jsonland */,
+				F64C7EE226D7921C006E4F12 /* test */,
+				F6B0A4B926D9208600EBBB95 /* scrible */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F60CC62B26D3F8930035D17F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F64C7EDF26D7921C006E4F12 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6A8319E26EE636B00806E20 /* test_unicode.cpp in Sources */,
+				F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */,
+				F64C7EF726D79256006E4F12 /* nlohmann_show.cpp in Sources */,
+				F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */,
+				F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */,
+				F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */,
+				F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */,
+				F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */,
+				F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */,
+				F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */,
+				F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6963C6226D51C1700C71771 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F62C079026E77696004DDA5D /* json_node.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6B0A4B626D9208600EBBB95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6B0A4BD26D9208600EBBB95 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F64C7F0D26D79718006E4F12 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6963C6426D51C1700C71771 /* jsonland */;
+			targetProxy = F64C7F0C26D79718006E4F12 /* PBXContainerItemProxy */;
+		};
+		F6963CA426D55F9500C71771 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6963C6426D51C1700C71771 /* jsonland */;
+			targetProxy = F6963CA326D55F9500C71771 /* PBXContainerItemProxy */;
+		};
+		F6B18CED26DBF332000D1F24 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6963C6426D51C1700C71771 /* jsonland */;
+			targetProxy = F6B18CEC26DBF332000D1F24 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F60CC63326D3F8930035D17F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F60CC63426D3F8930035D17F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F64C7EE726D7921C006E4F12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/googletest/build/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F64C7EE826D7921C006E4F12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/googletest/build/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F65C68C026C95D1B00E4AA5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					rapidjson/include,
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+				);
+			};
+			name = Debug;
+		};
+		F65C68C126C95D1B00E4AA5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					rapidjson/include,
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+				);
+			};
+			name = Release;
+		};
+		F6963C6726D51C1700C71771 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		F6963C6826D51C1700C71771 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		F6B0A4BF26D9208600EBBB95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F6B0A4C026D9208600EBBB95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F60CC63526D3F8930035D17F /* Build configuration list for PBXNativeTarget "benchmark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F60CC63326D3F8930035D17F /* Debug */,
+				F60CC63426D3F8930035D17F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F64C7EE726D7921C006E4F12 /* Debug */,
+				F64C7EE826D7921C006E4F12 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F65C68B626C95D1A00E4AA5F /* Build configuration list for PBXProject "jsonland" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F65C68C026C95D1B00E4AA5F /* Debug */,
+				F65C68C126C95D1B00E4AA5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6963C6626D51C1700C71771 /* Build configuration list for PBXNativeTarget "jsonland" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6963C6726D51C1700C71771 /* Debug */,
+				F6963C6826D51C1700C71771 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6B0A4BE26D9208600EBBB95 /* Build configuration list for PBXNativeTarget "scrible" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6B0A4BF26D9208600EBBB95 /* Debug */,
+				F6B0A4C026D9208600EBBB95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F65C68B326C95D1A00E4AA5F /* Project object */;
+}
