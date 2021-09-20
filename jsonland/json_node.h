@@ -33,6 +33,19 @@
 namespace jsonland
 {
 
+
+enum node_type : uint32_t
+{
+    _uninitialized = 0,
+    _null = 1<<0,
+    _bool = 1<<1,
+    _number = 1<<2,
+    _string = 1<<3,
+    _array = 1<<4,
+    _object = 1<<5,
+};
+
+
 namespace parser_impl { class Parser; }
 
 class json_node
@@ -236,6 +249,10 @@ private:
     using IsInt = std::enable_if_t<std::is_integral<INT>::value && !std::is_same<bool, INT>::value && !std::is_same<char, INT>::value>;
 
     template<typename NUM> using IsNum = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) || std::is_floating_point<NUM>::value>;
+    
+    template<typename NUM> using IsInteger = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) && !std::is_floating_point<NUM>::value>;
+    
+    template<typename NUM> using IsFloat = std::enable_if_t<std::is_floating_point<NUM>::value>;
 
     template<typename TBOOL> using IsBool = std::enable_if_t<std::is_same<bool, TBOOL>::value>;
     template<typename TCHAR> using IsChar = std::enable_if_t<std::is_same<char, TCHAR>::value>;
@@ -247,21 +264,9 @@ public:
     using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
     using ArrayVec = std::vector<json_node>;
 
-    enum node_type : uint32_t
-    {
-        node_type_uninitialized = 0,
-        node_type_null = 1<<0,
-        node_type_bool = 1<<1,
-        node_type_num = 1<<2,
-        node_type_str = 1<<3,
-        node_type_array = 1<<4,
-        node_type_obj = 1<<5,
-    };
-
 private:
 
     static constexpr std::string_view the_empty_string_view{""};
-    static constexpr std::string_view the_zero_string_view{"0"};
     static constexpr std::string_view the_false_string_view{"false"};
     static constexpr std::string_view the_true_string_view{"true"};
     static constexpr std::string_view the_null_string_view{"null"};
@@ -269,15 +274,17 @@ private:
     enum hints : uint32_t
     {
         hint_none = 0,
-        hint_no_escapes = 1<<1,  // no escaped or non ascii characters
-        hint_has_escapes = 1<<2, // has escaped characters
-        hint_has_resolved_escapes = 1<<3, // has non ascii characters or chars that need escaping, '\n', '\r', ...
-        hint_has_mixed_escapes = 1<<4, // should not happen...
+        _num_is_int = 1<<1,
+//        hint_no_escapes = 1<<1,  // no escaped or non ascii characters
+//        hint_has_escapes = 1<<2, // has escaped characters
+//        hint_has_resolved_escapes = 1<<3, // has non ascii characters or chars that need escaping, '\n', '\r', ...
+//        hint_has_mixed_escapes = 1<<4, // should not happen...
     };
     
-    node_type m_node_type = node_type_null;
+    node_type m_node_type = _null;
     mutable string_or_view m_str_v{the_null_string_view};
     double m_num = 0.0;
+    hints m_hints = hint_none;
 
     ArrayVec m_values;
     KeyToIndex m_obj_key_to_index;
@@ -291,18 +298,18 @@ public:
     json_node& operator=(const json_node& in_node);
     json_node& operator=(json_node&& in_node);
 
-    inline explicit json_node(json_node::node_type in_type)
+    inline explicit json_node(jsonland::node_type in_type)
     : m_node_type(in_type)
     {
         switch (m_node_type)
         {
-            case node_type_null:
+            case _null:
                 m_str_v = the_null_string_view;
             break;
-            case node_type_num:
+            case _number:
                 m_str_v = the_empty_string_view;
             break;
-            case node_type_bool:
+            case _bool:
                 m_str_v = the_false_string_view;
             break;
             default:
@@ -312,7 +319,7 @@ public:
         m_str_v.m_num_escapes = 0;
    }
 
-    inline json_node& operator=(json_node::node_type in_type)
+    inline json_node& operator=(jsonland::node_type in_type)
     {
         clear(in_type);
         return *this;
@@ -320,25 +327,25 @@ public:
 
     json_node& operator=(const std::string_view in_str)
     {
-        clear(node_type_str);
+        clear(_string);
         m_str_v.reference_value(in_str);
         return *this;
     }
 
     json_node(const std::string& in_string)
-    : m_node_type(node_type_str)
+    : m_node_type(_string)
     {
         m_str_v.store_value_deal_with_escapes(in_string.c_str());
     }
     json_node& operator=(const std::string& in_string)
     {
-        clear(node_type_str);
+        clear(_string);
         m_str_v.store_value_deal_with_escapes(in_string.c_str());
         return *this;
     }
 
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    explicit json_node(const TCHAR in_str[], json_node::node_type in_type=node_type_str)
+    explicit json_node(const TCHAR in_str[], jsonland::node_type in_type=_string)
     : m_node_type(in_type)
     {
         m_str_v.store_value_deal_with_escapes(in_str);
@@ -346,24 +353,44 @@ public:
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
     json_node& operator=(const TCHAR in_str[])
     {
-        clear(node_type_str);
+        clear(_string);
         m_str_v.store_value_deal_with_escapes(in_str);
         return *this;
     }
 
-    //--- number constructor
-    template <typename NUM, IsNum<NUM>* = nullptr >
+    //--- integer constructor
+    template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node(const NUM in_num)
-    : m_node_type(node_type_num)
-    , m_num(static_cast<double>(in_num))
+    : m_node_type(_number)
     , m_str_v()
+    , m_num(static_cast<double>(in_num))
+    , m_hints(_num_is_int)
     {}
     // assign number
-    template <typename NUM, IsNum<NUM>* = nullptr >
+    template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node& operator=(const NUM in_num)
     {
-        clear(node_type_num);
+        clear(_number);
         m_num = static_cast<double>(in_num);
+        m_hints = static_cast<hints>(m_hints | _num_is_int);
+        
+        return *this;
+    }
+    //...
+    //--- float constructor
+    template <typename NUM, IsFloat<NUM>* = nullptr >
+    json_node(const NUM in_num)
+    : m_node_type(_number)
+    , m_str_v()
+    , m_num(static_cast<double>(in_num))
+    {}
+    // assign number
+    template <typename NUM, IsFloat<NUM>* = nullptr >
+    json_node& operator=(const NUM in_num)
+    {
+        clear(_number);
+        m_num = static_cast<double>(in_num);
+        m_hints = static_cast<hints>(m_hints & ~_num_is_int);
 
         return *this;
     }
@@ -372,14 +399,14 @@ public:
     //--- bool constructor
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
     explicit json_node(const TBOOL in_bool)
-    : m_node_type(node_type_bool)
+    : m_node_type(_bool)
     , m_str_v(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
     json_node& operator=(const TBOOL in_bool)
     {
-        clear(node_type_bool);
+        clear(_bool);
         m_str_v.reference_value(in_bool ? the_true_string_view : the_false_string_view);
         return *this;
     }
@@ -394,12 +421,12 @@ public:
     template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
     json_node& operator=(TNULLPTR)
     {
-        clear(node_type_null);
+        clear(_null);
         return *this;
     }
     //...
 
-    void clear(const node_type in_new_type=node_type_null)
+    void clear(const node_type in_new_type=_null)
     {
         m_node_type = in_new_type;
         m_obj_key_to_index.clear();
@@ -407,13 +434,13 @@ public:
         m_str_v.clear();
         switch (m_node_type)
         {
-            case node_type_null:
+            case _null:
                 m_str_v = the_null_string_view;
             break;
-            case node_type_num:
+            case _number:
                 m_str_v = the_empty_string_view;
             break;
-            case node_type_bool:
+            case _bool:
                 m_str_v = the_false_string_view;
             break;
             default:
@@ -425,13 +452,14 @@ public:
     }
 
 
-    inline json_node::node_type type() const {return m_node_type;}
-    inline bool is_null() const {return node_type_null == m_node_type;}
-    inline bool is_obj() const {return node_type_obj == m_node_type;}
-    inline bool is_array() const {return node_type_array == m_node_type;}
-    inline bool is_string() const {return node_type_str == m_node_type;}
-    inline bool is_num() const {return node_type_num == m_node_type;}
-    inline bool is_bool() const {return node_type_bool == m_node_type;}
+    inline jsonland::node_type type() const {return m_node_type;}
+    inline bool is_type(jsonland::node_type in_type) {return in_type == m_node_type;}
+    inline bool is_null() const {return _null == m_node_type;}
+    inline bool is_obj() const {return _object == m_node_type;}
+    inline bool is_array() const {return _array == m_node_type;}
+    inline bool is_string() const {return _string == m_node_type;}
+    inline bool is_num() const {return _number == m_node_type;}
+    inline bool is_bool() const {return _bool == m_node_type;}
     inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
     inline bool is_valid() const {return is_scalar() || is_array() || is_obj() || is_null();}
 
@@ -440,12 +468,12 @@ public:
         size_t retVal = 0;
         switch (type())
         {
-            case node_type_obj: retVal = m_values.size(); break;
-            case node_type_array: retVal = m_values.size(); break;
-            case node_type_str: retVal = 1; break;  // one string, not the size of the string
-            case node_type_num: retVal = 1; break;
-            case node_type_bool: retVal = 1; break;
-            case node_type_null:
+            case _object: retVal = m_values.size(); break;
+            case _array: retVal = m_values.size(); break;
+            case _string: retVal = 1; break;  // one string, not the size of the string
+            case _number: retVal = 1; break;
+            case _bool: retVal = 1; break;
+            case _null:
             default:
                 break;
 
@@ -695,30 +723,30 @@ public:
 
 protected:
 
-    inline json_node(char* in_c_str, size_t in_str_size, json_node::node_type in_type)
+    inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     : m_node_type(in_type)
     , m_str_v(in_c_str, in_str_size)
     {
     }
-    inline json_node(const std::string_view& in_string_view, json_node::node_type in_type)
+    inline json_node(const std::string_view& in_string_view, jsonland::node_type in_type)
     : m_node_type(in_type)
     , m_str_v(in_string_view)
     {}
 
     // for parser use, *this is assumed to be freshly constructed, so no need to call clear
-    inline void parser_direct_set(string_or_view&& in_str, json_node::node_type in_type)
+    inline void parser_direct_set(string_or_view&& in_str, jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
         m_str_v = in_str;
     }
-    inline void parser_direct_set(char* in_c_str, size_t in_str_size, json_node::node_type in_type)
+    inline void parser_direct_set(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
         m_str_v.reference_value(in_c_str, in_str_size);
     }
-    inline void parser_direct_set(json_node::node_type in_type)
+    inline void parser_direct_set(jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
@@ -741,7 +769,7 @@ class json_doc : public json_node
 {
 public:
     
-    inline explicit json_doc(json_node::node_type in_type) :  json_node(in_type) {}
+    inline explicit json_doc(jsonland::node_type in_type) :  json_node(in_type) {}
     json_doc() = default;
     ~json_doc() = default;
 //    json_doc(const json_node& in_node);

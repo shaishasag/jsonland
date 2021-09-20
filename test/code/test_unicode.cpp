@@ -93,7 +93,7 @@ TEST(Unicode, compare_unescaped_initialization)
 
     std::cout << "---";
     
-    jsonland::json_doc landoc(json_node::node_type_obj);
+    jsonland::json_doc landoc(jsonland::node_type::_object);
     landoc["🏡"] = "🏣";
     landoc["🏡"] = "house";
     landoc["post-office"] = "🏣";

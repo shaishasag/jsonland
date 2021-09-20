@@ -29,8 +29,8 @@ TEST(TestCompare, numbers)
     auto num2_text = "1.000000000000000012";
     double num2_binary = 1.000000000000000012;
 
-    json_node jn_num1(num1_text, json_node::node_type_num);
-    json_node jn_num2(num2_text, json_node::node_type_num);
+    json_node jn_num1(num1_text, jsonland::node_type::_number);
+    json_node jn_num2(num2_text, jsonland::node_type::_number);
     EXPECT_NE(jn_num1, jn_num2); // not equal since both constructed with strings but the strings are different
 
     auto as_num1 = jn_num1.as_double();

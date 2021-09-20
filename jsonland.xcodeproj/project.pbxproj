@@ -85,18 +85,17 @@
 /* Begin PBXFileReference section */
 		F60CC61726D23F920035D17F /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = nlohmann/single_include/nlohmann/json.hpp; sourceTree = SOURCE_ROOT; };
 		F60CC61926D2527F0035D17F /* nlohmann_show.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = nlohmann_show.cpp; path = jsonland/nlohmann_show.cpp; sourceTree = "<group>"; };
-		F60CC61C26D2723A0035D17F /* test_ctors.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ctors.cpp; path = jsonland/test_ctors.cpp; sourceTree = "<group>"; };
-		F60CC61F26D272C40035D17F /* test_assign.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_assign.cpp; path = jsonland/test_assign.cpp; sourceTree = "<group>"; };
-		F60CC62526D3D9AE0035D17F /* test_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_compare.cpp; path = jsonland/test_compare.cpp; sourceTree = "<group>"; };
+		F60CC61C26D2723A0035D17F /* test_ctors.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ctors.cpp; path = test/code/test_ctors.cpp; sourceTree = "<group>"; };
+		F60CC61F26D272C40035D17F /* test_assign.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_assign.cpp; path = test/code/test_assign.cpp; sourceTree = "<group>"; };
+		F60CC62526D3D9AE0035D17F /* test_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_compare.cpp; path = test/code/test_compare.cpp; sourceTree = "<group>"; };
 		F60CC62F26D3F8930035D17F /* benchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = benchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		F60CC63126D3F8930035D17F /* benchmark_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = benchmark_main.cpp; path = benchmark/code/benchmark_main.cpp; sourceTree = SOURCE_ROOT; };
-		F611015926CD66F600A01C16 /* create_json_gtests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = create_json_gtests.cpp; path = jsonland/create_json_gtests.cpp; sourceTree = "<group>"; };
-		F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_json_gtests.cpp; path = jsonland/parse_json_gtests.cpp; sourceTree = "<group>"; };
+		F611015926CD66F600A01C16 /* create_json_gtests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = create_json_gtests.cpp; path = test/code/create_json_gtests.cpp; sourceTree = "<group>"; };
+		F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_json_gtests.cpp; path = test/code/parse_json_gtests.cpp; sourceTree = "<group>"; };
 		F611016E26CFF47E00A01C16 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
-		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = jsonland/test_parsing_Suites.cpp; sourceTree = "<group>"; };
-		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = jsonland/test_numbers.cpp; sourceTree = "<group>"; };
+		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
+		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
-		F65C68BE26C95D1B00E4AA5F /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F65C68C626C9624900E4AA5F /* libgtest_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest_main.a; path = googletest/build/lib/libgtest_main.a; sourceTree = "<group>"; };
 		F65C68C726C9624900E4AA5F /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = googletest/build/lib/libgtest.a; sourceTree = "<group>"; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
@@ -114,12 +113,12 @@
 		F6963C5026D4C82A00C71771 /* filereadstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filereadstream.h; path = rapidjson/include/rapidjson/filereadstream.h; sourceTree = SOURCE_ROOT; };
 		F6963C5126D4C82A00C71771 /* stringbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringbuffer.h; path = rapidjson/include/rapidjson/stringbuffer.h; sourceTree = SOURCE_ROOT; };
 		F6963C5226D4C82A00C71771 /* filewritestream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filewritestream.h; path = rapidjson/include/rapidjson/filewritestream.h; sourceTree = SOURCE_ROOT; };
-		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = jsonland/test_escapse.cpp; sourceTree = "<group>"; };
+		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = test/code/test_escapse.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = jsonland/test_unicode.cpp; sourceTree = "<group>"; };
+		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6B0A4BA26D9208600EBBB95 /* scrible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scrible; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6B0A4BC26D9208600EBBB95 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = jsonland/test_iter.cpp; sourceTree = "<group>"; };
+		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,7 +225,6 @@
 			children = (
 				F68EC13E26E23A7600B8BA77 /* json_node.h */,
 				F68EC13F26E23A7600B8BA77 /* json_node.cpp */,
-				F65C68BE26C95D1B00E4AA5F /* main.cpp */,
 			);
 			path = jsonland;
 			sourceTree = "<group>";
