@@ -66,10 +66,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--gtest_filter=Numbers.*"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--gtest_filter=TestSuite.*"
+            argument = "--gtest_filter=string_or_view.*"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

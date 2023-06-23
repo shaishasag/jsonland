@@ -637,7 +637,9 @@ namespace parser_impl
             {
                 *const_cast<char*>(m_curr_char) = '\0';
                 
-                json_node::string_or_view sov(str_start, m_curr_char-str_start, num_escapes);
+                json_node::string_or_view sov(m_curr_char-str_start,
+                                              str_start,
+                                              num_escapes);
                 out_node.parser_direct_set(std::move(sov), jsonland::node_type::_string);
                 next_char();
                 retVal = true;
@@ -656,7 +658,7 @@ namespace parser_impl
             char* str_start = m_curr_char;
             char curr_char = *m_curr_char;
 
-            // number should start with '-' or a digit
+            // json number should start with '-' or a digit
             if ('-' == curr_char)
                 curr_char = next_char();
 
@@ -728,7 +730,13 @@ after_exponent:
             }
 
 scan_number_done:
-            json_node::string_or_view sov(str_start, m_curr_char-str_start, 0);
+            json_node::string_or_view sov(m_curr_char-str_start,
+                                          str_start,
+                                          0);
+#if JSONLAND_DEBUG==1
+// in release build the number is translated from text only when to_double/to_int is called
+            out_node.m_num = std::atof(sov.data());
+#endif
             out_node.parser_direct_set(std::move(sov), jsonland::node_type::_number);
             return true;
         }
@@ -995,13 +1003,14 @@ public:
 
                 if (is_there_more_data())
                 {
+                    // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
                     bool found_json = get_next_node(m_top_node);
                     if (found_json && m_top_node.is_valid())
                     {
                         // check that remaing characters are only whitespace
-                        int remaining_chars = skip_whitespace();
-                        if (0 < remaining_chars)
+                        int num_remaining_non_whitespace_chars = skip_whitespace();
+                        if (0 < num_remaining_non_whitespace_chars)
                         {
                             throw parsing_exception("Invalid characters after json", curr_offset());
                         }

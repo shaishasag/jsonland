@@ -29,6 +29,7 @@
 #endif
 #endif
 
+// #define JSONLAND_DEBUG
 
 namespace jsonland
 {
@@ -62,8 +63,8 @@ public:
     // in both cases m_str_view always refers to the string
     // escape situation can be:
     // m_num_escapes == -1 - unknown
-    // m_num_escapes == 0 - no escpaes were found
-    // m_num_escapes > 0 - some escpaes were found
+    // m_num_escapes == 0 - no escapes were found
+    // m_num_escapes > 0 - some escapes were found
     class string_or_view
     {
     public:
@@ -73,7 +74,7 @@ public:
         int m_num_escapes = -1;
 
         string_or_view() = default;
-        string_or_view(const char* in_str, const size_t in_str_size, const int in_num_escapes=-1)
+            string_or_view(const size_t in_str_size, const char* in_str, const int in_num_escapes=-1)
         : m_str()
         , m_str_view(in_str, in_str_size)
         , m_num_escapes(in_num_escapes)
@@ -755,7 +756,7 @@ protected:
 
     inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     : m_node_type(in_type)
-    , m_str_v(in_c_str, in_str_size)
+    , m_str_v(in_str_size, in_c_str)
     {
     }
     inline json_node(const std::string_view& in_string_view, jsonland::node_type in_type)

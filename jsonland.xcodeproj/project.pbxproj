@@ -8,13 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC63126D3F8930035D17F /* benchmark_main.cpp */; };
+		F617B2BA2971B644007A0D81 /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2B22971B1EC007A0D81 /* gtest-all.cc */; };
+		F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
 		F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
-		F64C7EF426D79245006E4F12 /* libgtest_main.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F65C68C626C9624900E4AA5F /* libgtest_main.a */; };
-		F64C7EF526D79248006E4F12 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F65C68C726C9624900E4AA5F /* libgtest.a */; };
 		F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611015926CD66F600A01C16 /* create_json_gtests.cpp */; };
-		F64C7EF726D79256006E4F12 /* nlohmann_show.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61926D2527F0035D17F /* nlohmann_show.cpp */; };
 		F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */; };
 		F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC62526D3D9AE0035D17F /* test_compare.cpp */; };
 		F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61C26D2723A0035D17F /* test_ctors.cpp */; };
@@ -23,9 +22,8 @@
 		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6A8319E26EE636B00806E20 /* test_unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6A8319D26EE636B00806E20 /* test_unicode.cpp */; };
-		F6B0A4BD26D9208600EBBB95 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6B0A4BC26D9208600EBBB95 /* main.cpp */; };
-		F6B18CEE26DBF337000D1F24 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F5A08626EB975E007E11BE /* test_iter.cpp */; };
+		F6FF2B652A32226A00E662D2 /* test_string_or_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,13 +35,6 @@
 			remoteInfo = jsonland;
 		};
 		F6963CA326D55F9500C71771 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F6963C6426D51C1700C71771;
-			remoteInfo = jsonland;
-		};
-		F6B18CEC26DBF332000D1F24 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
 			proxyType = 1;
@@ -71,20 +62,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		F6B0A4B826D9208600EBBB95 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F60CC61726D23F920035D17F /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = nlohmann/single_include/nlohmann/json.hpp; sourceTree = SOURCE_ROOT; };
-		F60CC61926D2527F0035D17F /* nlohmann_show.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = nlohmann_show.cpp; path = jsonland/nlohmann_show.cpp; sourceTree = "<group>"; };
 		F60CC61C26D2723A0035D17F /* test_ctors.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ctors.cpp; path = test/code/test_ctors.cpp; sourceTree = "<group>"; };
 		F60CC61F26D272C40035D17F /* test_assign.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_assign.cpp; path = test/code/test_assign.cpp; sourceTree = "<group>"; };
 		F60CC62526D3D9AE0035D17F /* test_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_compare.cpp; path = test/code/test_compare.cpp; sourceTree = "<group>"; };
@@ -93,11 +74,11 @@
 		F611015926CD66F600A01C16 /* create_json_gtests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = create_json_gtests.cpp; path = test/code/create_json_gtests.cpp; sourceTree = "<group>"; };
 		F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_json_gtests.cpp; path = test/code/parse_json_gtests.cpp; sourceTree = "<group>"; };
 		F611016E26CFF47E00A01C16 /* todo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
+		F617B2A82971B182007A0D81 /* gtest_main.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = googletest/googletest/src/gtest_main.cc; sourceTree = "<group>"; };
+		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
-		F65C68C626C9624900E4AA5F /* libgtest_main.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest_main.a; path = googletest/build/lib/libgtest_main.a; sourceTree = "<group>"; };
-		F65C68C726C9624900E4AA5F /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgtest.a; path = googletest/build/lib/libgtest.a; sourceTree = "<group>"; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
 		F68EC13E26E23A7600B8BA77 /* json_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_node.h; path = jsonland/json_node.h; sourceTree = SOURCE_ROOT; };
 		F68EC13F26E23A7600B8BA77 /* json_node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_node.cpp; path = jsonland/json_node.cpp; sourceTree = SOURCE_ROOT; };
@@ -116,9 +97,8 @@
 		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = test/code/test_escapse.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
-		F6B0A4BA26D9208600EBBB95 /* scrible */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scrible; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6B0A4BC26D9208600EBBB95 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
+		F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_string_or_view.cpp; path = test/code/test_string_or_view.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,8 +115,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */,
-				F64C7EF426D79245006E4F12 /* libgtest_main.a in Frameworks */,
-				F64C7EF526D79248006E4F12 /* libgtest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,14 +122,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F6B0A4B726D9208600EBBB95 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F6B18CEE26DBF337000D1F24 /* libjsonland.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +152,6 @@
 			children = (
 				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
 				F611015926CD66F600A01C16 /* create_json_gtests.cpp */,
-				F60CC61926D2527F0035D17F /* nlohmann_show.cpp */,
 				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
 				F60CC61F26D272C40035D17F /* test_assign.cpp */,
 				F60CC62526D3D9AE0035D17F /* test_compare.cpp */,
@@ -191,6 +160,7 @@
 				F62C079626E8AAAB004DDA5D /* test_numbers.cpp */,
 				F6F5A08626EB975E007E11BE /* test_iter.cpp */,
 				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
+				F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -203,7 +173,6 @@
 				F60CC63026D3F8930035D17F /* benchmark */,
 				F65C68CA26C9624F00E4AA5F /* gtest */,
 				F64C7EE426D7921C006E4F12 /* test */,
-				F6B0A4BB26D9208600EBBB95 /* scrible */,
 				F65C68BC26C95D1B00E4AA5F /* Products */,
 				F6963CA526D55F9B00C71771 /* Frameworks */,
 			);
@@ -215,7 +184,6 @@
 				F60CC62F26D3F8930035D17F /* benchmark */,
 				F6963C6526D51C1700C71771 /* libjsonland.a */,
 				F64C7EE326D7921C006E4F12 /* test */,
-				F6B0A4BA26D9208600EBBB95 /* scrible */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -233,8 +201,8 @@
 			isa = PBXGroup;
 			children = (
 				F65C68CB26C9629100E4AA5F /* gtest.h */,
-				F65C68C626C9624900E4AA5F /* libgtest_main.a */,
-				F65C68C726C9624900E4AA5F /* libgtest.a */,
+				F617B2B22971B1EC007A0D81 /* gtest-all.cc */,
+				F617B2A82971B182007A0D81 /* gtest_main.cc */,
 			);
 			name = gtest;
 			sourceTree = "<group>";
@@ -263,14 +231,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		F6B0A4BB26D9208600EBBB95 /* scrible */ = {
-			isa = PBXGroup;
-			children = (
-				F6B0A4BC26D9208600EBBB95 /* main.cpp */,
-			);
-			path = scrible;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -339,24 +299,6 @@
 			productReference = F6963C6526D51C1700C71771 /* libjsonland.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		F6B0A4B926D9208600EBBB95 /* scrible */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F6B0A4BE26D9208600EBBB95 /* Build configuration list for PBXNativeTarget "scrible" */;
-			buildPhases = (
-				F6B0A4B626D9208600EBBB95 /* Sources */,
-				F6B0A4B726D9208600EBBB95 /* Frameworks */,
-				F6B0A4B826D9208600EBBB95 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F6B18CED26DBF332000D1F24 /* PBXTargetDependency */,
-			);
-			name = scrible;
-			productName = scrible;
-			productReference = F6B0A4BA26D9208600EBBB95 /* scrible */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -372,9 +314,6 @@
 						CreatedOnToolsVersion = 12.4;
 					};
 					F6963C6426D51C1700C71771 = {
-						CreatedOnToolsVersion = 12.4;
-					};
-					F6B0A4B926D9208600EBBB95 = {
 						CreatedOnToolsVersion = 12.4;
 					};
 				};
@@ -395,7 +334,6 @@
 				F60CC62E26D3F8930035D17F /* benchmark */,
 				F6963C6426D51C1700C71771 /* jsonland */,
 				F64C7EE226D7921C006E4F12 /* test */,
-				F6B0A4B926D9208600EBBB95 /* scrible */,
 			);
 		};
 /* End PBXProject section */
@@ -415,12 +353,14 @@
 			files = (
 				F6A8319E26EE636B00806E20 /* test_unicode.cpp in Sources */,
 				F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */,
-				F64C7EF726D79256006E4F12 /* nlohmann_show.cpp in Sources */,
+				F6FF2B652A32226A00E662D2 /* test_string_or_view.cpp in Sources */,
 				F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */,
 				F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */,
+				F617B2BA2971B644007A0D81 /* gtest-all.cc in Sources */,
 				F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */,
 				F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */,
 				F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */,
+				F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */,
 				F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */,
 				F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */,
 				F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */,
@@ -432,14 +372,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F62C079026E77696004DDA5D /* json_node.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F6B0A4B626D9208600EBBB95 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F6B0A4BD26D9208600EBBB95 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,11 +387,6 @@
 			isa = PBXTargetDependency;
 			target = F6963C6426D51C1700C71771 /* jsonland */;
 			targetProxy = F6963CA326D55F9500C71771 /* PBXContainerItemProxy */;
-		};
-		F6B18CED26DBF332000D1F24 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F6963C6426D51C1700C71771 /* jsonland */;
-			targetProxy = F6B18CEC26DBF332000D1F24 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -484,6 +411,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				JSONLAND_DEBUG = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/googletest/build/lib",
@@ -496,6 +424,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				JSONLAND_DEBUG = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/googletest/build/lib",
@@ -546,6 +475,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"JSONLAND_DEBUG=1",
 					"DEBUG=1",
 					"$(inherited)",
 				);
@@ -562,6 +492,7 @@
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
+					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
@@ -608,6 +539,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "JSONLAND_DEBUG=0";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -621,6 +553,7 @@
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
+					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
@@ -645,22 +578,6 @@
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		F6B0A4BF26D9208600EBBB95 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		F6B0A4C026D9208600EBBB95 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -699,15 +616,6 @@
 			buildConfigurations = (
 				F6963C6726D51C1700C71771 /* Debug */,
 				F6963C6826D51C1700C71771 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F6B0A4BE26D9208600EBBB95 /* Build configuration list for PBXNativeTarget "scrible" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F6B0A4BF26D9208600EBBB95 /* Debug */,
-				F6B0A4C026D9208600EBBB95 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
