@@ -29,7 +29,7 @@ TEST(TestWrite, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"(7.1+5=12.1)");
     oss.str("");
     
-    json_node ajn(jsonland::node_type::_array);
+    json_node ajn(jsonland::node_type::array_t);
     oss << ajn;
     EXPECT_STREQ(oss.str().c_str(), "[]");
     oss.str("");
@@ -46,7 +46,7 @@ TEST(TestWrite, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"([1,"Motish","Neor"])");
     oss.str("");
 
-    json_node ojn(jsonland::node_type::_object);
+    json_node ojn(jsonland::node_type::object_t);
     oss << ojn;
     EXPECT_STREQ(oss.str().c_str(), "{}");
     oss.str("");
@@ -79,14 +79,14 @@ TEST(Create, one)
 
 TEST(TestArray, set_and_get)
 {
-    json_node jn(jsonland::node_type::_array);
+    json_node jn(jsonland::node_type::array_t);
     jn.push_back(9);
     EXPECT_EQ(jn[0].as_int<int>(), 9);
     jn.push_back(0.1234);
     EXPECT_EQ(jn[0].as_int<int>(), 9);
     EXPECT_EQ(jn[1].as_double(), 0.1234);
     
-    json_node jn2(jsonland::node_type::_array);
+    json_node jn2(jsonland::node_type::array_t);
     jn2.push_back(0);
     jn2.push_back(1);
     jn2.push_back(2);
@@ -126,13 +126,13 @@ TEST(TestGetValue, bool_value)
     EXPECT_TRUE(json_node().as<bool>(true))
                 << "json_node().as_bool(true) should return " << "true";
 
-    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as_bool())
+    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as_bool())
                 << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as<bool>())
+    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as<bool>())
                 << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as_bool(true))
+    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as_bool(true))
                 << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::_bool).as<bool>(true))
+    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as<bool>(true))
                 << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
 
     EXPECT_FALSE(json_node(false).as_bool())

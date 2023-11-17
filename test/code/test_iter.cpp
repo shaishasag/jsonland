@@ -5,7 +5,7 @@ using namespace jsonland;
 
 TEST(TestIter, array)
 {
-    json_node jn(jsonland::node_type::_array);
+    json_node jn(jsonland::node_type::array_t);
     
     jn.push_back(json_node("one"));
     jn.push_back(json_node("two"));
@@ -19,7 +19,7 @@ TEST(TestIter, array)
 
 TEST(TestIter, obj)
 {
-    json_node jn(jsonland::node_type::_object);
+    json_node jn(jsonland::node_type::object_t);
     
     jn["one"] = "one!";
     jn["two"] = "two!";

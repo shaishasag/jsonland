@@ -1,0 +1,40 @@
+{
+    "a string": "a string",
+    "an int": 12345678,
+    "an float": 13.12345678,
+    "an bool": true,
+    "a null": null,
+    "an array": [
+        "a string",
+        12345678,
+        13.12345678,
+        true,
+        null,
+        {
+            "a string": "a string",
+            "an int": 12345678,
+            "an float": 13.12345678,
+            "an bool": true,
+            "a null": null
+        }
+    ],
+    "an object": {
+        "1": 1,
+        "2": "2",
+        "an array": [
+            null,
+            false,
+            true,
+            0,
+            1,
+            {},
+            []
+        ],
+        "true": true,
+        "false": false,
+        "null": null
+    },
+    "empty object": {},
+    "empty array": [],
+    "empty string": ""
+}

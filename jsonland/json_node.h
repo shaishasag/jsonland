@@ -1,5 +1,5 @@
-#ifndef __json_node_h__
-#define __json_node_h__
+#ifndef __jsonland_json_node_h__
+#define __jsonland_json_node_h__
 
 #include <vector>
 #include <unordered_map>
@@ -29,6 +29,8 @@
 #endif
 #endif
 
+#include "string_or_view.h"
+
 // #define JSONLAND_DEBUG
 
 namespace jsonland
@@ -37,13 +39,13 @@ namespace jsonland
 
 enum node_type : uint32_t
 {
-    _uninitialized = 0,
-    _null = 1<<0,
-    _bool = 1<<1,
-    _number = 1<<2,
-    _string = 1<<3,
-    _array = 1<<4,
-    _object = 1<<5,
+    uninitialized_t = 0,
+    null_t = 1<<0,
+    bool_t = 1<<1,
+    number_t = 1<<2,
+    string_t = 1<<3,
+    array_t = 1<<4,
+    object_t = 1<<5,
 };
 
 
@@ -57,193 +59,44 @@ public:
     friend bool operator==(const json_node& lhs, const json_node& rhs);
     friend bool operator!=(const json_node& lhs, const json_node& rhs);
 
-    // keeps a string either as:
-    // a reference to external memory - in member std::string_view m_str_view
-    // internaly -in member  std::string m_str
-    // in both cases m_str_view always refers to the string
+    // class string_or_view is a helper class that stores a string as either
+    // - a reference to external memory (in member of type std::string_view)
+    // OR
+    // - internaly  (in member of type std::string)
+    // in both cases a std::string_view always refers to the string
     // escape situation can be:
     // m_num_escapes == -1 - unknown
     // m_num_escapes == 0 - no escapes were found
     // m_num_escapes > 0 - some escapes were found
-    class string_or_view
+
+    
+public:
+    using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
+    using ArrayVec = std::vector<json_node>;
+
+//private:
+    
+    node_type m_node_type = null_t;
+    mutable string_or_view m_value{the_null_string_view};
+    double m_num = 0.0;
+
+    ArrayVec m_values;
+    KeyToIndex m_obj_key_to_index;
+    mutable string_or_view m_key{the_empty_string_view};
+
+    enum hints : uint32_t
     {
-    public:
-
-        std::string m_str{};
-        std::string_view m_str_view{};
-        int m_num_escapes = -1;
-
-        string_or_view() = default;
-            string_or_view(const size_t in_str_size, const char* in_str, const int in_num_escapes=-1)
-        : m_str()
-        , m_str_view(in_str, in_str_size)
-        , m_num_escapes(in_num_escapes)
-        {
-        }
-        string_or_view(const std::string_view in_str, const int in_num_escapes=-1)
-        {
-            reference_value(in_str);
-            m_num_escapes = in_num_escapes;
-        }
-        string_or_view(const std::string& in_str, const int in_num_escapes=-1)
-        {
-            store_value(in_str);
-            m_num_escapes = in_num_escapes;
-        }
-        
-        string_or_view(const string_or_view& in_sov)
-        {
-            if (in_sov.is_value_referenced())
-            {
-                reference_value(in_sov.m_str_view);
-            }
-            else
-            {
-                store_value(in_sov.m_str);
-            }
-            m_num_escapes = in_sov.m_num_escapes;
-        }
-        void store_value(const std::string& in_str, const int in_num_escapes=-1)
-        {
-            m_str = in_str;
-            m_str_view = m_str;
-            m_num_escapes = in_num_escapes;
-        }
-        void store_value(std::string&& in_str, const int in_num_escapes=-1)
-        {
-            m_str = in_str;
-            m_str_view = m_str;
-            m_num_escapes = in_num_escapes;
-        }
-        void store_value(const std::string_view in_str, const int in_num_escapes=-1)
-        {
-            m_str = in_str;
-            m_str_view = m_str;
-            m_num_escapes = in_num_escapes;
-        }
-
-        void store_value(const char* in_str, const int in_num_escapes=-1)
-        {
-            m_str = in_str;
-            m_str_view = m_str;
-            m_num_escapes = in_num_escapes;
-        }
-
-        constexpr void reference_value(const std::string& in_str, const int in_num_escapes=-1)
-        {
-            m_str.clear();
-            m_str_view = std::string_view(in_str);
-            m_num_escapes = in_num_escapes;
-        }
-        void reference_value(const std::string_view in_str, const int in_num_escapes=-1)
-        {
-            m_str.clear();
-            m_str_view = in_str;
-            m_num_escapes = in_num_escapes;
-       }
-        void reference_value(const string_or_view in_str)
-        {
-            m_str.clear();
-            m_str_view = in_str.m_str_view;
-            m_num_escapes = in_str.m_num_escapes;
-       }
-        void reference_value(const char* in_str, const int in_num_escapes=-1)
-        {
-            m_str.clear();
-            m_str_view = std::string_view(in_str);
-            m_num_escapes = in_num_escapes;
-        }
-        void reference_value(const char* in_str, size_t in_str_size, const int in_num_escapes=-1)
-        {
-            m_str.clear();
-            m_str_view = std::string_view(in_str, in_str_size);
-            m_num_escapes = in_num_escapes;
-        }
-
-        void convert_referenced_value_to_stored()
-        {
-            m_str = m_str_view;
-            m_str_view = std::string_view(m_str);
-        }
-        
-        string_or_view& operator=(const string_or_view& in_sov)
-        {
-            m_str.clear();
-            if (in_sov.is_value_referenced())
-            {
-                reference_value(in_sov.m_str_view);
-            }
-            else
-            {
-                store_value(in_sov.m_str);
-            }
-
-            m_num_escapes = in_sov.m_num_escapes;
-            return *this;
-        }
-
-        string_or_view(string_or_view&& in_sov)
-        {
-            if (in_sov.is_value_referenced())
-            {
-                reference_value(in_sov.m_str_view);
-            }
-            else
-            {
-                m_str = std::move(in_sov.m_str);
-                m_str_view = m_str;
-            }
-            m_num_escapes = in_sov.m_num_escapes;
-        }
-
-        string_or_view& operator=(string_or_view&& in_sov)
-        {
-            m_str.clear();
-            if (in_sov.is_value_referenced())
-            {
-                reference_value(in_sov.m_str_view);
-            }
-            else
-            {
-                m_str = std::move(in_sov.m_str);
-                m_str_view = m_str;
-            }
-
-            m_num_escapes = in_sov.m_num_escapes;
-            return *this;
-        }
-
-        void store_value_deal_with_escapes(const char* in_str);
-        
-        // escape chars where needed and return true is escapes were found
-        void unescape(std::string& out_unescaped) const;
-        void unescape_internal();
-        
-        void clear()
-        {
-            store_value("");
-            m_num_escapes = -1;
-        }
-
-        bool is_value_referenced() const { return m_str.empty(); }
-        bool is_value_stored() const { return !is_value_referenced(); }
-        bool empty() const { return m_str_view.empty(); }
-        const char* data() const { return m_str_view.data(); }
-        std::string_view as_string_view() const { return m_str_view; }
-
-        friend struct string_or_view_hasher;
-        friend bool operator==(const string_or_view& lhs, const string_or_view& rhs)
-        {
-            return lhs.m_str_view == rhs.m_str_view;
-        }
+        hint_none = 0,
+        _num_is_int = 1<<1,
     };
-    struct string_or_view_hasher
-    {
-        std::size_t operator()(const string_or_view& in_string_or_view_to_hash) const noexcept
-        {
-            return std::hash<std::string_view>()(in_string_or_view_to_hash.as_string_view());
-        }
-    };
+    hints m_hints = hint_none;
+
+    static constexpr std::string_view the_empty_string_view{""};
+    static constexpr std::string_view the_false_string_view{"false"};
+    static constexpr std::string_view the_true_string_view{"true"};
+    static constexpr std::string_view the_null_string_view{"null"};
+
+    
 
 private:
 
@@ -260,36 +113,6 @@ private:
     friend class parser_impl::Parser;
 
 public:
-    using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
-    using ArrayVec = std::vector<json_node>;
-
-private:
-
-    static constexpr std::string_view the_empty_string_view{""};
-    static constexpr std::string_view the_false_string_view{"false"};
-    static constexpr std::string_view the_true_string_view{"true"};
-    static constexpr std::string_view the_null_string_view{"null"};
-
-    enum hints : uint32_t
-    {
-        hint_none = 0,
-        _num_is_int = 1<<1,
-//        hint_no_escapes = 1<<1,  // no escaped or non ascii characters
-//        hint_has_escapes = 1<<2, // has escaped characters
-//        hint_has_resolved_escapes = 1<<3, // has non ascii characters or chars that need escaping, '\n', '\r', ...
-//        hint_has_mixed_escapes = 1<<4, // should not happen...
-    };
-    
-    node_type m_node_type = _null;
-    mutable string_or_view m_str_v{the_null_string_view};
-    double m_num = 0.0;
-    hints m_hints = hint_none;
-
-    ArrayVec m_values;
-    KeyToIndex m_obj_key_to_index;
-    mutable string_or_view m_key{the_empty_string_view};
-
-public:
     json_node() = default;
     ~json_node() = default;
     json_node(const json_node& in_node);
@@ -302,20 +125,20 @@ public:
     {
         switch (m_node_type)
         {
-            case _null:
-                m_str_v = the_null_string_view;
+            case null_t:
+                m_value = the_null_string_view;
             break;
-            case _number:
-                m_str_v = the_empty_string_view;
+            case number_t:
+                m_value = the_empty_string_view;
             break;
-            case _bool:
-                m_str_v = the_false_string_view;
+            case bool_t:
+                m_value = the_false_string_view;
             break;
             default:
-                m_str_v = the_empty_string_view;
+                m_value = the_empty_string_view;
             break;
         }
-        m_str_v.m_num_escapes = 0;
+        m_value.m_num_escapes = 0;
    }
 
     inline json_node& operator=(jsonland::node_type in_type)
@@ -326,42 +149,42 @@ public:
 
     json_node& operator=(const std::string_view in_str)
     {
-        clear(_string);
-        m_str_v.reference_value(in_str);
+        clear(string_t);
+        m_value.reference_value(in_str);
         return *this;
     }
 
     json_node(const std::string& in_string)
-    : m_node_type(_string)
+    : m_node_type(string_t)
     {
-        m_str_v.store_value_deal_with_escapes(in_string.c_str());
+        m_value.store_value_deal_with_escapes(in_string.c_str());
     }
     json_node& operator=(const std::string& in_string)
     {
-        clear(_string);
-        m_str_v.store_value_deal_with_escapes(in_string.c_str());
+        clear(string_t);
+        m_value.store_value_deal_with_escapes(in_string.c_str());
         return *this;
     }
 
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    explicit json_node(const TCHAR in_str[], jsonland::node_type in_type=_string)
+    explicit json_node(const TCHAR in_str[], jsonland::node_type in_type=string_t)
     : m_node_type(in_type)
     {
-        m_str_v.store_value_deal_with_escapes(in_str);
+        m_value.store_value_deal_with_escapes(in_str);
     }
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
     json_node& operator=(const TCHAR in_str[])
     {
-        clear(_string);
-        m_str_v.store_value_deal_with_escapes(in_str);
+        clear(string_t);
+        m_value.store_value_deal_with_escapes(in_str);
         return *this;
     }
 
     //--- integer constructor
     template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node(const NUM in_num)
-    : m_node_type(_number)
-    , m_str_v()
+    : m_node_type(number_t)
+    , m_value()
     , m_num(static_cast<double>(in_num))
     , m_hints(_num_is_int)
     {}
@@ -369,7 +192,7 @@ public:
     template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node& operator=(const NUM in_num)
     {
-        clear(_number);
+        clear(number_t);
         m_num = static_cast<double>(in_num);
         m_hints = static_cast<hints>(m_hints | _num_is_int);
         
@@ -379,15 +202,15 @@ public:
     //--- float constructor
     template <typename NUM, IsFloat<NUM>* = nullptr >
     json_node(const NUM in_num)
-    : m_node_type(_number)
-    , m_str_v()
+    : m_node_type(number_t)
+    , m_value()
     , m_num(static_cast<double>(in_num))
     {}
     // assign number
     template <typename NUM, IsFloat<NUM>* = nullptr >
     json_node& operator=(const NUM in_num)
     {
-        clear(_number);
+        clear(number_t);
         m_num = static_cast<double>(in_num);
         m_hints = static_cast<hints>(m_hints & ~_num_is_int);
 
@@ -398,15 +221,15 @@ public:
     //--- bool constructor
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
     explicit json_node(const TBOOL in_bool)
-    : m_node_type(_bool)
-    , m_str_v(in_bool ? the_true_string_view : the_false_string_view)
+    : m_node_type(bool_t)
+    , m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
     json_node& operator=(const TBOOL in_bool)
     {
-        clear(_bool);
-        m_str_v.reference_value(in_bool ? the_true_string_view : the_false_string_view);
+        clear(bool_t);
+        m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
         return *this;
     }
     //...
@@ -420,59 +243,59 @@ public:
     template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
     json_node& operator=(TNULLPTR)
     {
-        clear(_null);
+        clear(null_t);
         return *this;
     }
     //...
 
-    void clear(const node_type in_new_type=_null)
+    void clear(const node_type in_new_type=null_t)
     {
         m_node_type = in_new_type;
         m_obj_key_to_index.clear();
         m_values.clear();
-        m_str_v.clear();
+        m_value.clear();
         switch (m_node_type)
         {
-            case _null:
-                m_str_v = the_null_string_view;
+            case null_t:
+                m_value = the_null_string_view;
             break;
-            case _number:
-                m_str_v = the_empty_string_view;
+            case number_t:
+                m_value = the_empty_string_view;
             break;
-            case _bool:
-                m_str_v = the_false_string_view;
+            case bool_t:
+                m_value = the_false_string_view;
             break;
             default:
-                m_str_v = the_empty_string_view;
+                m_value = the_empty_string_view;
             break;
         }
-        m_str_v.m_num_escapes = 0;
+        m_value.m_num_escapes = 0;
         m_num = 0.0;
     }
 
 
     inline jsonland::node_type type() const {return m_node_type;}
     inline bool is_type(jsonland::node_type in_type) {return in_type == m_node_type;}
-    inline bool is_null() const {return _null == m_node_type;}
-    inline bool is_object() const {return _object == m_node_type;}
-    inline bool is_array() const {return _array == m_node_type;}
-    inline bool is_string() const {return _string == m_node_type;}
-    inline bool is_num() const {return _number == m_node_type;}
-    inline bool is_bool() const {return _bool == m_node_type;}
+    inline bool is_null() const {return null_t == m_node_type;}
+    inline bool is_object() const {return object_t == m_node_type;}
+    inline bool is_array() const {return array_t == m_node_type;}
+    inline bool is_string() const {return string_t == m_node_type;}
+    inline bool is_num() const {return number_t == m_node_type;}
+    inline bool is_bool() const {return bool_t == m_node_type;}
     inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
     inline bool is_valid() const {return is_scalar() || is_array() || is_object() || is_null();}
 
-    size_t size() const
+    size_t num_elements() const
     {
         size_t retVal = 0;
         switch (type())
         {
-            case _object: retVal = m_values.size(); break;
-            case _array: retVal = m_values.size(); break;
-            case _string: retVal = 1; break;  // one string, not the size of the string
-            case _number: retVal = 1; break;
-            case _bool: retVal = 1; break;
-            case _null:
+            case object_t: retVal = m_values.size(); break;
+            case array_t: retVal = m_values.size(); break;
+            case string_t: retVal = 1; break;  // one string, not the size of the string
+            case number_t: retVal = 1; break;
+            case bool_t: retVal = 1; break;
+            case null_t:
             default:
                 break;
 
@@ -480,16 +303,18 @@ public:
         return retVal;
     }
 
-    size_t count(const char* in_key) const
+    size_t count(std::string_view in_key) const
     {
         size_t retVal = 0;
         if (is_object())
         {
-            retVal = m_obj_key_to_index.count(std::string_view(in_key));
+            retVal = m_obj_key_to_index.count(in_key);
         }
         
         return retVal;
     }
+
+    size_t memory_consumption() const;
 
     std::string   dump() const;
     std::ostream& dump(std::ostream& os) const;
@@ -497,19 +322,19 @@ public:
     // return the string with escaped characters where needed
     inline const std::string_view as_string_view() const
     {
-        return m_str_v.as_string_view();
+        return m_value.as_string_view();
     }
     
     const std::string_view as_resolved_string_view() const;
  
-    const char* as_string(const char* in_default="") const
+    std::string_view as_string(std::string_view in_default="") const
     {
         if (is_string())
         {
-            if (0 != m_str_v.m_num_escapes) {
-                m_str_v.unescape_internal();
+            if (0 != m_value.m_num_escapes) {
+                m_value.unescape_internal();
             }
-            return as_string_view().data();
+            return as_string_view();
         }
         else
             return in_default;
@@ -523,7 +348,7 @@ public:
             if (is_number_assigned())
                 return static_cast<double>(m_num);
             else
-                retVal = std::atof(m_str_v.data());
+                retVal = std::atof(m_value.data());
         }
 
         return retVal;
@@ -538,7 +363,7 @@ public:
             if (is_number_assigned())
                 return static_cast<TINT>(m_num);
             else
-                retVal = static_cast<TINT>(std::atoll(m_str_v.data()));
+                retVal = static_cast<TINT>(std::atoll(m_value.data()));
         }
 
         return retVal;
@@ -547,7 +372,7 @@ public:
     bool as_bool(const bool in_default_bool=false) const
     {
         if (JSONLAND_LIKELY(is_bool()))
-            return m_str_v.data()[0] == 't';
+            return m_value.data()[0] == 't';
         else
             return in_default_bool;
     }
@@ -568,12 +393,15 @@ public:
         else if (std::is_same<const char*, TASTYPE>::value) {
             return as_string(in_default);
         }
+        else if (std::is_same<std::string_view, TASTYPE>::value) {
+            return as_string(in_default);
+        }
         else if constexpr (std::is_null_pointer_v<TASTYPE>) {
             return nullptr;
         }
     }
     
-    const char* key() const
+    std::string_view key() const
     {
         m_key.unescape_internal();
         return m_key.as_string_view().data();
@@ -631,7 +459,7 @@ public:
 //            return *this;  // what to return here?
 //    }
 
-    json_node& operator[](const char* in_key)
+    json_node& operator[](std::string_view in_key)
     {
         if (JSONLAND_LIKELY(is_object()))
         {
@@ -642,9 +470,8 @@ public:
             if (0 == m_obj_key_to_index.count(key))
             {
                 index = static_cast<int>(m_values.size());
-                json_node value;
+                json_node& value = m_values.emplace_back();
                 value.m_key = std::move(key);
-                m_values.emplace_back(value);
 
                 m_obj_key_to_index[value.m_key] = index;
             }
@@ -658,7 +485,7 @@ public:
             return *this;  // what to return here?
     }
 
-    const json_node& operator[](const char* in_str) const
+    const json_node& operator[](std::string_view in_str) const
     {
         if (JSONLAND_LIKELY(is_object()))
         {
@@ -756,12 +583,12 @@ protected:
 
     inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     : m_node_type(in_type)
-    , m_str_v(in_str_size, in_c_str)
+    , m_value(in_str_size, in_c_str)
     {
     }
-    inline json_node(const std::string_view& in_string_view, jsonland::node_type in_type)
+    inline json_node(const std::string_view in_string_view, jsonland::node_type in_type)
     : m_node_type(in_type)
-    , m_str_v(in_string_view)
+    , m_value(in_string_view)
     {}
 
     // for parser use, *this is assumed to be freshly constructed, so no need to call clear
@@ -769,13 +596,13 @@ protected:
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
-        m_str_v = in_str;
+        m_value = in_str;
     }
     inline void parser_direct_set(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
-        m_str_v.reference_value(in_c_str, in_str_size);
+        m_value.reference_value(in_c_str, in_str_size);
     }
     inline void parser_direct_set(jsonland::node_type in_type)
     {
@@ -791,8 +618,8 @@ private:
     // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
     // occur in the same json_node is repeatadly assigned number values. The compramise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
-    inline bool is_number_assigned() const {return m_str_v.empty();}
-    inline bool is_string_assigned() const {return m_str_v.is_value_stored();}
+    inline bool is_number_assigned() const {return m_value.empty();}
+    inline bool is_string_assigned() const {return m_value.is_value_stored();}
 
 };
 
@@ -833,6 +660,8 @@ public:
 
     int parse_error() { return m_parse_error; }
     std::string parse_error_message() { return m_parse_error_message; }
+    
+    size_t memory_consumption();
 
 private:
     std::string m_json_text;
@@ -844,4 +673,4 @@ private:
 
 } // namespace jsonland2
 
-#endif // __json_node_h__
+#endif // __jsonland_json_node_h__

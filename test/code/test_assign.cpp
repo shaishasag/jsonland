@@ -5,16 +5,16 @@ using namespace jsonland;
 
 TEST(TestAssign, repeated_rotating_assign)
 {
-    json_node jn_sources[6]{json_node("Margot Robbie"), 19.19, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::node_type::_array)};
+    json_node jn_sources[6]{json_node("Margot Robbie"), 19.19, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::node_type::array_t)};
     
-    json_node obj(jsonland::node_type::_object);
+    json_node obj(jsonland::node_type::object_t);
     obj["one"] = 3.1415;
     obj["two"] = true;
-    obj["three"] = json_node("234.567", jsonland::node_type::_number);
+    obj["three"] = json_node("234.567", jsonland::node_type::number_t);
     
     json_node a = obj["three"];
     
-    json_node array(jsonland::node_type::_array);
+    json_node array(jsonland::node_type::array_t);
     array.push_back(json_node(1.2));
     array.push_back(json_node(true));
     array.push_back(obj["one"]);

@@ -100,7 +100,7 @@ static const char* name_of_control_char(const char in_c)
 
 json_node::json_node(const json_node& in_node)
 : m_node_type(in_node.m_node_type)
-, m_str_v(in_node.m_str_v)
+, m_value(in_node.m_value)
 , m_num(in_node.m_num)
 , m_values(in_node.m_values)
 , m_obj_key_to_index(in_node.m_obj_key_to_index)
@@ -110,7 +110,7 @@ json_node::json_node(const json_node& in_node)
 
 json_node::json_node(json_node&& in_node)
 : m_node_type(in_node.m_node_type)
-, m_str_v(std::move(in_node.m_str_v))
+, m_value(std::move(in_node.m_value))
 , m_num(in_node.m_num)
 , m_values(std::move(in_node.m_values))
 , m_obj_key_to_index(std::move(in_node.m_obj_key_to_index))
@@ -122,7 +122,7 @@ json_node& json_node::operator=(const json_node& in_node)
 {
     m_node_type = in_node.m_node_type;
 
-    m_str_v = in_node.m_str_v;
+    m_value = in_node.m_value;
     m_num = in_node.m_num;
     m_values = in_node.m_values;
     m_obj_key_to_index = in_node.m_obj_key_to_index;
@@ -135,7 +135,7 @@ json_node& json_node::operator=(json_node&& in_node)
 {
     m_node_type = in_node.m_node_type;
 
-    m_str_v = in_node.m_str_v;
+    m_value = in_node.m_value;
     m_num = in_node.m_num;
     m_values = std::move(in_node.m_values);
     m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
@@ -144,20 +144,20 @@ json_node& json_node::operator=(json_node&& in_node)
     return *this;
 }
 
-void json_node::string_or_view::store_value_deal_with_escapes(const char* in_str)
+void jsonland::string_or_view::store_value_deal_with_escapes(std::string_view in_str)
 {
     m_num_escapes = 0;
-    m_str.reserve(m_str_view.size()*1.1);
+    m_internal_store.reserve(m_value.size()*1.1);
     
-    for (const char* curr = in_str; *curr != '\0'; ++curr)
+    for (char curr : in_str)
     {
         size_t num_chars_to_copy = 0;
-        const char* p = escapable_to_escaped(curr, num_chars_to_copy);
-        m_str.append(p, num_chars_to_copy);
+        const char* p = escapable_to_escaped(&curr, num_chars_to_copy);
+        m_internal_store.append(p, num_chars_to_copy);
         if ('\\' == *p) // \\ will be counted as two escapes, but count need not be accurate
             ++m_num_escapes;
     }
-    m_str_view = m_str;
+    m_value = m_internal_store;
 }
 
 class solve_escapes_iter
@@ -257,11 +257,11 @@ public:
     
 };
 
-void json_node::string_or_view::unescape(std::string& out_unescaped) const
+void jsonland::string_or_view::unescape(std::string& out_unescaped) const
 {
-    out_unescaped.reserve(m_str_view.size());
+    out_unescaped.reserve(m_value.size());
 
-    solve_escapes_iter iter(m_str_view);
+    solve_escapes_iter iter(m_value);
     
     while (iter)
     {
@@ -270,11 +270,11 @@ void json_node::string_or_view::unescape(std::string& out_unescaped) const
     }
 }
 
-void json_node::string_or_view::unescape_internal()
+void jsonland::string_or_view::unescape_internal()
 {
-    unescape(m_str);
+    unescape(m_internal_store);
     m_num_escapes = 0;
-    m_str_view = m_str;
+    m_value = m_internal_store;
 }
 
 const std::string_view json_node::as_resolved_string_view() const
@@ -333,18 +333,42 @@ std::ostream& json_node::dump(std::ostream& os) const
     else if (is_string())
     {
         os << '"';
-        os << m_str_v.as_string_view();
+        os << m_value.as_string_view();
         os << '"';
     }
     else
     {
-        os << m_str_v.as_string_view();
+        os << m_value.as_string_view();
     }
     return os;
 }
 
 namespace jsonland
 {
+
+size_t json_node::memory_consumption() const
+{
+    size_t retVal{0};
+    
+    retVal += m_value.allocation_size();
+    retVal += m_key.allocation_size();
+    for (const json_node& val : m_values)
+    {
+        retVal += sizeof(ArrayVec::value_type);
+        retVal += val.memory_consumption();
+    }
+    // if m_values over allocated
+    retVal += (m_values.capacity() - m_values.size()) * sizeof(ArrayVec::value_type);
+    
+    for (const KeyToIndex::value_type& val : m_obj_key_to_index)
+    {
+        retVal += sizeof(KeyToIndex::value_type);
+        retVal += val.first.allocation_size();
+    }
+
+    return retVal;
+}
+
 namespace parser_impl
 {
 
@@ -403,13 +427,13 @@ namespace parser_impl
 
         enum parsing_node_type : uint32_t  // for parsing only
         {
-            _uninitialized = jsonland::node_type::_uninitialized,
-            _null = jsonland::node_type::_null,
-            _bool = jsonland::node_type::_bool,
-            _num = jsonland::node_type::_number,
-            _str = jsonland::node_type::_string,
-            _array = jsonland::node_type::_array,
-            _obj = jsonland::node_type::_object,
+            _uninitialized = jsonland::node_type::uninitialized_t,
+            _null = jsonland::node_type::null_t,
+            _bool = jsonland::node_type::bool_t,
+            _num = jsonland::node_type::number_t,
+            _str = jsonland::node_type::string_t,
+            _array = jsonland::node_type::array_t,
+            _obj = jsonland::node_type::object_t,
 
             _comma = 1 << 7,
             _colon = 1 << 8,
@@ -478,7 +502,7 @@ namespace parser_impl
         std::string m_parse_error_message;
 
         json_node::ArrayVec m_array_values_stack;
-        std::vector<json_node::string_or_view> m_obj_keys_stack;
+        std::vector<jsonland::string_or_view> m_obj_keys_stack;
 
         inline char next_char()
         {
@@ -637,10 +661,10 @@ namespace parser_impl
             {
                 *const_cast<char*>(m_curr_char) = '\0';
                 
-                json_node::string_or_view sov(m_curr_char-str_start,
+                jsonland::string_or_view sov(m_curr_char-str_start,
                                               str_start,
                                               num_escapes);
-                out_node.parser_direct_set(std::move(sov), jsonland::node_type::_string);
+                out_node.parser_direct_set(std::move(sov), jsonland::node_type::string_t);
                 next_char();
                 retVal = true;
             }
@@ -730,14 +754,14 @@ after_exponent:
             }
 
 scan_number_done:
-            json_node::string_or_view sov(m_curr_char-str_start,
+            jsonland::string_or_view sov(m_curr_char-str_start,
                                           str_start,
                                           0);
 #if JSONLAND_DEBUG==1
 // in release build the number is translated from text only when to_double/to_int is called
             out_node.m_num = std::atof(sov.data());
 #endif
-            out_node.parser_direct_set(std::move(sov), jsonland::node_type::_number);
+            out_node.parser_direct_set(std::move(sov), jsonland::node_type::number_t);
             return true;
         }
         
@@ -830,7 +854,7 @@ scan_number_done:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
-            out_node = jsonland::node_type::_array;
+            out_node = jsonland::node_type::array_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
 
             uint32_t expecting = parsing_node_type::_value | parsing_node_type::_array_close;
@@ -892,7 +916,7 @@ scan_number_done:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
-            out_node = jsonland::node_type::_object;
+            out_node = jsonland::node_type::object_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
             size_t obj_keys_stack_starting_index = m_obj_keys_stack.size();
 
@@ -900,7 +924,7 @@ scan_number_done:
             jsonland::node_type expecting = static_cast<jsonland::node_type>(parsing_node_type::_str | parsing_node_type::_obj_close);
             next_char();
             json_node next_node;
-            json_node::string_or_view key;
+            jsonland::string_or_view key;
             while (JSONLAND_LIKELY(get_next_node(next_node)))
             {
                 const uint32_t new_node_type = next_node.m_node_type;
@@ -911,7 +935,7 @@ scan_number_done:
 
                 if ((new_node_type & parsing_node_type::_str) && expecting_key)
                 {
-                    m_obj_keys_stack.emplace_back(next_node.m_str_v);
+                    m_obj_keys_stack.emplace_back(next_node.m_value);
                     expecting_key = false;
                     expecting = static_cast<jsonland::node_type>(parsing_node_type::_colon);
                 }
@@ -1097,6 +1121,16 @@ int json_doc::parse(const std::string_view in_json_str)
     return retVal;
 }
 
+size_t json_doc::memory_consumption()
+{
+    size_t retVal = sizeof(*this);
+    
+    retVal += json_node::memory_consumption();
+    
+    return retVal;
+}
+
+
 bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_node& rhs)
 {
     bool retVal = false;
@@ -1105,19 +1139,19 @@ bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_n
     {
         switch(lhs.m_node_type)
         {
-            case jsonland::node_type::_object:
+            case jsonland::node_type::object_t:
                 retVal = lhs.m_values == rhs.m_values;
             break;
-            case jsonland::node_type::_array:
+            case jsonland::node_type::array_t:
                 retVal = lhs.m_values == rhs.m_values;
             break;
-            case jsonland::node_type::_number:
+            case jsonland::node_type::number_t:
                 // comparing two number in text representation creates a dilema:
                 // what if the text representation is different but the actual number are the same?
                 // e.g. "1.000000000000000011", "1.000000000000000012"
                 // Answer: if both numbers are text - compare the text, otherwise compare m_num
                 if (!lhs.is_number_assigned() && !rhs.is_number_assigned())
-                    retVal = lhs.m_str_v == rhs.m_str_v;
+                    retVal = lhs.m_value == rhs.m_value;
                 else
                 {
                     double my_num = lhs.as_double();
@@ -1125,11 +1159,11 @@ bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_n
                     retVal = my_num == other_num;
                 }
             break;
-            case jsonland::node_type::_string:
-            case jsonland::node_type::_bool:
-                retVal = lhs.m_str_v == rhs.m_str_v;
+            case jsonland::node_type::string_t:
+            case jsonland::node_type::bool_t:
+                retVal = lhs.m_value == rhs.m_value;
             break;
-            case jsonland::node_type::_null:
+            case jsonland::node_type::null_t:
             default:
                 retVal = true;
             break;

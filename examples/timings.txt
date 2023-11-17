@@ -1,0 +1,10 @@
+17/11/2023:
+parsing "/Users/shai/Programming/jsonland/examples/example_1.json"
+    parsing of 765 bytes 0.022000ms; 34,772 bytes per millisecond
+    memory consumption 7,680 bytes;  1:10
+parsing "/Users/shai/Programming/jsonland/examples/example_2.json"
+    parsing of 81,008 bytes 0.350791ms; 230,929 bytes per millisecond
+    memory consumption 461,136 bytes;  1:5
+parsing "/Users/shai/Programming/jsonland/examples/example_3.json"
+    parsing of 26,141,344 bytes 198.929458ms; 131,410 bytes per millisecond
+    memory consumption 151,779,552 bytes;  1:5

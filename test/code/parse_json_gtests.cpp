@@ -1,6 +1,6 @@
 #include "jsonland/json_node.h"
 #include "gtest/gtest.h"
-#include "nlohmann/json.hpp"
+//#include "nlohmann/json.hpp"
 #include <string>
 #include <fstream>
 #include <streambuf>
@@ -37,18 +37,18 @@ TEST(Parse, big_file)
     jd.parse_insitu(jstr.data(), jstr.data()+jstr.size());
 }
 
-TEST(Parse, nlohmann)
-{
-    std::ifstream ifs(tiny_file_path);
-    std::string jstr((std::istreambuf_iterator<char>(ifs)),
-                     std::istreambuf_iterator<char>());
- 
-    auto before = std::chrono::steady_clock::now();
-    auto hloh_j = nlohmann::json::parse(jstr.c_str());
-    auto after = std::chrono::steady_clock::now();
-    auto nloh_fixed = std::chrono::duration<double, std::micro>(after - before).count()/1000;
-    
-//    std::cout << "nlohmann:\n";
-//    std::cout << "parse " << jstr.size() << " bytes " << nloh_fixed << "ms" << "\n";
-//    std::cout << hloh_j.dump() << "\n";;
-}
+//TEST(Parse, nlohmann)
+//{
+//    std::ifstream ifs(tiny_file_path);
+//    std::string jstr((std::istreambuf_iterator<char>(ifs)),
+//                     std::istreambuf_iterator<char>());
+// 
+//    auto before = std::chrono::steady_clock::now();
+//    auto hloh_j = nlohmann::json::parse(jstr.c_str());
+//    auto after = std::chrono::steady_clock::now();
+//    auto nloh_fixed = std::chrono::duration<double, std::micro>(after - before).count()/1000;
+//    
+////    std::cout << "nlohmann:\n";
+////    std::cout << "parse " << jstr.size() << " bytes " << nloh_fixed << "ms" << "\n";
+////    std::cout << hloh_j.dump() << "\n";;
+//}
