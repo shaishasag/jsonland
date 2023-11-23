@@ -1,10 +1,19 @@
 17/11/2023:
-parsing "/Users/shai/Programming/jsonland/examples/example_1.json"
-    parsing of 765 bytes 0.022000ms; 34,772 bytes per millisecond
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_1.json"
+    parsing (insitue) of 765 bytes 0.022292ms; 34,317 bytes per millisecond
     memory consumption 7,680 bytes;  1:10
-parsing "/Users/shai/Programming/jsonland/examples/example_2.json"
-    parsing of 81,008 bytes 0.350791ms; 230,929 bytes per millisecond
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_2.json"
+    parsing (insitue) of 81,008 bytes 0.298542ms; 271,345 bytes per millisecond
     memory consumption 461,136 bytes;  1:5
-parsing "/Users/shai/Programming/jsonland/examples/example_3.json"
-    parsing of 26,141,344 bytes 198.929458ms; 131,410 bytes per millisecond
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_3.json"
+    parsing (insitue) of 26,141,344 bytes 98.392833ms; 265,683 bytes per millisecond
     memory consumption 151,779,552 bytes;  1:5
+
+sizeof(string_or_view): 48
+sizeof(json_node): 184
+    sizeof(json_node.m_node_type): 4
+    sizeof(json_node.m_value): 48
+    sizeof(json_node.m_num): 8
+    sizeof(json_node.m_values): 24
+    sizeof(json_node.m_obj_key_to_index): 40
+    sizeof(json_node.m_key): 48

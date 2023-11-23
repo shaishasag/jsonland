@@ -138,6 +138,7 @@ void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
 static void report_size_of()
 {
     std::cout << std::endl;
+    std::cout << "sizeof(string_or_view): " << sizeof(jsonland::string_or_view) << std::endl;
     std::cout << "sizeof(json_node): " << sizeof(jsonland::json_node) << std::endl;
     std::cout << "    sizeof(json_node.m_node_type): " << sizeof(jsonland::json_node::m_node_type) << std::endl;
     std::cout << "    sizeof(json_node.m_value): " << sizeof(jsonland::json_node::m_value) << std::endl;
@@ -150,12 +151,12 @@ static void report_size_of()
 
 int parse_and_report_files()
 {
-    std::filesystem::path file_in_folder = std::filesystem::path(__FILE__); std::cout << file_in_folder << std::endl;
+    std::filesystem::path file_in_folder = std::filesystem::path(__FILE__);
     //file_in_folder.remove_filename(); std::cout << file_in_folder << std::endl;
-    file_in_folder = file_in_folder.parent_path(); std::cout << file_in_folder << std::endl;
-    file_in_folder = file_in_folder.parent_path(); std::cout << file_in_folder << std::endl;
-    file_in_folder.append("files"); std::cout << file_in_folder << std::endl;
-    file_in_folder.append("example_1.json"); std::cout << file_in_folder << std::endl;
+    file_in_folder = file_in_folder.parent_path();
+    file_in_folder = file_in_folder.parent_path();
+    file_in_folder.append("files");
+    file_in_folder.append("example_1.json");
     std::vector<std::filesystem::path> path_vec;
     path_vec.push_back(file_in_folder);
     path_vec.push_back(file_in_folder.replace_filename("example_2.json"));
@@ -172,11 +173,11 @@ int parse_and_report_files()
 
 int main(int argc, const char * argv[])
 {
-    //parse_and_report_files();
+    parse_and_report_files();
     report_size_of();
-    auto jArr = create_array();
-    jArr.dump(std::cout);
-    std::cout << std::endl;
-    jArr[0]["two"].dump(std::cout);
-    std::cout << std::endl;
+//    auto jArr = create_array();
+//    jArr.dump(std::cout);
+//    std::cout << std::endl;
+//    jArr[0]["two"].dump(std::cout);
+//    std::cout << std::endl;
 }
