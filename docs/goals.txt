@@ -1,0 +1,11 @@
+json parser/builder
+
+- parsing should be fast with minimal allocation and copying
+- API to access parsed json should be clear and easy to work with
+- creating json from code should be easy with minimal allocation and copying
+- view of json objects in debugger should be easily to understood
+- small code footprint
+- efficiency for parsing small (up to 1k) jsons
+- simple and clear C++ code
+- stable order: iteration on object should return element in the same order they were inserted
+- convert numbers to string and string to numbers only when needed (JIT)
