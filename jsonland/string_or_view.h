@@ -14,24 +14,24 @@ public:
     
     string_or_view() = default;
     
-    string_or_view(const size_t in_str_size, const char* in_str, const int in_num_escapes=-1)
+    string_or_view(const size_t in_str_size, const char* in_str, const int in_num_escapes=-1) noexcept
     : m_internal_store()
     , m_value(in_str, in_str_size)
     , m_num_escapes(in_num_escapes)
     {
     }
-    string_or_view(const std::string_view in_str, const int in_num_escapes=-1)
+    string_or_view(const std::string_view in_str, const int in_num_escapes=-1) noexcept
     {
         reference_value(in_str);
         m_num_escapes = in_num_escapes;
     }
-    string_or_view(const std::string& in_str, const int in_num_escapes=-1)
+    string_or_view(const std::string& in_str, const int in_num_escapes=-1) noexcept
     {
         store_value(in_str);
         m_num_escapes = in_num_escapes;
     }
     
-    string_or_view(const string_or_view& in_sov)
+    string_or_view(const string_or_view& in_sov) noexcept
     {
         if (in_sov.is_value_referenced())
         {
@@ -51,7 +51,7 @@ public:
     }
     void store_value(std::string&& in_str, const int in_num_escapes=-1)
     {
-        m_internal_store = in_str;
+        m_internal_store = std::move(in_str);
         m_value = m_internal_store;
         m_num_escapes = in_num_escapes;
     }
@@ -122,7 +122,7 @@ public:
         return *this;
     }
     
-    string_or_view(string_or_view&& in_sov)
+    string_or_view(string_or_view&& in_sov) noexcept
     {
         if (in_sov.is_value_referenced())
         {

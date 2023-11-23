@@ -98,7 +98,7 @@ static const char* name_of_control_char(const char in_c)
     return retVal;
 }
 
-json_node::json_node(const json_node& in_node)
+json_node::json_node(const json_node& in_node) noexcept
 : m_node_type(in_node.m_node_type)
 , m_value(in_node.m_value)
 , m_num(in_node.m_num)
@@ -108,7 +108,7 @@ json_node::json_node(const json_node& in_node)
 {
 }
 
-json_node::json_node(json_node&& in_node)
+json_node::json_node(json_node&& in_node) noexcept
 : m_node_type(in_node.m_node_type)
 , m_value(std::move(in_node.m_value))
 , m_num(in_node.m_num)
@@ -118,7 +118,7 @@ json_node::json_node(json_node&& in_node)
 {
 }
 
-json_node& json_node::operator=(const json_node& in_node)
+json_node& json_node::operator=(const json_node& in_node) noexcept
 {
     m_node_type = in_node.m_node_type;
 
@@ -131,7 +131,7 @@ json_node& json_node::operator=(const json_node& in_node)
     return *this;
 }
 
-json_node& json_node::operator=(json_node&& in_node)
+json_node& json_node::operator=(json_node&& in_node) noexcept
 {
     m_node_type = in_node.m_node_type;
 

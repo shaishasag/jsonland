@@ -40,12 +40,12 @@ namespace jsonland
 enum node_type : uint32_t
 {
     uninitialized_t = 0,
-    null_t = 1<<0,
-    bool_t = 1<<1,
-    number_t = 1<<2,
-    string_t = 1<<3,
-    array_t = 1<<4,
-    object_t = 1<<5,
+    null_t = 1<<0, // 1
+    bool_t = 1<<1, // 2
+    number_t = 1<<2, // 4
+    string_t = 1<<3, // 8
+    array_t = 1<<4,  // 16
+    object_t = 1<<5, // 32
 };
 
 
@@ -115,12 +115,12 @@ private:
 public:
     json_node() = default;
     ~json_node() = default;
-    json_node(const json_node& in_node);
-    json_node(json_node&& in_node);
-    json_node& operator=(const json_node& in_node);
-    json_node& operator=(json_node&& in_node);
+    json_node(const json_node& in_node) noexcept;
+    json_node(json_node&& in_node) noexcept;
+    json_node& operator=(const json_node& in_node) noexcept;
+    json_node& operator=(json_node&& in_node) noexcept;
 
-    inline explicit json_node(jsonland::node_type in_type)
+    inline explicit json_node(jsonland::node_type in_type) noexcept
     : m_node_type(in_type)
     {
         switch (m_node_type)
@@ -141,25 +141,25 @@ public:
         m_value.m_num_escapes = 0;
    }
 
-    inline json_node& operator=(jsonland::node_type in_type)
+    inline json_node& operator=(jsonland::node_type in_type) noexcept
     {
         clear(in_type);
         return *this;
     }
 
-    json_node& operator=(const std::string_view in_str)
+    json_node& operator=(const std::string_view in_str) noexcept
     {
         clear(string_t);
         m_value.reference_value(in_str);
         return *this;
     }
 
-    json_node(const std::string& in_string)
+    json_node(const std::string& in_string) noexcept
     : m_node_type(string_t)
     {
         m_value.store_value_deal_with_escapes(in_string.c_str());
     }
-    json_node& operator=(const std::string& in_string)
+    json_node& operator=(const std::string& in_string) noexcept
     {
         clear(string_t);
         m_value.store_value_deal_with_escapes(in_string.c_str());
@@ -167,7 +167,7 @@ public:
     }
 
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    explicit json_node(const TCHAR in_str[], jsonland::node_type in_type=string_t)
+    explicit json_node(const TCHAR in_str[], jsonland::node_type in_type=string_t) noexcept
     : m_node_type(in_type)
     {
         m_value.store_value_deal_with_escapes(in_str);
@@ -182,7 +182,7 @@ public:
 
     //--- integer constructor
     template <typename NUM, IsInteger<NUM>* = nullptr >
-    json_node(const NUM in_num)
+    json_node(const NUM in_num) noexcept
     : m_node_type(number_t)
     , m_value()
     , m_num(static_cast<double>(in_num))
@@ -201,7 +201,7 @@ public:
     //...
     //--- float constructor
     template <typename NUM, IsFloat<NUM>* = nullptr >
-    json_node(const NUM in_num)
+    json_node(const NUM in_num) noexcept
     : m_node_type(number_t)
     , m_value()
     , m_num(static_cast<double>(in_num))
@@ -220,7 +220,7 @@ public:
 
     //--- bool constructor
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
-    explicit json_node(const TBOOL in_bool)
+    explicit json_node(const TBOOL in_bool) noexcept
     : m_node_type(bool_t)
     , m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
@@ -237,7 +237,7 @@ public:
 
     //--- null constructor
     template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
-    explicit json_node(TNULLPTR) : json_node()
+    explicit json_node(TNULLPTR) noexcept : json_node()
     {}
     // assign null
     template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
@@ -248,7 +248,7 @@ public:
     }
     //...
 
-    void clear(const node_type in_new_type=null_t)
+    void clear(const node_type in_new_type=null_t) noexcept
     {
         m_node_type = in_new_type;
         m_obj_key_to_index.clear();
@@ -285,7 +285,7 @@ public:
     inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
     inline bool is_valid() const {return is_scalar() || is_array() || is_object() || is_null();}
 
-    size_t num_elements() const
+    size_t num_elements() const  noexcept
     {
         size_t retVal = 0;
         switch (type())
@@ -303,7 +303,7 @@ public:
         return retVal;
     }
 
-    size_t count(std::string_view in_key) const
+    size_t count(std::string_view in_key) const noexcept
     {
         size_t retVal = 0;
         if (is_object())
@@ -404,7 +404,7 @@ public:
     std::string_view key() const
     {
         m_key.unescape_internal();
-        return m_key.as_string_view().data();
+        return m_key.as_string_view();
     }
     
     KeyToIndex& get_key_to_index_map()
@@ -497,7 +497,6 @@ public:
             return *this;  // what to return here?
     }
 
-
     json_node& push_back(const json_node& in_node)
     {
         m_values.push_back(in_node);
@@ -581,12 +580,12 @@ public:
 
 protected:
 
-    inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
+    inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type) noexcept
     : m_node_type(in_type)
     , m_value(in_str_size, in_c_str)
     {
     }
-    inline json_node(const std::string_view in_string_view, jsonland::node_type in_type)
+    inline json_node(const std::string_view in_string_view, jsonland::node_type in_type) noexcept
     : m_node_type(in_type)
     , m_value(in_string_view)
     {}
@@ -596,7 +595,7 @@ protected:
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
-        m_value = in_str;
+        m_value = std::move(in_str);
     }
     inline void parser_direct_set(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     {
@@ -627,7 +626,7 @@ class json_doc : public json_node
 {
 public:
     
-    inline explicit json_doc(jsonland::node_type in_type) :  json_node(in_type) {}
+    inline explicit json_doc(jsonland::node_type in_type) noexcept :  json_node(in_type) {}
     json_doc() = default;
     ~json_doc() = default;
 //    json_doc(const json_node& in_node);
