@@ -1,10 +1,14 @@
 #include "gtest/gtest.h"
 #include "jsonland/json_node.h"
+#include <string_view>
 
 using namespace jsonland;
 
 TEST(TestAssign, repeated_rotating_assign)
 {
+    std::string_view a_sv = "lu lu lin"sv;
+    std::string a_str(a_sv);
+
     json_node jn_sources[6]{json_node("Margot Robbie"), 19.19, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::node_type::array_t)};
     
     json_node obj(jsonland::node_type::object_t);
@@ -29,7 +33,7 @@ TEST(TestAssign, repeated_rotating_assign)
         int target = i++ % 7;
         jn_targets[target] = jn_sources[0];
         EXPECT_TRUE(jn_targets[target].is_string()) << R"(json_node = json_node("Margot Robbie"), is_string() should return true)";
-        EXPECT_STREQ(jn_targets[target].as_string(), "Margot Robbie") <<  R"(json_node = json_node("Margot Robbie"),  as_string() should return "Margot Robbie")";
+        EXPECT_EQ(jn_targets[target].as_string_view(), "Margot Robbie"sv) <<  R"(json_node = json_node("Margot Robbie"),  as_string() should return "Margot Robbie")";
         
         target = i++ % 7;
         jn_targets[target] = jn_sources[1];
@@ -69,7 +73,7 @@ TEST(TestAssign, repeated_assign_constants)
         
         jn = "Bimbatron";
         EXPECT_TRUE(jn.is_string()) << R"(json_node = "Bimbatron", is_string() should return true)";
-        EXPECT_STREQ(jn.as_string(), "Bimbatron") <<  R"(json_node = "Bimbatron",  as_string() should return "Bimbatron")";
+        EXPECT_EQ(jn.as_string(), "Bimbatron") <<  R"(json_node = "Bimbatron",  as_string() should return "Bimbatron")";
 
         jn = nullptr;
         // check that type is set correctly to node_type_null
@@ -91,7 +95,7 @@ TEST(TestAssign, str_value)
     EXPECT_TRUE(jn_str.is_string()) << R"(jn_str = "Shmulik", should return true)";
 
     // check that default value is initialized correctly
-    EXPECT_STREQ(jn_str.as_string("????"), "Shmulik") << R"(jn_str = "Shmulik", as_string('????') should return "Shmulik")";
+    EXPECT_EQ(jn_str.as_string("????"), "Shmulik") << R"(jn_str = "Shmulik", as_string('????') should return "Shmulik")";
 
     EXPECT_FALSE(jn_str.is_object()) << R"(jn_str = "Shmulik", is_object() should return false)";
     EXPECT_FALSE(jn_str.is_array()) << R"(jn_str = "Shmulik", is_array() should return false)";

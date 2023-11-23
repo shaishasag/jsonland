@@ -4,7 +4,6 @@
 
 using namespace jsonland;
 
-
 TEST(TestWrite, to_ostream)
 {
     std::ostringstream oss;
@@ -62,10 +61,9 @@ TEST(TestWrite, to_ostream)
     oss.str("");
 }
 
-#if 0
 TEST(Create, one)
 {
-    json_node jn(jsonland::node_type::_object);
+    json_node jn(jsonland::node_type::object_t);
     jn["one"] = "one";
     jn["two"] = 2;
     jn["three"] = true;
@@ -75,7 +73,6 @@ TEST(Create, one)
     
     std::cerr << jn;
 }
-#endif
 
 TEST(TestArray, set_and_get)
 {
@@ -107,10 +104,10 @@ TEST(TestSetValue, set_str)
     
     json_node jn;
     jn = some_str;
-    EXPECT_STREQ(jn.as_string(), some_str)
+    EXPECT_EQ(jn.as_string(), some_str)
                 << "json_node.operator=(" << some_str << ").as_string()" << " should return "  << '"' << some_str << '"';
     jn = some_other_str;
-    EXPECT_STREQ(jn.as_string(), some_other_str)
+    EXPECT_EQ(jn.as_string(), some_other_str)
                 << "json_node.operator=(" << some_other_str << ").as_string()" << " should return "  << '"' << some_other_str << '"';
 }
 
@@ -167,12 +164,12 @@ TEST(TestGetValue, integer_value)
     EXPECT_EQ(json_node(int_num).as_int(another_int_number), int_num)
                 << "json_node(" << int_num << ").as_double(" << another_int_number << ") should return " << int_num;
     
-    EXPECT_STREQ(json_node(int_num).as_string(), "")
+    EXPECT_EQ(json_node(int_num).as_string(), "")
                 << "json_node(" << int_num << ").as_string() should return " << '"' << '"';
     
-    EXPECT_STREQ(json_node(int_num).as_string("babushka"), "babushka")
+    EXPECT_EQ(json_node(int_num).as_string("babushka"), "babushka")
                 << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
-    EXPECT_STREQ(json_node(int_num).as<const char*>("babushka"), "babushka")
+    EXPECT_EQ(json_node(int_num).as<std::string_view>("babushka"), "babushka")
                 << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
 
     EXPECT_EQ(json_node("babushka").as_int<int>(), 0);
@@ -180,6 +177,7 @@ TEST(TestGetValue, integer_value)
 
     EXPECT_EQ(json_node("babushka").as_int(190888), 190888);
     EXPECT_EQ(json_node("babushka").as<int>(190888), 190888);
+
 }
 
 TEST(TestGetValue, floating_point_value)
@@ -191,9 +189,9 @@ TEST(TestGetValue, floating_point_value)
                 << "json_node(" << fp_num << ").as_double() should return " << fp_num;
     EXPECT_EQ(json_node(fp_num).as_double(another_fp_number), fp_num)
                 << "json_node(" << fp_num << ").as_double(" << another_fp_number << ") should return " << fp_num;
-    EXPECT_STREQ(json_node(fp_num).as_string(), "")
+    EXPECT_EQ(json_node(fp_num).as_string(), "")
                 << "json_node(" << fp_num << ").as_string() should return " << '"' << '"';
-    EXPECT_STREQ(json_node(fp_num).as_string("babushka"), "babushka")
+    EXPECT_EQ(json_node(fp_num).as_string("babushka"), "babushka")
                 << "json_node(" << fp_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
 
     EXPECT_EQ(json_node("babushka").as_double(), 0.0);
@@ -204,10 +202,10 @@ TEST(TestGetValue, str_value)
 {
     const char* some_str = "babushka";
     const char* some_other_str = "pirushki";
-    EXPECT_STREQ(json_node(some_str).as_string(), some_str)
+    EXPECT_EQ(json_node(some_str).as_string(), some_str)
                 << "json_node(" << some_str << ").as_string()" << " should return "  << '"' << some_str << '"';
     
-    EXPECT_STREQ(json_node(some_str).as_string(some_other_str), some_str)
+    EXPECT_EQ(json_node(some_str).as_string(some_other_str), some_str)
                 << "json_node(" << some_str << ").as_string(" << some_other_str << ")" << " should return "  << '"' << some_str << '"';
 
     EXPECT_EQ(json_node(some_str).as_double(), 0.0)
@@ -216,6 +214,6 @@ TEST(TestGetValue, str_value)
                 << "json_node(" << some_str << ").as_double(456.87)" << " should return 456.87";
 
     json_node jn2(17);
-    EXPECT_STREQ(jn2.as_string(), "");
-    EXPECT_STREQ(jn2.as_string(some_str), some_str);
+    EXPECT_EQ(jn2.as_string(), "");
+    EXPECT_EQ(jn2.as_string(some_str), some_str);
 }

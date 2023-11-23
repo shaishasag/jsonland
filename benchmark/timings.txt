@@ -8,3 +8,23 @@ parsing "/Users/shai/Programming/jsonland/examples/example_2.json"
 parsing "/Users/shai/Programming/jsonland/examples/example_3.json"
     parsing of 26,141,344 bytes 198.929458ms; 131,410 bytes per millisecond
     memory consumption 151,779,552 bytes;  1:5
+sizeof(json_node): 186
+
+23/11/2023, string_or_view implemented as std::variant:
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_1.json"
+    parsing (insitue) of 765 bytes 0.021209ms; 36,069 bytes per millisecond
+    memory consumption 6,952 bytes;  1:9
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_2.json"
+    parsing (insitue) of 81,008 bytes 0.344291ms; 235,289 bytes per millisecond
+    memory consumption 415,120 bytes;  1:5
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_3.json"
+    parsing (insitue) of 26,141,344 bytes 111.990667ms; 233,424 bytes per millisecond
+    memory consumption 136,654,888 bytes;  1:5
+sizeof(string_or_view): 40
+sizeof(json_node): 168
+    sizeof(json_node.m_node_type): 4
+    sizeof(json_node.m_value): 40
+    sizeof(json_node.m_num): 8
+    sizeof(json_node.m_values): 24
+    sizeof(json_node.m_obj_key_to_index): 40
+    sizeof(json_node.m_key): 40

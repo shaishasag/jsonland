@@ -327,7 +327,7 @@ public:
     
     const std::string_view as_resolved_string_view() const;
  
-    std::string_view as_string(std::string_view in_default="") const
+    std::string_view as_string(std::string_view in_default=""sv) const
     {
         if (is_string())
         {
@@ -390,9 +390,9 @@ public:
         else if constexpr (std::is_integral_v<TASTYPE>) {
             return as_int(in_default);
         }
-        else if (std::is_same<const char*, TASTYPE>::value) {
-            return as_string(in_default);
-        }
+//        else if (std::is_same<const char*, TASTYPE>::value) {
+//            return as_string(in_default);
+//        }
         else if (std::is_same<std::string_view, TASTYPE>::value) {
             return as_string(in_default);
         }
@@ -579,12 +579,13 @@ public:
     }
 
 protected:
-
+#if 0
     inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type) noexcept
     : m_node_type(in_type)
     , m_value(in_str_size, in_c_str)
     {
     }
+#endif
     inline json_node(const std::string_view in_string_view, jsonland::node_type in_type) noexcept
     : m_node_type(in_type)
     , m_value(in_string_view)
@@ -597,12 +598,14 @@ protected:
         m_node_type = in_type;
         m_value = std::move(in_str);
     }
+
     inline void parser_direct_set(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
-        m_value.reference_value(in_c_str, in_str_size);
+        m_value.reference_value(std::string_view(in_c_str, in_str_size));
     }
+
     inline void parser_direct_set(jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty

@@ -138,6 +138,8 @@ void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
 static void report_size_of()
 {
     std::cout << std::endl;
+
+    std::cout << "sizeof(string_or_view): " << sizeof(jsonland::string_or_view) << std::endl;
     std::cout << "sizeof(json_node): " << sizeof(jsonland::json_node) << std::endl;
     std::cout << "    sizeof(json_node.m_node_type): " << sizeof(jsonland::json_node::m_node_type) << std::endl;
     std::cout << "    sizeof(json_node.m_value): " << sizeof(jsonland::json_node::m_value) << std::endl;
@@ -172,11 +174,12 @@ int parse_and_report_files()
 
 int main(int argc, const char * argv[])
 {
-    //parse_and_report_files();
+    parse_and_report_files();
     report_size_of();
-    auto jArr = create_array();
-    jArr.dump(std::cout);
-    std::cout << std::endl;
-    jArr[0]["two"].dump(std::cout);
-    std::cout << std::endl;
+//    report_size_of();
+//    auto jArr = create_array();
+//    jArr.dump(std::cout);
+//    std::cout << std::endl;
+//    jArr[0]["two"].dump(std::cout);
+//    std::cout << std::endl;
 }
