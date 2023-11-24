@@ -53,7 +53,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--gtest_filter=TestIter.obj"
+            argument = "--gtest_filter=TestStringOrView.*"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

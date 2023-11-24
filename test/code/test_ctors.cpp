@@ -14,8 +14,8 @@ TEST(TestConstruction, obj_ctor_node_type)
     EXPECT_TRUE(json_node(jsonland::node_type::object_t).is_object()) << "json_node(node_type_obj).is_object() should return true";
 
     // check that default value is initialized correctly
-    EXPECT_EQ(json_node(jsonland::node_type::object_t).size(), 0) << "json_node(node_type_obj) should be empty";
-    EXPECT_EQ(json_node(jsonland::node_type::object_t).size(), 0) << "json_node(node_type_obj).as_obj() should be empty";
+    EXPECT_EQ(json_node(jsonland::node_type::object_t).num_elements(), 0) << "json_node(node_type_obj) should be empty";
+    EXPECT_EQ(json_node(jsonland::node_type::object_t).num_elements(), 0) << "json_node(node_type_obj).as_obj() should be empty";
 
     // check that type is not set incorrectly as another node_type
     EXPECT_FALSE(json_node(jsonland::node_type::object_t).is_array()) << "json_node(node_type_obj).is_array() should return false";
@@ -31,7 +31,7 @@ TEST(TestConstruction, array_ctor_node_type)
     EXPECT_TRUE(json_node(jsonland::node_type::array_t).is_array()) << "json_node(node_type_array).is_array() should return true";
 
     // check that default value is initialized correctly
-    EXPECT_EQ(json_node(jsonland::node_type::array_t).size(), 0) << "json_node(node_type_array) should be empty";
+    EXPECT_EQ(json_node(jsonland::node_type::array_t).num_elements(), 0) << "json_node(node_type_array) should be empty";
     EXPECT_EQ(json_node(jsonland::node_type::array_t).as_array().size(), 0) << "json_node(node_type_array).as_array() should be empty";
 
     // check that type is not set incorrectly as another node_type
@@ -48,7 +48,7 @@ TEST(TestConstruction, str_ctor_with_node_type)
     EXPECT_TRUE(json_node(jsonland::node_type::string_t).is_string()) << "json_node(node_type_str).is_string() should return true";
 
     // check that default value is initialized correctly
-    EXPECT_STREQ(json_node(jsonland::node_type::string_t).as_string("????"), "") << "json_node(node_type_str).as_string('????') should return empty string";
+    EXPECT_EQ(json_node(jsonland::node_type::string_t).as_string("????"), ""sv) << "json_node(node_type_str).as_string('????') should return empty string";
     
     // check that type is not set incorrectly as another node_type
     EXPECT_FALSE(json_node(jsonland::node_type::string_t).is_object()) << "json_node(node_type_str).is_object() should return false";
@@ -63,8 +63,9 @@ TEST(TestConstruction, str_ctor_with_value)
     // check that type is set correctly to node_type_str
     EXPECT_TRUE(json_node("babushka").is_string()) << R"(json_node("babushka").is_string() should return true)";
 
+    json_node("babushka").as_string("????");
     // check that default value is initialized correctly
-    EXPECT_STREQ(json_node("babushka").as_string("????"), "babushka") << R"(json_node("babushka").as_string('????') should return  "babushka")";
+    EXPECT_EQ(json_node("babushka").as_string("????"), "babushka"sv) << R"(json_node("babushka").as_string('????') should return  "babushka")";
 
     EXPECT_FALSE(json_node("babushka").is_object()) << R"(json_node("babushka").is_object() should return false)";
     EXPECT_FALSE(json_node("babushka").is_array()) << R"(json_node("babushka").is_array() should return false)";

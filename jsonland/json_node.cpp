@@ -147,17 +147,18 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
 void jsonland::string_or_view::store_value_deal_with_escapes(std::string_view in_str)
 {
     m_num_escapes = 0;
-    m_internal_store.reserve(m_value.size()*1.1);
+    std::string temp_str;
+    temp_str.reserve(in_str.size()*1.1);
     
     for (char curr : in_str)
     {
         size_t num_chars_to_copy = 0;
         const char* p = escapable_to_escaped(&curr, num_chars_to_copy);
-        m_internal_store.append(p, num_chars_to_copy);
+        temp_str.append(p, num_chars_to_copy);
         if ('\\' == *p) // \\ will be counted as two escapes, but count need not be accurate
             ++m_num_escapes;
     }
-    m_value = m_internal_store;
+    m_value = std::move(temp_str);
 }
 
 class solve_escapes_iter
@@ -259,9 +260,9 @@ public:
 
 void jsonland::string_or_view::unescape(std::string& out_unescaped) const
 {
-    out_unescaped.reserve(m_value.size());
+    out_unescaped.reserve(size());
 
-    solve_escapes_iter iter(m_value);
+    solve_escapes_iter iter(as_string_view());
     
     while (iter)
     {
@@ -272,9 +273,10 @@ void jsonland::string_or_view::unescape(std::string& out_unescaped) const
 
 void jsonland::string_or_view::unescape_internal()
 {
-    unescape(m_internal_store);
+    std::string temp_str(as_string_view());
+    unescape(temp_str);
     m_num_escapes = 0;
-    m_value = m_internal_store;
+    m_value = std::move(temp_str);
 }
 
 const std::string_view json_node::as_resolved_string_view() const
@@ -661,9 +663,7 @@ namespace parser_impl
             {
                 *const_cast<char*>(m_curr_char) = '\0';
                 
-                jsonland::string_or_view sov(m_curr_char-str_start,
-                                              str_start,
-                                              num_escapes);
+                jsonland::string_or_view sov(std::string_view(str_start, m_curr_char-str_start), num_escapes);
                 out_node.parser_direct_set(std::move(sov), jsonland::node_type::string_t);
                 next_char();
                 retVal = true;
@@ -754,12 +754,10 @@ after_exponent:
             }
 
 scan_number_done:
-            jsonland::string_or_view sov(m_curr_char-str_start,
-                                          str_start,
-                                          0);
+            jsonland::string_or_view sov(std::string_view(str_start, m_curr_char-str_start), 0);
 #if JSONLAND_DEBUG==1
 // in release build the number is translated from text only when to_double/to_int is called
-            out_node.m_num = std::atof(sov.data());
+            out_node.m_num = std::atof((const char*)sov.data());
 #endif
             out_node.parser_direct_set(std::move(sov), jsonland::node_type::number_t);
             return true;

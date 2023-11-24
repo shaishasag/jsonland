@@ -10,9 +10,10 @@
 		F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC63126D3F8930035D17F /* benchmark_main.cpp */; };
 		F617B2BA2971B644007A0D81 /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2B22971B1EC007A0D81 /* gtest-all.cc */; };
 		F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
-		F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
+		F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */; };
+		F64C45FE2B0FC21900ADDAC9 /* string_variant.h in Headers */ = {isa = PBXBuildFile; fileRef = F64C45FD2B0FC21900ADDAC9 /* string_variant.h */; };
 		F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611015926CD66F600A01C16 /* create_json_gtests.cpp */; };
 		F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */; };
 		F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC62526D3D9AE0035D17F /* test_compare.cpp */; };
@@ -94,6 +95,7 @@
 		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
+		F64C45FD2B0FC21900ADDAC9 /* string_variant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_variant.h; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
 		F68EC13E26E23A7600B8BA77 /* json_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_node.h; path = jsonland/json_node.h; sourceTree = SOURCE_ROOT; };
@@ -223,6 +225,7 @@
 				F68EC13E26E23A7600B8BA77 /* json_node.h */,
 				F68EC13F26E23A7600B8BA77 /* json_node.cpp */,
 				F6ABDE342B07C175007ACD9A /* string_or_view.h */,
+				F64C45FD2B0FC21900ADDAC9 /* string_variant.h */,
 			);
 			path = jsonland;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F64C45FE2B0FC21900ADDAC9 /* string_variant.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,13 +418,13 @@
 				F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */,
 				F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */,
 				F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */,
+				F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */,
 				F617B2BA2971B644007A0D81 /* gtest-all.cc in Sources */,
 				F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */,
 				F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */,
 				F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */,
 				F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */,
 				F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */,
-				F62C078326E6469A004DDA5D /* test_parsing_Suites.cpp in Sources */,
 				F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
