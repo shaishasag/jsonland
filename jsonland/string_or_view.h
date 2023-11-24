@@ -1,176 +1,55 @@
-#ifndef __jsonland_string_or_view_h__
-#define __jsonland_string_or_view_h__
+#ifndef __jsonland_variant_h__
+#define __jsonland_variant_h__
+
+#include <variant>
 
 using namespace std::string_view_literals;
-#include "string_variant.h"
+
 namespace jsonland
 {
+template<class> constexpr bool always_false_v = false;
 
-#if 0
 class string_or_view
 {
 public:
     
-    std::string_view m_value{};
-    std::string m_internal_store{};
+    using value_type = std::variant<std::string_view, std::string>;
+    value_type m_value;
+
+//    std::string_view m_value{};
+//    std::string m_internal_store{};
     int m_num_escapes = -1;
     
     string_or_view() = default;
-#if 0
-    string_or_view(const char* in_str, const int in_num_escapes=-1) noexcept
-    : m_internal_store()
-    , m_value(in_str)
-    , m_num_escapes(in_num_escapes)
-    {
-    }
-    string_or_view(const size_t in_str_size, const char* in_str, const int in_num_escapes=-1) noexcept
-    : m_internal_store()
-    , m_value(in_str, in_str_size)
-    , m_num_escapes(in_num_escapes)
-    {
-    }
-#endif
+
     string_or_view(const std::string_view in_str, const int in_num_escapes=-1) noexcept
     {
         reference_value(in_str);
         m_num_escapes = in_num_escapes;
     }
-#if 0
-    string_or_view(const std::string& in_str, const int in_num_escapes=-1) noexcept
-    {
-        store_value(in_str);
-        m_num_escapes = in_num_escapes;
-    }
-#endif
 
-    string_or_view(const string_or_view& in_sov) noexcept
-    {
-        if (in_sov.is_value_referenced())
-        {
-            reference_value(in_sov.m_value);
-        }
-        else
-        {
-            store_value(in_sov.m_internal_store);
-        }
-        m_num_escapes = in_sov.m_num_escapes;
-    }
+    string_or_view(const string_or_view& in_sov)  = default;
 
     void store_value(const std::string& in_str, const int in_num_escapes=-1)
     {
-        m_internal_store = in_str;
-        m_value = m_internal_store;
-        m_num_escapes = in_num_escapes;
-    }
-#if 0
-    void store_value(std::string&& in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store = std::move(in_str);
-        m_value = m_internal_store;
-        m_num_escapes = in_num_escapes;
-    }
-    void store_value(const std::string_view in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store = in_str;
-        m_value = m_internal_store;
-        m_num_escapes = in_num_escapes;
-    }
-    
-    void store_value(const char* in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store = in_str;
-        m_value = m_internal_store;
-        m_num_escapes = in_num_escapes;
-    }
-    
-    constexpr void reference_value(const std::string& in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store.clear();
-        m_value = std::string_view(in_str);
-        m_num_escapes = in_num_escapes;
-    }
-#endif
-    void reference_value(const std::string_view in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store.clear();
         m_value = in_str;
         m_num_escapes = in_num_escapes;
     }
-#if 0
-    void reference_value(const string_or_view in_str)
+
+    void reference_value(const std::string_view in_str, const int in_num_escapes=-1)
     {
-        m_internal_store.clear();
-        m_value = in_str.m_value;
-        m_num_escapes = in_str.m_num_escapes;
-    }
-    void reference_value(const char* in_str, const int in_num_escapes=-1)
-    {
-        m_internal_store.clear();
-        m_value = std::string_view(in_str);
+        m_value = in_str;
         m_num_escapes = in_num_escapes;
-    }
-    void reference_value(const char* in_str, size_t in_str_size, const int in_num_escapes=-1)
-    {
-        m_internal_store.clear();
-        m_value = std::string_view(in_str, in_str_size);
-        m_num_escapes = in_num_escapes;
-    }
-#endif
-    
-    void convert_referenced_value_to_stored()
-    {
-        m_internal_store = m_value;
-        m_value = std::string_view(m_internal_store);
     }
 
-#if 0
-    string_or_view& operator=(const string_or_view& in_sov)
+    void convert_referenced_value_to_stored()
     {
-        m_internal_store.clear();
-        if (in_sov.is_value_referenced())
+        if (std::holds_alternative<std::string_view>(m_value))
         {
-            reference_value(in_sov.m_value);
+            m_value = std::string(std::get<std::string_view>(m_value));
         }
-        else
-        {
-            store_value(in_sov.m_internal_store);
-        }
-        
-        m_num_escapes = in_sov.m_num_escapes;
-        return *this;
     }
-    
-    string_or_view(string_or_view&& in_sov) noexcept
-    {
-        if (in_sov.is_value_referenced())
-        {
-            reference_value(in_sov.m_value);
-        }
-        else
-        {
-            m_internal_store = std::move(in_sov.m_internal_store);
-            m_value = m_internal_store;
-        }
-        m_num_escapes = in_sov.m_num_escapes;
-    }
-    
-    string_or_view& operator=(string_or_view&& in_sov)
-    {
-        m_internal_store.clear();
-        if (in_sov.is_value_referenced())
-        {
-            reference_value(in_sov.m_value);
-        }
-        else
-        {
-            m_internal_store = std::move(in_sov.m_internal_store);
-            m_value = m_internal_store;
-        }
-        
-        m_num_escapes = in_sov.m_num_escapes;
-        return *this;
-    }
-#endif
+
     void store_value_deal_with_escapes(std::string_view in_str);
     
     // escape chars where needed and return true is escapes were found
@@ -182,13 +61,64 @@ public:
         store_value("");
         m_num_escapes = -1;
     }
-    
-    bool is_value_referenced() const { return m_internal_store.empty(); }
-    bool is_value_stored() const { return !is_value_referenced(); }
-    bool empty() const { return m_value.empty(); }
-    const char* data() const { return m_value.data(); }
-    std::string_view as_string_view() const { return m_value; }
-    size_t size() { return m_value.size(); }
+
+    bool is_value_referenced() const { return std::holds_alternative<std::string_view>(m_value); }
+    bool is_value_stored() const { return std::holds_alternative<std::string>(m_value); }
+    bool empty() const
+    {
+        bool retVal{false};
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+                 retVal = arg.empty();
+             else if constexpr (std::is_same_v<T, std::string>)
+                 retVal = arg.empty();
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
+        return retVal;
+    }
+
+    const char* data() const
+    {
+        return  as_string_view().data();
+    }
+
+    std::string_view as_string_view() const
+    {
+        std::string_view retVal;
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+                 retVal = arg;
+             else if constexpr (std::is_same_v<T, std::string>)
+                 retVal = arg;
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
+        return retVal;
+    }
+
+    size_t size() const
+    {
+        size_t retVal{0};
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+                 retVal = arg.size();
+             else if constexpr (std::is_same_v<T, std::string>)
+                 retVal = arg.size();
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
+        return retVal;
+    }
     friend struct string_or_view_hasher;
     friend bool operator==(const string_or_view& lhs, const string_or_view& rhs)
     {
@@ -198,10 +128,20 @@ public:
     size_t allocation_size() const
     {
         size_t retVal{0};
-        if (m_internal_store.capacity() > sizeof(std::string)) // std::string has small string optimization
+        std::visit([&](auto&& arg)
         {
-            retVal += m_internal_store.capacity()*sizeof(std::string::value_type);
-        }
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+                 retVal = 0;
+             else if constexpr (std::is_same_v<T, std::string>) {
+                 if (arg.capacity() > sizeof(std::string)) {
+                     retVal = arg.capacity()*sizeof(std::string::value_type);
+                 }
+             }
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
         return retVal;
     }
 };
@@ -213,8 +153,8 @@ struct string_or_view_hasher
         return std::hash<std::string_view>()(in_string_or_view_to_hash.as_string_view());
     }
 };
-#endif
+
 } // namespace jsonland
 
 
-#endif // __jsonland_string_or_view_h__
+#endif // __jsonland_variant_h__
