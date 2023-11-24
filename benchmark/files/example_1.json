@@ -1,17 +1,17 @@
 {
-    "a string": "a string",
+    "string #1": "1st string",
     "an int": 12345678,
     "an float": 13.12345678,
     "an bool": true,
     "a null": null,
     "an array": [
-        "a string",
+        "2nd string",
         12345678,
         13.12345678,
         true,
         null,
         {
-            "a string": "a string",
+            "string #3": "3rd string",
             "an int": 12345678,
             "an float": 13.12345678,
             "an bool": true,

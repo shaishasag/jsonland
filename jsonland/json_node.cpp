@@ -6,6 +6,10 @@
 
 using namespace jsonland;
 
+#if JSONLAND_DEBUG==1
+size_t string_or_view::num_allocations{0};
+#endif
+
 inline bool is_white_space_not_new_line(const char in_c)
 {
     return ' ' == in_c  or '\r' == in_c or '\t' == in_c;
@@ -98,25 +102,25 @@ static const char* name_of_control_char(const char in_c)
     return retVal;
 }
 
-json_node::json_node(const json_node& in_node) noexcept
-: m_node_type(in_node.m_node_type)
-, m_value(in_node.m_value)
-, m_num(in_node.m_num)
-, m_values(in_node.m_values)
-, m_obj_key_to_index(in_node.m_obj_key_to_index)
-, m_key(in_node.m_key)
-{
-}
-
-json_node::json_node(json_node&& in_node) noexcept
-: m_node_type(in_node.m_node_type)
-, m_value(std::move(in_node.m_value))
-, m_num(in_node.m_num)
-, m_values(std::move(in_node.m_values))
-, m_obj_key_to_index(std::move(in_node.m_obj_key_to_index))
-, m_key(std::move(in_node.m_key))
-{
-}
+//json_node::json_node(const json_node& in_node) noexcept
+//: m_node_type(in_node.m_node_type)
+//, m_value(in_node.m_value)
+//, m_num(in_node.m_num)
+//, m_values(in_node.m_values)
+//, m_obj_key_to_index(in_node.m_obj_key_to_index)
+//, m_key(in_node.m_key)
+//{
+//}
+//
+//json_node::json_node(json_node&& in_node) noexcept
+//: m_node_type(in_node.m_node_type)
+//, m_value(std::move(in_node.m_value))
+//, m_num(in_node.m_num)
+//, m_values(std::move(in_node.m_values))
+//, m_obj_key_to_index(std::move(in_node.m_obj_key_to_index))
+//, m_key(std::move(in_node.m_key))
+//{
+//}
 
 json_node& json_node::operator=(const json_node& in_node) noexcept
 {
@@ -159,6 +163,9 @@ void jsonland::string_or_view::store_value_deal_with_escapes(std::string_view in
             ++m_num_escapes;
     }
     m_value = std::move(temp_str);
+#if JSONLAND_DEBUG==1
+    ++num_allocations;
+#endif
 }
 
 class solve_escapes_iter
@@ -273,10 +280,16 @@ void jsonland::string_or_view::unescape(std::string& out_unescaped) const
 
 void jsonland::string_or_view::unescape_internal()
 {
-    std::string temp_str(as_string_view());
-    unescape(temp_str);
-    m_num_escapes = 0;
-    m_value = std::move(temp_str);
+    if (0 != m_num_escapes)
+    {
+        std::string temp_str(as_string_view());
+        unescape(temp_str);
+        m_num_escapes = 0;
+        m_value = std::move(temp_str);
+#if JSONLAND_DEBUG==1
+        ++num_allocations;
+#endif
+    }
 }
 
 const std::string_view json_node::as_resolved_string_view() const
@@ -481,8 +494,8 @@ namespace parser_impl
         , m_offset_of_line(in_start)
         {
             prepare_char_to_token_table();
-            m_array_values_stack.reserve(512);
-            m_obj_keys_stack.reserve(512);
+            m_array_values_stack.reserve(1024);
+            m_obj_keys_stack.reserve(1024);
         }
 
     private:
@@ -604,12 +617,12 @@ namespace parser_impl
             char curr_char = next_char();
             char* str_start = m_curr_char;
 
-            int num_escapes = 0;
+            out_node.m_value.m_num_escapes = 0;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
                 if (JSONLAND_UNLIKELY(curr_char == '\\'))
                 {
-                    ++num_escapes;
+                    ++out_node.m_value.m_num_escapes;
                     curr_char = next_char();
                     if (JSONLAND_UNLIKELY(! is_there_more_data())) // the '\' was  the last char
                     {
@@ -663,8 +676,7 @@ namespace parser_impl
             {
                 *const_cast<char*>(m_curr_char) = '\0';
                 
-                jsonland::string_or_view sov(std::string_view(str_start, m_curr_char-str_start), num_escapes);
-                out_node.parser_direct_set(std::move(sov), jsonland::node_type::string_t);
+                out_node.parser_direct_set(std::string_view(str_start, m_curr_char-str_start), jsonland::node_type::string_t);
                 next_char();
                 retVal = true;
             }
@@ -754,12 +766,12 @@ after_exponent:
             }
 
 scan_number_done:
-            jsonland::string_or_view sov(std::string_view(str_start, m_curr_char-str_start), 0);
+            std::string_view sov(str_start, m_curr_char-str_start);
 #if JSONLAND_DEBUG==1
 // in release build the number is translated from text only when to_double/to_int is called
             out_node.m_num = std::atof((const char*)sov.data());
 #endif
-            out_node.parser_direct_set(std::move(sov), jsonland::node_type::number_t);
+            out_node.parser_direct_set(sov, jsonland::node_type::number_t);
             return true;
         }
         
@@ -770,13 +782,13 @@ scan_number_done:
             char first_char = *m_curr_char;
             switch (first_char) {
                 case 'f':
-                    out_node = false;
+                    out_node.parser_direct_set(json_node::the_false_string_view, jsonland::bool_t);
                 break;
                 case 't':
-                    out_node = true;
+                    out_node.parser_direct_set(json_node::the_true_string_view, jsonland::bool_t);
                 break;
                 case 'n':
-                    out_node = nullptr;
+                    out_node.parser_direct_set(json_node::the_null_string_view, jsonland::null_t);
                 break;
                 default:
                 {
@@ -816,7 +828,7 @@ scan_number_done:
 
         bool parse_control_char(parsing_node_type in_node_type, json_node& out_node)
         {
-            out_node.parser_direct_set(m_curr_char, 1, static_cast<jsonland::node_type>(in_node_type));
+            out_node.parser_direct_set(std::string_view(m_curr_char, 1), static_cast<jsonland::node_type>(in_node_type));
             next_char();
             return true;
         }
@@ -852,7 +864,7 @@ scan_number_done:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
-            out_node = jsonland::node_type::array_t;
+            out_node.m_node_type = jsonland::node_type::array_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
 
             uint32_t expecting = parsing_node_type::_value | parsing_node_type::_array_close;
@@ -914,7 +926,7 @@ scan_number_done:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
-            out_node = jsonland::node_type::object_t;
+            out_node.m_node_type = jsonland::node_type::object_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
             size_t obj_keys_stack_starting_index = m_obj_keys_stack.size();
 
@@ -944,7 +956,7 @@ scan_number_done:
                 else if (new_node_type & parsing_node_type::_value)
                 {
                     next_node.m_key = m_obj_keys_stack.back();
-                    m_array_values_stack.push_back(std::move(next_node));
+                    m_array_values_stack.emplace_back(std::move(next_node));
                     expecting = static_cast<jsonland::node_type>(parsing_node_type::_comma | parsing_node_type::_obj_close);
                 }
                 else if (new_node_type & parsing_node_type::_comma)

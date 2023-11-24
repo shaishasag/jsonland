@@ -12,31 +12,37 @@ template<class> constexpr bool always_false_v = false;
 class string_or_view
 {
 public:
-    
+#if JSONLAND_DEBUG==1
+    static size_t num_allocations;
+#endif
+
     using value_type = std::variant<std::string_view, std::string>;
     value_type m_value;
 
-//    std::string_view m_value{};
-//    std::string m_internal_store{};
-    int m_num_escapes = -1;
+    int m_num_escapes{0};
     
     string_or_view() = default;
-
-    string_or_view(const std::string_view in_str, const int in_num_escapes=-1) noexcept
+    string_or_view(const string_or_view& in_sov) noexcept = default;
+    string_or_view(string_or_view&& in_sov) noexcept = default;
+    string_or_view& operator=(const string_or_view& in_sov) noexcept = default;
+    string_or_view& operator=(string_or_view&& in_sov) noexcept = default;
+    
+    string_or_view(const std::string_view in_str, const int in_num_escapes=0) noexcept
     {
         reference_value(in_str);
         m_num_escapes = in_num_escapes;
     }
 
-    string_or_view(const string_or_view& in_sov)  = default;
-
-    void store_value(const std::string& in_str, const int in_num_escapes=-1)
+    void store_value(const std::string& in_str, const int in_num_escapes=0)
     {
         m_value = in_str;
         m_num_escapes = in_num_escapes;
+#if JSONLAND_DEBUG==1
+    ++num_allocations;
+#endif
     }
 
-    void reference_value(const std::string_view in_str, const int in_num_escapes=-1)
+    void reference_value(const std::string_view in_str, const int in_num_escapes=0)
     {
         m_value = in_str;
         m_num_escapes = in_num_escapes;
@@ -47,6 +53,9 @@ public:
         if (std::holds_alternative<std::string_view>(m_value))
         {
             m_value = std::string(std::get<std::string_view>(m_value));
+#if JSONLAND_DEBUG==1
+    ++num_allocations;
+#endif
         }
     }
 
@@ -58,8 +67,17 @@ public:
     
     void clear()
     {
-        store_value("");
-        m_num_escapes = -1;
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+                 arg = {};
+             else if constexpr (std::is_same_v<T, std::string>)
+                 arg.clear();
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        m_num_escapes = 0;
     }
 
     bool is_value_referenced() const { return std::holds_alternative<std::string_view>(m_value); }

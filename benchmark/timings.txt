@@ -37,3 +37,22 @@ sizeof(json_node): 168
     sizeof(json_node.m_values): 24
     sizeof(json_node.m_obj_key_to_index): 40
     sizeof(json_node.m_key): 40
+
+24/11/2023, optimized some json_node creation during parse:
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_1.json"
+    parsing (insitue) of 765 bytes 0.019584ms; 39,062 bytes per millisecond
+    memory consumption 6,952 bytes;  1:9
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_2.json"
+    parsing (insitue) of 81,008 bytes 0.335125ms; 241,724 bytes per millisecond
+    memory consumption 415,120 bytes;  1:5
+parsing "/Users/shai/Programming/jsonland/benchmark/files/example_3.json"
+    parsing (insitue) of 26,141,344 bytes 111.688209ms; 234,056 bytes per millisecond
+    memory consumption 136,654,888 bytes;  1:5
+sizeof(string_or_view): 40
+sizeof(json_node): 168
+    sizeof(json_node.m_node_type): 4
+    sizeof(json_node.m_value): 40
+    sizeof(json_node.m_num): 8
+    sizeof(json_node.m_values): 24
+    sizeof(json_node.m_obj_key_to_index): 40
+    sizeof(json_node.m_key): 40

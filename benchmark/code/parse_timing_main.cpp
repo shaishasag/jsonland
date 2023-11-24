@@ -43,59 +43,13 @@ jsonland::json_node create_array()
     return jArray;
 }
 
-void recursive_dive(const jsonland::json_node& jNode, uint32_t indent=0)
-{
-    if (jNode.is_array())
-    {
-        //std::fill_n(std::ostream_iterator<char>(std::cout), 4*indent, ' ');
-        std::cout << "array:" << std::endl;
-        ++indent;
-        for (auto& array_item : jNode)
-        {
-            std::fill_n(std::ostream_iterator<char>(std::cout), 4*indent, ' ');
-            std::cout << "- ";
-            recursive_dive(array_item, indent);
-            std::cout << "\n";
-        }
-        --indent;
-    }
-    else if (jNode.is_object())
-    {
-        //std::fill_n(std::ostream_iterator<char>(std::cout), 4*indent, ' ');
-        std::cout << "object:" << std::endl;
-        ++indent;
-        for (auto& obj_item : jNode)
-        {
-            std::fill_n(std::ostream_iterator<char>(std::cout), 4*indent, ' ');
-            std::cout << obj_item.key();
-            //recursive_dive(jNode[obj_item.key()], indent);
-            std::cout << "\n";
-        }
-        --indent;
-    }
-    else if (jNode.is_string())
-    {
-        std::cout << jNode.as_string();
-    }
-    else if (jNode.is_num())
-    {
-        std::cout << jNode.as_int<int64_t>();
-    }
-    else if (jNode.is_bool())
-    {
-        std::cout << jNode.as_bool();
-    }
-    else if (jNode.is_null())
-    {
-        std::cout << "NULL";
-    }
-}
 struct sep_1000 : std::numpunct<char>
 {
     char do_thousands_sep()   const { return ','; }  // separate with spaces
     std::string do_grouping() const { return "\3"; } // groups of 1 digit
 };
  
+jsonland::json_node recursive_copy(const jsonland::json_node& jNodeIn);
 
 void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
 {
@@ -109,6 +63,9 @@ void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
     jsonland::json_doc jdoc;
     int err = 0;
     std::string parse_type;
+#if JSONLAND_DEBUG==1
+    jsonland::string_or_view::num_allocations = 0;
+#endif
     if (in_situ) {
         parse_type = "insitue";
         err = jdoc.parse_insitu(contents);
@@ -118,9 +75,16 @@ void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
         err = jdoc.parse(contents);
     }
     auto after = std::chrono::steady_clock::now();
+    
     if (0 == err)
     {
-        //j_example_1.dump(std::cout);
+        jsonland::json_node a_copy = recursive_copy(jdoc);
+
+        auto out_file = in_file;
+        out_file.replace_extension("out.json");
+        std::ofstream ofs(out_file);
+        a_copy.dump(ofs);
+        
         auto duration = std::chrono::duration<double, std::milli>(after - before).count();
         uint64_t byte_per_mili = double(contents.size()) / double(duration);
         std::cout << "    " << "parsing " << "(" << parse_type << ") of " << contents.size() << " bytes " << std::fixed << duration << "ms;";
@@ -128,6 +92,9 @@ void parse_and_report_file(std::filesystem::path& in_file, bool in_situ=true)
         size_t memory_consumption = jdoc.memory_consumption();
         uint64_t mem_ratio = double(memory_consumption) / double(contents.size());
         std::cout << "    " << "memory consumption " << memory_consumption << " bytes;  " << "1:" << mem_ratio << "\n";
+#if JSONLAND_DEBUG==1
+        std::cout << "    " << "std::string allocations: " << jsonland::string_or_view::num_allocations << "\n";
+#endif
     }
     else
     {

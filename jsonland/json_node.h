@@ -65,7 +65,6 @@ public:
     // - internaly  (in member of type std::string)
     // in both cases a std::string_view always refers to the string
     // escape situation can be:
-    // m_num_escapes == -1 - unknown
     // m_num_escapes == 0 - no escapes were found
     // m_num_escapes > 0 - some escapes were found
 
@@ -113,10 +112,10 @@ private:
     friend class parser_impl::Parser;
 
 public:
-    json_node() = default;
+    json_node() noexcept = default;
     ~json_node() = default;
-    json_node(const json_node& in_node) noexcept;
-    json_node(json_node&& in_node) noexcept;
+    json_node(const json_node& in_node) noexcept = default;
+    json_node(json_node&& in_node) noexcept = default;
     json_node& operator=(const json_node& in_node) noexcept;
     json_node& operator=(json_node&& in_node) noexcept;
 
@@ -153,6 +152,12 @@ public:
         m_value.reference_value(in_str);
         return *this;
     }
+
+
+    inline json_node(const std::string_view in_string_view, jsonland::node_type in_type=jsonland::string_t) noexcept
+    : m_node_type(in_type)
+    , m_value(in_string_view)
+    {}
 
     json_node(const std::string& in_string) noexcept
     : m_node_type(string_t)
@@ -327,7 +332,19 @@ public:
     
     const std::string_view as_resolved_string_view() const;
  
-    std::string_view as_string(std::string_view in_default=""sv) const
+    std::string_view as_string() const
+    {
+        if (is_string())
+        {
+            if (0 != m_value.m_num_escapes) {
+                m_value.unescape_internal();
+            }
+            return as_string_view();
+        }
+        else
+            return ""sv;
+    }
+    std::string_view as_string(std::string_view in_default) const
     {
         if (is_string())
         {
@@ -339,7 +356,7 @@ public:
         else
             return in_default;
     }
-    
+
     double as_double(const double in_default_fp=0.0) const
     {
         double retVal = in_default_fp;
@@ -436,28 +453,6 @@ public:
                 m_obj_key_to_index.reserve(in_num_to_reserve);
         }
     }
-
-//    json_node& operator[](const string_or_view& in_str)
-//    {
-//        if (JSONLAND_LIKELY(is_object()))
-//        {
-//            int index = -1;
-//            string_or_view key(in_str);
-//            if (0 == m_obj_key_to_index.count(key))
-//            {
-//                m_values.push_back({});
-//                index = static_cast<int>(m_values.size() - 1);
-//                m_obj_key_to_index[key] = index;
-//            }
-//            else
-//            {
-//                index = m_obj_key_to_index[key];
-//            }
-//            return m_values[index];
-//        }
-//        else
-//            return *this;  // what to return here?
-//    }
 
     json_node& operator[](std::string_view in_key)
     {
@@ -579,17 +574,6 @@ public:
     }
 
 protected:
-#if 0
-    inline json_node(char* in_c_str, size_t in_str_size, jsonland::node_type in_type) noexcept
-    : m_node_type(in_type)
-    , m_value(in_str_size, in_c_str)
-    {
-    }
-#endif
-    inline json_node(const std::string_view in_string_view, jsonland::node_type in_type) noexcept
-    : m_node_type(in_type)
-    , m_value(in_string_view)
-    {}
 
     // for parser use, *this is assumed to be freshly constructed, so no need to call clear
     inline void parser_direct_set(string_or_view&& in_str, jsonland::node_type in_type)
@@ -598,12 +582,12 @@ protected:
         m_node_type = in_type;
         m_value = std::move(in_str);
     }
-
-    inline void parser_direct_set(char* in_c_str, size_t in_str_size, jsonland::node_type in_type)
+    
+    inline void parser_direct_set(const std::string_view in_str, jsonland::node_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_node_type = in_type;
-        m_value.reference_value(std::string_view(in_c_str, in_str_size));
+        m_value = in_str;
     }
 
     inline void parser_direct_set(jsonland::node_type in_type)
