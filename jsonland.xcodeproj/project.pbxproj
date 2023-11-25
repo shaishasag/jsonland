@@ -21,9 +21,7 @@
 		F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61F26D272C40035D17F /* test_assign.cpp */; };
 		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
-		F6ABDE2D2B065AB3007ACD9A /* parse_timing_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */; };
 		F6ABDE332B065AFC007ACD9A /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
-		F6D349372B10EBB000E56D11 /* recursive_copy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6D349362B10EBB000E56D11 /* recursive_copy.cpp */; };
 		F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F5A08626EB975E007E11BE /* test_iter.cpp */; };
 /* End PBXBuildFile section */
 
@@ -95,29 +93,22 @@
 		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
+		F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonBenchmarker.h; path = code/JsonBenchmarker.h; sourceTree = "<group>"; };
+		F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonlandBenchMarker.h; path = code/JsonlandBenchMarker.h; sourceTree = "<group>"; };
+		F641F9A32B124C0400C6E7AF /* RapidjsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RapidjsonBenchmarker.h; path = code/RapidjsonBenchmarker.h; sourceTree = "<group>"; };
+		F641F9A42B124C3800C6E7AF /* NlohmannBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NlohmannBenchmarker.h; path = code/NlohmannBenchmarker.h; sourceTree = "<group>"; };
+		F641F9A52B12537400C6E7AF /* rapidjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rapidjson.h; sourceTree = "<group>"; };
+		F641F9A62B1258A900C6E7AF /* writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = writer.h; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
 		F68EC13E26E23A7600B8BA77 /* json_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_node.h; path = jsonland/json_node.h; sourceTree = SOURCE_ROOT; };
 		F68EC13F26E23A7600B8BA77 /* json_node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_node.cpp; path = jsonland/json_node.cpp; sourceTree = SOURCE_ROOT; };
-		F6963C4526D4C75600C71771 /* rapidjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rapidjson.h; path = rapidjson/include/rapidjson/rapidjson.h; sourceTree = SOURCE_ROOT; };
-		F6963C4826D4C82A00C71771 /* istreamwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = istreamwrapper.h; path = rapidjson/include/rapidjson/istreamwrapper.h; sourceTree = SOURCE_ROOT; };
-		F6963C4926D4C82A00C71771 /* document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = document.h; path = rapidjson/include/rapidjson/document.h; sourceTree = SOURCE_ROOT; };
-		F6963C4A26D4C82A00C71771 /* ostreamwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ostreamwrapper.h; path = rapidjson/include/rapidjson/ostreamwrapper.h; sourceTree = SOURCE_ROOT; };
-		F6963C4B26D4C82A00C71771 /* reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = reader.h; path = rapidjson/include/rapidjson/reader.h; sourceTree = SOURCE_ROOT; };
-		F6963C4C26D4C82A00C71771 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memorystream.h; path = rapidjson/include/rapidjson/memorystream.h; sourceTree = SOURCE_ROOT; };
-		F6963C4D26D4C82A00C71771 /* writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = writer.h; path = rapidjson/include/rapidjson/writer.h; sourceTree = SOURCE_ROOT; };
-		F6963C4E26D4C82A00C71771 /* stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stream.h; path = rapidjson/include/rapidjson/stream.h; sourceTree = SOURCE_ROOT; };
-		F6963C4F26D4C82A00C71771 /* memorybuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memorybuffer.h; path = rapidjson/include/rapidjson/memorybuffer.h; sourceTree = SOURCE_ROOT; };
-		F6963C5026D4C82A00C71771 /* filereadstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filereadstream.h; path = rapidjson/include/rapidjson/filereadstream.h; sourceTree = SOURCE_ROOT; };
-		F6963C5126D4C82A00C71771 /* stringbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringbuffer.h; path = rapidjson/include/rapidjson/stringbuffer.h; sourceTree = SOURCE_ROOT; };
-		F6963C5226D4C82A00C71771 /* filewritestream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filewritestream.h; path = rapidjson/include/rapidjson/filewritestream.h; sourceTree = SOURCE_ROOT; };
 		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = test/code/test_escapse.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = parse_timing_main.cpp; path = ../benchmark/code/parse_timing_main.cpp; sourceTree = "<group>"; };
 		F6ABDE342B07C175007ACD9A /* string_or_view.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string_or_view.h; sourceTree = "<group>"; };
-		F6D349362B10EBB000E56D11 /* recursive_copy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recursive_copy.cpp; path = code/recursive_copy.cpp; sourceTree = "<group>"; };
 		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
 		F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_string_or_view.cpp; path = test/code/test_string_or_view.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -160,10 +151,13 @@
 		F60CC63026D3F8930035D17F /* benchmark */ = {
 			isa = PBXGroup;
 			children = (
-				F6D349362B10EBB000E56D11 /* recursive_copy.cpp */,
 				F60CC63126D3F8930035D17F /* benchmark_main.cpp */,
 				F6963C4426D4C6D700C71771 /* rapidjson */,
 				F60CC63826D3F8B10035D17F /* nlohmann */,
+				F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */,
+				F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */,
+				F641F9A32B124C0400C6E7AF /* RapidjsonBenchmarker.h */,
+				F641F9A42B124C3800C6E7AF /* NlohmannBenchmarker.h */,
 			);
 			path = benchmark;
 			sourceTree = "<group>";
@@ -243,21 +237,12 @@
 		F6963C4426D4C6D700C71771 /* rapidjson */ = {
 			isa = PBXGroup;
 			children = (
-				F6963C4926D4C82A00C71771 /* document.h */,
-				F6963C5026D4C82A00C71771 /* filereadstream.h */,
-				F6963C5226D4C82A00C71771 /* filewritestream.h */,
-				F6963C4826D4C82A00C71771 /* istreamwrapper.h */,
-				F6963C4F26D4C82A00C71771 /* memorybuffer.h */,
-				F6963C4C26D4C82A00C71771 /* memorystream.h */,
-				F6963C4A26D4C82A00C71771 /* ostreamwrapper.h */,
-				F6963C4B26D4C82A00C71771 /* reader.h */,
-				F6963C4E26D4C82A00C71771 /* stream.h */,
-				F6963C5126D4C82A00C71771 /* stringbuffer.h */,
-				F6963C4D26D4C82A00C71771 /* writer.h */,
-				F6963C4526D4C75600C71771 /* rapidjson.h */,
+				F641F9A62B1258A900C6E7AF /* writer.h */,
+				F641F9A52B12537400C6E7AF /* rapidjson.h */,
 			);
 			name = rapidjson;
-			sourceTree = "<group>";
+			path = ../rapidjson/include/rapidjson;
+			sourceTree = SOURCE_ROOT;
 		};
 		F6963CA526D55F9B00C71771 /* Frameworks */ = {
 			isa = PBXGroup;
@@ -440,8 +425,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6ABDE2D2B065AB3007ACD9A /* parse_timing_main.cpp in Sources */,
-				F6D349372B10EBB000E56D11 /* recursive_copy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,6 +454,13 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					googletest/googletest,
+					"$(PROJECT_DIR)/../rapidjson/include",
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Debug;
 		};
@@ -479,6 +469,13 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					googletest/googletest,
+					"$(PROJECT_DIR)/../rapidjson/include",
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+				);
 			};
 			name = Release;
 		};

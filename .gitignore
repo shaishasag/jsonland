@@ -3,3 +3,5 @@ project.xcworkspace
 xcshareddata
 xcuserdata
 googletest
+*.out.json
+xcshareddata
