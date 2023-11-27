@@ -304,39 +304,43 @@ std::string json_node::dump() const
     return oss.str();
 }
 
+static constexpr std::string_view quote_and_collon{R"(":)"};
 std::ostream& json_node::dump(std::ostream& os) const
 {
     if (is_object())
     {
-        os << '{';
+        os.put('{');
         if (!m_values.empty())
         {
             auto io = m_values.begin();
-            os << '"' << io->m_key.as_string_view() <<  R"(":)";
+            io->m_key.dump_with_quotes(os);
+            os.put(':');
             io->dump(os);
             
             for (++io; io != m_values.end(); ++io)
             {
-                os << R"(,")" << io->m_key.as_string_view() <<  R"(":)";
+                os.put(',');
+                io->m_key.dump_with_quotes(os);
+                os.put(':');
                 io->dump(os);
             }
         }
-        os << '}';
+        os.put('}');
     }
     else if (is_array())
     {
-        os << '[';
+        os.put('[');
         if (!m_values.empty())
         {
             auto ai = m_values.begin();
             ai->dump(os);
 
             for (++ai; ai != m_values.end(); ++ai) {
-                os << ",";
+                os.put(',');
                 ai->dump(os);
             }
         }
-        os << ']';
+        os.put(']');
     }
     else if (is_num() && is_number_assigned())
     {
@@ -347,13 +351,12 @@ std::ostream& json_node::dump(std::ostream& os) const
     }
     else if (is_string())
     {
-        os << '"';
-        os << m_value.as_string_view();
-        os << '"';
+        m_value.dump_with_quotes(os);
     }
     else
     {
-        os << m_value.as_string_view();
+        std::string_view s = m_value.as_string_view();
+        os.write(s.data(), s.size());
     }
     return os;
 }

@@ -5,6 +5,8 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/ostreamwrapper.h"
+#include "rapidjson/writer.h"
 
 using namespace rapidjson;
 
@@ -41,9 +43,10 @@ public:
     void recursive_copy(Benchmark_results& results) override
     {
         auto before = std::chrono::steady_clock::now();
-        Value copy = recursive_copy_self(document);
+        document_copy.CopyFrom(document, document_copy.GetAllocator());
         auto after = std::chrono::steady_clock::now();
         results.resusive_copy_duration_milli = after - before;
+        document.SetObject();
     }
     
     Value recursive_copy_self(const Value& jdoc)
@@ -72,7 +75,7 @@ public:
             for (SizeType i = 0; i < jdoc.Size(); i++)
             {
                 Value outItem = recursive_copy_self(jdoc[i]);
-                jNodeOut.PushBack(outItem, document_copy.GetAllocator());
+                jNodeOut.PushBack(outItem, document.GetAllocator());
             }
         }
         else if (jdoc.IsObject())
@@ -85,8 +88,8 @@ public:
                 std::string the_key = itr->name.GetString();
                 //jNodeOut[the_key.c_str()] = outItem;
                 Value key;
-                key.SetString(the_key.c_str(), the_key.size(), document_copy.GetAllocator());
-                jNodeOut.AddMember(key, outItem, document_copy.GetAllocator());
+                key.SetString(the_key.c_str(), the_key.size(), document.GetAllocator());
+                jNodeOut.AddMember(key, outItem, document.GetAllocator());
             }
         }
         
@@ -95,9 +98,23 @@ public:
     
     void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
     {
-        
-    }
+        auto out_file = in_path;
+        std::string new_extension = parser_name;
+        new_extension += ".out.json";
+        out_file.replace_extension(new_extension);
 
+        std::ostringstream ofs;
+        auto before = std::chrono::steady_clock::now();
+        rapidjson::OStreamWrapper osw(ofs);
+        rapidjson::Writer<OStreamWrapper> writer(osw);
+        document_copy.Accept(writer);
+        auto after = std::chrono::steady_clock::now();
+        results.write_copy_to_file_duration_milli = after - before;
+
+        std::ofstream ffs(out_file);
+        const std::string& s = ofs.str();
+        ffs.write(s.c_str(), s.size());
+    }
     rapidjson::Document document;
     rapidjson::Document document_copy;
 

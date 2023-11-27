@@ -115,28 +115,6 @@ static void report_size_of()
     std::cout << "    sizeof(json_node.m_key): " << sizeof(jsonland::json_node::m_key) << std::endl;
 }
 
-int parse_and_report_files()
-{
-    std::filesystem::path file_in_folder = std::filesystem::path(__FILE__);
-    //file_in_folder.remove_filename(); std::cout << file_in_folder << std::endl;
-    file_in_folder = file_in_folder.parent_path();
-    file_in_folder = file_in_folder.parent_path();
-    file_in_folder.append("files");
-    file_in_folder.append("example_1.json");
-    std::vector<std::filesystem::path> path_vec;
-    path_vec.push_back(file_in_folder);
-    path_vec.push_back(file_in_folder.replace_filename("example_2.json"));
-    path_vec.push_back(file_in_folder.replace_filename("example_3.json"));
-
-    for (auto& path : path_vec)
-    {
-        parse_and_report_file(path, true);
-    }
-    
-
-    return 0;
-}
-
 int main(int argc, const char * argv[])
 {
     parse_and_report_files();

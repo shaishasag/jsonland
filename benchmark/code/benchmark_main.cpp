@@ -24,7 +24,7 @@ static void prepare_file_list(std::vector<std::filesystem::path>& path_vec)
     file_in_folder.append("example_1.json");
     path_vec.push_back(file_in_folder);
     
-//    path_vec.push_back(file_in_folder.replace_filename("example_2.json"));
+    path_vec.push_back(file_in_folder.replace_filename("example_2.json"));
 //    path_vec.push_back(file_in_folder.replace_filename("example_3.json"));
 
 }

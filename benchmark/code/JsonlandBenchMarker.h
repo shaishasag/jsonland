@@ -1,6 +1,8 @@
 #ifndef __JsonlandBenchMarker_h__
 #define __JsonlandBenchMarker_h__
 
+#include <sstream>
+
 #include "JsonBenchmarker.h"
 #include "jsonland/json_node.h"
 
@@ -86,11 +88,19 @@ public:
         std::string new_extension = parser_name;
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);
-        auto before = std::chrono::steady_clock::now();
-        std::ofstream ofs(out_file);
-        jdoc_copy.dump(ofs);
-        auto after = std::chrono::steady_clock::now();
-        results.write_copy_to_file_duration_milli = after - before;
+        {
+            std::ostringstream ofs;
+            auto before = std::chrono::steady_clock::now();
+            jdoc_copy.dump(ofs);
+            auto after = std::chrono::steady_clock::now();
+            results.write_copy_to_file_duration_milli = after - before;
+            
+            std::ofstream ffs(out_file);
+            const std::string& s = ofs.str();
+            ffs.write(s.c_str(), s.size());
+        }
+        
+
     }
 
     

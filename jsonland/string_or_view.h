@@ -120,6 +120,52 @@ public:
         
         return retVal;
     }
+    
+    std::string_view dump_with_quotes(std::ostream& os) const
+    {
+        std::string_view retVal;
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+             {
+                 os.put('"');
+                 os.write(arg.data(), arg.size());
+                 os.put('"');
+             }
+             else if constexpr (std::is_same_v<T, std::string>)
+             {
+                 os.put('"');
+                 os.write(arg.c_str(), arg.size());
+                 os.put('"');
+             }
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
+        return retVal;
+    }
+    
+    std::string_view dump_no_quotes(std::ostream& os) const
+    {
+        std::string_view retVal;
+        std::visit([&](auto&& arg)
+        {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string_view>)
+             {
+                 os.write(arg.data(), arg.size());
+             }
+             else if constexpr (std::is_same_v<T, std::string>)
+             {
+                 os.write(arg.c_str(), arg.size());
+             }
+             else
+                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
+         }, m_value);
+        
+        return retVal;
+    }
 
     size_t size() const
     {

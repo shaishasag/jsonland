@@ -1,0 +1,5 @@
+- can json_doc be removed?
+
+- compare parse/creating API and function names with RapidJson and nlohlmann, which is best?
+
+- for (auto : jNone) for objects
