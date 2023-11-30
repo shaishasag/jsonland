@@ -43,57 +43,56 @@ public:
     void recursive_copy(Benchmark_results& results) override
     {
         auto before = std::chrono::steady_clock::now();
-        document_copy.CopyFrom(document, document_copy.GetAllocator());
+        recursive_copy_self(document, document_copy);
         auto after = std::chrono::steady_clock::now();
         results.resusive_copy_duration_milli = after - before;
         document.SetObject();
     }
     
-    Value recursive_copy_self(const Value& jdoc)
+    void recursive_copy_self(const Value& from, Value& to)
     {
-        Value jNodeOut;
-        if (jdoc.IsNull())
+        if (from.IsNull())
         {
-            jNodeOut.SetNull();
+            to.SetNull();
         }
-        else if (jdoc.IsBool())
+        else if (from.IsBool())
         {
-            jNodeOut.SetBool(jdoc.GetBool());
+            to.SetBool(from.GetBool());
         }
-        else if (jdoc.IsNumber())
+        else if (from.IsNumber())
         {
-            jNodeOut.SetFloat(jdoc.GetDouble());
+            to.SetFloat(from.GetDouble());
         }
-        else if (jdoc.IsString())
+        else if (from.IsString())
         {
-            std::string_view the_string = jdoc.GetString();
-            jNodeOut.SetString(the_string.data(), the_string.size());
+            std::string_view the_string = from.GetString();
+            to.SetString(the_string.data(), the_string.size());
         }
-        else if (jdoc.IsArray())
+        else if (from.IsArray())
         {
-            jNodeOut.SetArray();
-            for (SizeType i = 0; i < jdoc.Size(); i++)
+            to.SetArray();
+            for (SizeType i = 0; i < from.Size(); i++)
             {
-                Value outItem = recursive_copy_self(jdoc[i]);
-                jNodeOut.PushBack(outItem, document.GetAllocator());
+                Value arrayItem;
+                recursive_copy_self(from[i], arrayItem);
+                to.PushBack(arrayItem, document_copy.GetAllocator());
             }
         }
-        else if (jdoc.IsObject())
+        else if (from.IsObject())
         {
-            jNodeOut.SetObject();
+            to.SetObject();
 
-            for (rapidjson::Value::ConstMemberIterator itr = jdoc.MemberBegin(); itr != jdoc.MemberEnd(); ++itr)
+            for (rapidjson::Value::ConstMemberIterator itr = from.MemberBegin(); itr != from.MemberEnd(); ++itr)
             {
-                Value outItem = recursive_copy_self(itr->value);
+                Value objItem;
+                recursive_copy_self(itr->value, objItem);
                 std::string the_key = itr->name.GetString();
-                //jNodeOut[the_key.c_str()] = outItem;
+                //to[the_key.c_str()] = outItem;
                 Value key;
-                key.SetString(the_key.c_str(), the_key.size(), document.GetAllocator());
-                jNodeOut.AddMember(key, outItem, document.GetAllocator());
+                key.SetString(the_key.c_str(), the_key.size(), document_copy.GetAllocator());
+                to.AddMember(key, objItem, document_copy.GetAllocator());
             }
         }
-        
-        return jNodeOut;
     }
     
     void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
