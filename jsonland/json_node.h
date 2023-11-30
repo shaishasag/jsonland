@@ -87,8 +87,9 @@ public:
     {
         hint_none = 0,
         _num_is_int = 1<<1,
+        _num_in_string = 1<<2,
     };
-    hints m_hints = hint_none;
+    hints m_hints{hint_none};
 
     static constexpr std::string_view the_empty_string_view{""};
     static constexpr std::string_view the_false_string_view{"false"};
@@ -137,7 +138,6 @@ public:
                 m_value = the_empty_string_view;
             break;
         }
-        m_value.m_num_escapes = 0;
    }
 
     inline json_node& operator=(jsonland::node_type in_type) noexcept
@@ -162,12 +162,12 @@ public:
     json_node(const std::string& in_string) noexcept
     : m_node_type(string_t)
     {
-        m_value.store_value_deal_with_escapes(in_string.c_str());
+        m_value.store_value_deal_with_escapes(in_string);
     }
     json_node& operator=(const std::string& in_string) noexcept
     {
         clear(string_t);
-        m_value.store_value_deal_with_escapes(in_string.c_str());
+        m_value.store_value_deal_with_escapes(in_string);
         return *this;
     }
 
@@ -199,7 +199,7 @@ public:
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
-        m_hints = static_cast<hints>(m_hints | _num_is_int);
+        m_hints = _num_is_int;
         
         return *this;
     }
@@ -217,7 +217,6 @@ public:
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
-        m_hints = static_cast<hints>(m_hints & ~_num_is_int);
 
         return *this;
     }
@@ -258,7 +257,7 @@ public:
         m_node_type = in_new_type;
         m_obj_key_to_index.clear();
         m_values.clear();
-        m_value.clear();
+        //m_value.clear();
         switch (m_node_type)
         {
             case null_t:
@@ -274,8 +273,9 @@ public:
                 m_value = the_empty_string_view;
             break;
         }
-        m_value.m_num_escapes = 0;
+
         m_num = 0.0;
+        m_hints = hint_none;
     }
 
 
@@ -286,6 +286,8 @@ public:
     inline bool is_array() const {return array_t == m_node_type;}
     inline bool is_string() const {return string_t == m_node_type;}
     inline bool is_num() const {return number_t == m_node_type;}
+    inline bool is_int() const {return number_t == m_node_type && (m_hints & _num_is_int);}
+    inline bool is_float() const {return number_t == m_node_type && (0==(m_hints & _num_is_int));}
     inline bool is_bool() const {return bool_t == m_node_type;}
     inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
     inline bool is_valid() const {return is_scalar() || is_array() || is_object() || is_null();}
@@ -362,10 +364,10 @@ public:
         double retVal = in_default_fp;
         if (JSONLAND_LIKELY(is_num()))
         {
-            if (is_number_assigned())
-                return static_cast<double>(m_num);
-            else
+            if (m_hints & json_node::_num_in_string)
                 retVal = std::atof(m_value.data());
+            else
+                retVal = static_cast<double>(m_num);
         }
 
         return retVal;
@@ -377,10 +379,10 @@ public:
         TINT retVal = in_default_int;
         if (JSONLAND_LIKELY(is_num()))
         {
-            if (is_number_assigned())
-                return static_cast<TINT>(m_num);
-            else
+            if (m_hints & json_node::_num_in_string)
                 retVal = static_cast<TINT>(std::atoll(m_value.data()));
+            else
+                retVal = static_cast<TINT>(m_num);
         }
 
         return retVal;
@@ -497,6 +499,12 @@ public:
         m_values.push_back(in_node);
         return m_values.back();
     }
+    
+    json_node& push_back(json_node&& in_node)
+    {
+        m_values.emplace_back(std::move(in_node));
+        return m_values.back();
+    }
 
     template<typename TNODEVAL>
     json_node& push_back(const TNODEVAL in_val)
@@ -604,7 +612,7 @@ private:
     // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
     // occur in the same json_node is repeatadly assigned number values. The compramise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
-    inline bool is_number_assigned() const {return m_value.empty();}
+    inline bool is_num_in_string() const {return m_hints & json_node::_num_in_string;}
     inline bool is_string_assigned() const {return m_value.is_value_stored();}
 
 };
@@ -616,11 +624,6 @@ public:
     inline explicit json_doc(jsonland::node_type in_type) noexcept :  json_node(in_type) {}
     json_doc() = default;
     ~json_doc() = default;
-//    json_doc(const json_node& in_node);
-//    json_doc(json_node&& in_node);
-//    json_doc& operator=(const json_node& in_node);
-//    json_node& operator=(json_node&& in_node);
-
     
     inline json_doc& operator=(jsonland::node_type in_type)
     {
@@ -648,6 +651,8 @@ public:
     std::string parse_error_message() { return m_parse_error_message; }
     
     size_t memory_consumption();
+    
+    void clear();
 
 private:
     std::string m_json_text;

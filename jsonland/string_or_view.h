@@ -130,13 +130,23 @@ public:
              if constexpr (std::is_same_v<T, std::string_view>)
              {
                  os.put('"');
-                 os.write(arg.data(), arg.size());
+                 //os.write(arg.data(), arg.size());
+                 const char* cur = arg.data();
+                 const char* const last  = cur+arg.size();
+                 while (cur<last) {
+                     os.put(*cur++);
+                 }
                  os.put('"');
              }
              else if constexpr (std::is_same_v<T, std::string>)
              {
                  os.put('"');
-                 os.write(arg.c_str(), arg.size());
+                 //os.write(arg.c_str(), arg.size());
+                 const char* cur = arg.c_str();
+                 const char* const last  = cur+arg.size();
+                 while (cur<last) {
+                     os.put(*cur++);
+                 }
                  os.put('"');
              }
              else
@@ -154,14 +164,26 @@ public:
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
              {
-                 os.write(arg.data(), arg.size());
+                 // calling os.put in a loop proved faster than os.write
+                 //os.write(arg.data(), arg.size());
+                 const char* cur = arg.data();
+                 const char* const last  = cur+arg.size();
+                 while (cur<last) {
+                     os.put(*cur++);
+                 }
              }
              else if constexpr (std::is_same_v<T, std::string>)
              {
-                 os.write(arg.c_str(), arg.size());
+                 //os.write(arg.c_str(), arg.size());
+                 const char* cur = arg.c_str();
+                 const char* const last  = cur+arg.size();
+                 while (cur<last) {
+                     os.put(*cur++);
+                 }
              }
-             else
+             else {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
         
         return retVal;
@@ -177,8 +199,9 @@ public:
                  retVal = arg.size();
              else if constexpr (std::is_same_v<T, std::string>)
                  retVal = arg.size();
-             else
+             else {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
         
         return retVal;

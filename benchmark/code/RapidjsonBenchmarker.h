@@ -46,27 +46,49 @@ public:
         recursive_copy_self(document, document_copy);
         auto after = std::chrono::steady_clock::now();
         results.resusive_copy_duration_milli = after - before;
-        document.SetObject();
+        for (char& c : contents) { // and no references to contents remain
+            c = '|';
+        }
+        contents.clear();
+        document.SetNull(); // make sure no allocation from document were used by document_copy
     }
     
     void recursive_copy_self(const Value& from, Value& to)
     {
-        if (from.IsNull())
+        if (from.IsString())
         {
-            to.SetNull();
+            std::string the_string(from.GetString());
+            to.SetString(the_string.data(), the_string.size(), document_copy.GetAllocator());
         }
         else if (from.IsBool())
         {
-            to.SetBool(from.GetBool());
+            const bool b = from.GetBool();
+            to.SetBool(b);
+        }
+        else if (from.IsInt())
+        {
+            const int64_t i = from.GetInt64();
+            to.SetInt64(i);
         }
         else if (from.IsNumber())
         {
-            to.SetFloat(from.GetDouble());
+            const double d = from.GetDouble();
+            to.SetFloat(d);
         }
-        else if (from.IsString())
+        else if (from.IsObject())
         {
-            std::string_view the_string = from.GetString();
-            to.SetString(the_string.data(), the_string.size());
+            to.SetObject();
+
+            for (rapidjson::Value::ConstMemberIterator itr = from.MemberBegin(); itr != from.MemberEnd(); ++itr)
+            {
+                Value objItem;
+                recursive_copy_self(itr->value, objItem);
+                std::string_view the_key{itr->name.GetString(), itr->name.GetStringLength()};
+                //to[the_key.c_str()] = outItem;
+                Value key;
+                key.SetString(the_key.data(), the_key.size(), document_copy.GetAllocator());
+                to.AddMember(key, objItem, document_copy.GetAllocator());
+            }
         }
         else if (from.IsArray())
         {
@@ -78,20 +100,9 @@ public:
                 to.PushBack(arrayItem, document_copy.GetAllocator());
             }
         }
-        else if (from.IsObject())
+        else if (from.IsNull())
         {
-            to.SetObject();
-
-            for (rapidjson::Value::ConstMemberIterator itr = from.MemberBegin(); itr != from.MemberEnd(); ++itr)
-            {
-                Value objItem;
-                recursive_copy_self(itr->value, objItem);
-                std::string the_key = itr->name.GetString();
-                //to[the_key.c_str()] = outItem;
-                Value key;
-                key.SetString(the_key.c_str(), the_key.size(), document_copy.GetAllocator());
-                to.AddMember(key, objItem, document_copy.GetAllocator());
-            }
+            to.SetNull();
         }
     }
     

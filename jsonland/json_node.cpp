@@ -130,6 +130,7 @@ json_node& json_node::operator=(const json_node& in_node) noexcept
     m_num = in_node.m_num;
     m_values = in_node.m_values;
     m_obj_key_to_index = in_node.m_obj_key_to_index;
+    m_hints = in_node.m_hints;
     //m_key = in_node.m_key; - do not copy m_key, parent node (if obj) should take care of that
 
     return *this;
@@ -139,10 +140,11 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
 {
     m_node_type = in_node.m_node_type;
 
-    m_value = in_node.m_value;
+    m_value = std::move(in_node.m_value);
     m_num = in_node.m_num;
     m_values = std::move(in_node.m_values);
     m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
+    m_hints = in_node.m_hints;
     //m_key = in_node.m_key; - do not copy m_key, parent node (if obj) should take care of that
 
     return *this;
@@ -304,7 +306,7 @@ std::string json_node::dump() const
     return oss.str();
 }
 
-static constexpr std::string_view quote_and_collon{R"(":)"};
+
 std::ostream& json_node::dump(std::ostream& os) const
 {
     if (is_object())
@@ -342,12 +344,19 @@ std::ostream& json_node::dump(std::ostream& os) const
         }
         os.put(']');
     }
-    else if (is_num() && is_number_assigned())
+    else if (is_num())
     {
-        if (m_hints & _num_is_int)
-            os << as_int<int64_t>();
+        if (is_num_in_string())
+        {
+            m_value.dump_no_quotes(os);
+        }
         else
-            os << as_double();
+        {
+            if (m_hints & _num_is_int)
+                os << as_int<int64_t>();
+            else
+                os << as_double();
+        }
     }
     else if (is_string())
     {
@@ -355,8 +364,7 @@ std::ostream& json_node::dump(std::ostream& os) const
     }
     else
     {
-        std::string_view s = m_value.as_string_view();
-        os.write(s.data(), s.size());
+        m_value.dump_no_quotes(os);
     }
     return os;
 }
@@ -696,7 +704,8 @@ namespace parser_impl
         {
             char* str_start = m_curr_char;
             char curr_char = *m_curr_char;
-
+            bool num_is_int{true};
+            
             // json number should start with '-' or a digit
             if ('-' == curr_char)
                 curr_char = next_char();
@@ -735,6 +744,7 @@ namespace parser_impl
             }
 
 after_decimal_point:
+            num_is_int = false;
             // after a '.' only a digit is expected
             curr_char = next_char();
             if (!isdigit(curr_char)) {
@@ -750,6 +760,7 @@ after_decimal_point:
                 goto scan_number_done;            
 
 after_exponent:
+            num_is_int = false;
             // after 'e' or 'E'
             curr_char = next_char();
             if ('-' == curr_char or '+' == curr_char)
@@ -775,6 +786,10 @@ scan_number_done:
             out_node.m_num = std::atof((const char*)sov.data());
 #endif
             out_node.parser_direct_set(sov, jsonland::node_type::number_t);
+            out_node.m_hints = static_cast<json_node::hints>(json_node::_num_in_string);
+            if (num_is_int) {
+                out_node.m_hints = static_cast<json_node::hints>(out_node.m_hints | json_node::_num_is_int);
+            }
             return true;
         }
         
@@ -1143,6 +1158,13 @@ size_t json_doc::memory_consumption()
     return retVal;
 }
 
+void json_doc::clear()
+{
+    json_node::clear();
+    m_json_text.clear();
+    m_parse_error = 0;
+    m_parse_error_message.clear();
+}
 
 bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_node& rhs)
 {
@@ -1163,7 +1185,7 @@ bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_n
                 // what if the text representation is different but the actual number are the same?
                 // e.g. "1.000000000000000011", "1.000000000000000012"
                 // Answer: if both numbers are text - compare the text, otherwise compare m_num
-                if (!lhs.is_number_assigned() && !rhs.is_number_assigned())
+                if (lhs.is_num_in_string() && rhs.is_num_in_string())
                     retVal = lhs.m_value == rhs.m_value;
                 else
                 {
