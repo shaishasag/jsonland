@@ -21,7 +21,7 @@ public:
 
     int m_num_escapes{0};
     
-    string_or_view() = default;
+    string_or_view() noexcept = default;
     string_or_view(const string_or_view& in_sov) noexcept = default;
     string_or_view(string_or_view&& in_sov) noexcept = default;
     string_or_view& operator=(const string_or_view& in_sov) noexcept = default;
@@ -33,7 +33,7 @@ public:
         m_num_escapes = in_num_escapes;
     }
 
-    void store_value(const std::string& in_str, const int in_num_escapes=0)
+    void store_value(const std::string& in_str, const int in_num_escapes=0) noexcept
     {
         m_value = in_str;
         m_num_escapes = in_num_escapes;
@@ -42,13 +42,13 @@ public:
 #endif
     }
 
-    void reference_value(const std::string_view in_str, const int in_num_escapes=0)
+    void reference_value(const std::string_view in_str, const int in_num_escapes=0) noexcept
     {
         m_value = in_str;
         m_num_escapes = in_num_escapes;
     }
 
-    void convert_referenced_value_to_stored()
+    void convert_referenced_value_to_stored() noexcept
     {
         if (std::holds_alternative<std::string_view>(m_value))
         {
@@ -59,13 +59,13 @@ public:
         }
     }
 
-    void store_value_deal_with_escapes(std::string_view in_str);
+    void store_value_deal_with_escapes(std::string_view in_str)  noexcept;
     
     // escape chars where needed and return true is escapes were found
-    void unescape(std::string& out_unescaped) const;
-    void unescape_internal();
+    void unescape(std::string& out_unescaped) const  noexcept;
+    void unescape_internal()  noexcept;
     
-    void clear()
+    void clear() noexcept
     {
         std::visit([&](auto&& arg)
         {
@@ -80,9 +80,9 @@ public:
         m_num_escapes = 0;
     }
 
-    bool is_value_referenced() const { return std::holds_alternative<std::string_view>(m_value); }
-    bool is_value_stored() const { return std::holds_alternative<std::string>(m_value); }
-    bool empty() const
+    bool is_value_referenced() const  noexcept { return std::holds_alternative<std::string_view>(m_value); }
+    bool is_value_stored() const  noexcept { return std::holds_alternative<std::string>(m_value); }
+    bool empty() const  noexcept
     {
         bool retVal{false};
         std::visit([&](auto&& arg)
@@ -99,12 +99,12 @@ public:
         return retVal;
     }
 
-    const char* data() const
+    const char* data() const noexcept
     {
         return  as_string_view().data();
     }
 
-    std::string_view as_string_view() const
+    std::string_view as_string_view() const noexcept
     {
         std::string_view retVal;
         std::visit([&](auto&& arg)
@@ -121,7 +121,7 @@ public:
         return retVal;
     }
     
-    std::string_view dump_with_quotes(std::ostream& os) const
+    std::string_view dump_with_quotes(std::ostream& os) const noexcept
     {
         std::string_view retVal;
         std::visit([&](auto&& arg)
@@ -156,7 +156,7 @@ public:
         return retVal;
     }
     
-    std::string_view dump_no_quotes(std::ostream& os) const
+    std::string_view dump_no_quotes(std::ostream& os) const noexcept
     {
         std::string_view retVal;
         std::visit([&](auto&& arg)
@@ -189,7 +189,7 @@ public:
         return retVal;
     }
 
-    size_t size() const
+    size_t size() const noexcept
     {
         size_t retVal{0};
         std::visit([&](auto&& arg)
@@ -207,12 +207,12 @@ public:
         return retVal;
     }
     friend struct string_or_view_hasher;
-    friend bool operator==(const string_or_view& lhs, const string_or_view& rhs)
+    friend bool operator==(const string_or_view& lhs, const string_or_view& rhs) noexcept
     {
         return lhs.m_value == rhs.m_value;
     }
     
-    size_t allocation_size() const
+    size_t allocation_size() const noexcept
     {
         size_t retVal{0};
         std::visit([&](auto&& arg)

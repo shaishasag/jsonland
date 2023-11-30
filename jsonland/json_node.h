@@ -178,7 +178,7 @@ public:
         m_value.store_value_deal_with_escapes(in_str);
     }
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    json_node& operator=(const TCHAR in_str[])
+    json_node& operator=(const TCHAR in_str[]) noexcept
     {
         clear(string_t);
         m_value.store_value_deal_with_escapes(in_str);
@@ -195,7 +195,7 @@ public:
     {}
     // assign number
     template <typename NUM, IsInteger<NUM>* = nullptr >
-    json_node& operator=(const NUM in_num)
+    json_node& operator=(const NUM in_num) noexcept
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
@@ -213,7 +213,7 @@ public:
     {}
     // assign number
     template <typename NUM, IsFloat<NUM>* = nullptr >
-    json_node& operator=(const NUM in_num)
+    json_node& operator=(const NUM in_num) noexcept
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
@@ -230,7 +230,7 @@ public:
     {}
     // assign bool
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
-    json_node& operator=(const TBOOL in_bool)
+    json_node& operator=(const TBOOL in_bool) noexcept
     {
         clear(bool_t);
         m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
@@ -279,20 +279,20 @@ public:
     }
 
 
-    inline jsonland::node_type type() const {return m_node_type;}
-    inline bool is_type(jsonland::node_type in_type) {return in_type == m_node_type;}
-    inline bool is_null() const {return null_t == m_node_type;}
-    inline bool is_object() const {return object_t == m_node_type;}
-    inline bool is_array() const {return array_t == m_node_type;}
-    inline bool is_string() const {return string_t == m_node_type;}
-    inline bool is_num() const {return number_t == m_node_type;}
-    inline bool is_int() const {return number_t == m_node_type && (m_hints & _num_is_int);}
-    inline bool is_float() const {return number_t == m_node_type && (0==(m_hints & _num_is_int));}
-    inline bool is_bool() const {return bool_t == m_node_type;}
-    inline bool is_scalar() const {return is_string() || is_num() || is_bool();}
-    inline bool is_valid() const {return is_scalar() || is_array() || is_object() || is_null();}
+    inline jsonland::node_type type() const noexcept {return m_node_type;}
+    inline bool is_type(jsonland::node_type in_type) const noexcept {return in_type == m_node_type;}
+    inline bool is_null() const noexcept {return null_t == m_node_type;}
+    inline bool is_object() const noexcept {return object_t == m_node_type;}
+    inline bool is_array() const noexcept {return array_t == m_node_type;}
+    inline bool is_string() const noexcept {return string_t == m_node_type;}
+    inline bool is_num() const noexcept {return number_t == m_node_type;}
+    inline bool is_int() const noexcept {return number_t == m_node_type && (m_hints & _num_is_int);}
+    inline bool is_float() const noexcept {return number_t == m_node_type && (0==(m_hints & _num_is_int));}
+    inline bool is_bool() const noexcept {return bool_t == m_node_type;}
+    inline bool is_scalar() const noexcept {return is_string() || is_num() || is_bool();}
+    inline bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
 
-    size_t num_elements() const  noexcept
+    size_t num_elements() const noexcept
     {
         size_t retVal = 0;
         switch (type())
@@ -321,20 +321,20 @@ public:
         return retVal;
     }
 
-    size_t memory_consumption() const;
+    size_t memory_consumption() const noexcept;
 
-    std::string   dump() const;
-    std::ostream& dump(std::ostream& os) const;
+    std::string   dump() const noexcept;
+    std::ostream& dump(std::ostream& os) const noexcept;
 
     // return the string with escaped characters where needed
-    inline const std::string_view as_string_view() const
+    inline const std::string_view as_string_view() const noexcept
     {
         return m_value.as_string_view();
     }
     
-    const std::string_view as_resolved_string_view() const;
+    const std::string_view as_resolved_string_view() const noexcept;
  
-    std::string_view as_string() const
+    std::string_view as_string() const noexcept
     {
         if (is_string())
         {
@@ -346,7 +346,7 @@ public:
         else
             return ""sv;
     }
-    std::string_view as_string(std::string_view in_default) const
+    std::string_view as_string(std::string_view in_default) const noexcept
     {
         if (is_string())
         {
@@ -359,7 +359,7 @@ public:
             return in_default;
     }
 
-    double as_double(const double in_default_fp=0.0) const
+    double as_double(const double in_default_fp=0.0) const noexcept
     {
         double retVal = in_default_fp;
         if (JSONLAND_LIKELY(is_num()))
@@ -374,7 +374,7 @@ public:
     }
 
     template<typename TINT>
-    TINT as_int(const TINT in_default_int=0) const
+    TINT as_int(const TINT in_default_int=0) const noexcept
     {
         TINT retVal = in_default_int;
         if (JSONLAND_LIKELY(is_num()))
@@ -388,7 +388,7 @@ public:
         return retVal;
     }
 
-    bool as_bool(const bool in_default_bool=false) const
+    bool as_bool(const bool in_default_bool=false) const noexcept
     {
         if (JSONLAND_LIKELY(is_bool()))
             return m_value.data()[0] == 't';
@@ -398,7 +398,7 @@ public:
 
     
     template<typename TASTYPE>
-    TASTYPE as(const TASTYPE in_default={})
+    TASTYPE as(const TASTYPE in_default={}) noexcept
     {
         if constexpr (std::is_same<bool, TASTYPE>::value) {
             return as_bool(in_default);
@@ -420,33 +420,28 @@ public:
         }
     }
     
-    std::string_view key() const
+    std::string_view key() const noexcept
     {
         m_key.unescape_internal();
         return m_key.as_string_view();
     }
     
-    KeyToIndex& get_key_to_index_map()
+    KeyToIndex& get_key_to_index_map() noexcept
     {
         return m_obj_key_to_index;
     }
 
-    const KeyToIndex& get_key_to_index_map() const
-    {
-        return m_obj_key_to_index;
-    }
-
-    ArrayVec& as_array()
+    ArrayVec& as_array() noexcept
     {
         return m_values;
     }
 
-    const ArrayVec& as_array() const
+    const ArrayVec& as_array() const noexcept
     {
         return m_values;
     }
 
-    void reserve(const size_t in_num_to_reserve)
+    void reserve(const size_t in_num_to_reserve) noexcept
     {
         if (JSONLAND_LIKELY(is_array() || is_object()))
         {
@@ -456,7 +451,7 @@ public:
         }
     }
 
-    json_node& operator[](std::string_view in_key)
+    json_node& operator[](std::string_view in_key) noexcept
     {
         if (JSONLAND_LIKELY(is_object()))
         {
@@ -482,7 +477,7 @@ public:
             return *this;  // what to return here?
     }
 
-    const json_node& operator[](std::string_view in_str) const
+    const json_node& operator[](std::string_view in_str) const noexcept
     {
         if (JSONLAND_LIKELY(is_object()))
         {
@@ -494,27 +489,27 @@ public:
             return *this;  // what to return here?
     }
 
-    json_node& push_back(const json_node& in_node)
+    json_node& push_back(const json_node& in_node) noexcept
     {
         m_values.push_back(in_node);
         return m_values.back();
     }
     
-    json_node& push_back(json_node&& in_node)
+    json_node& push_back(json_node&& in_node) noexcept
     {
         m_values.emplace_back(std::move(in_node));
         return m_values.back();
     }
 
     template<typename TNODEVAL>
-    json_node& push_back(const TNODEVAL in_val)
+    json_node& push_back(const TNODEVAL in_val) noexcept
     {
         m_values.emplace_back(in_val);
         return m_values.back();
     }
 
     template <typename INT, IsInteger<INT>* = nullptr >
-    json_node& operator[](const INT in_dex)
+    json_node& operator[](const INT in_dex) noexcept
     {
         if (JSONLAND_LIKELY(is_array()))
         {
@@ -525,7 +520,7 @@ public:
     }
 
     template <typename INT, IsInteger<INT>* = nullptr >
-    const json_node& operator[](INT in_dex) const
+    const json_node& operator[](INT in_dex) const noexcept
     {
         if (JSONLAND_LIKELY(is_array()))
         {

@@ -150,7 +150,7 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
     return *this;
 }
 
-void jsonland::string_or_view::store_value_deal_with_escapes(std::string_view in_str)
+void jsonland::string_or_view::store_value_deal_with_escapes(std::string_view in_str) noexcept
 {
     m_num_escapes = 0;
     std::string temp_str;
@@ -267,7 +267,7 @@ public:
     
 };
 
-void jsonland::string_or_view::unescape(std::string& out_unescaped) const
+void jsonland::string_or_view::unescape(std::string& out_unescaped) const  noexcept
 {
     out_unescaped.reserve(size());
 
@@ -280,7 +280,7 @@ void jsonland::string_or_view::unescape(std::string& out_unescaped) const
     }
 }
 
-void jsonland::string_or_view::unescape_internal()
+void jsonland::string_or_view::unescape_internal()  noexcept
 {
     if (0 != m_num_escapes)
     {
@@ -294,12 +294,12 @@ void jsonland::string_or_view::unescape_internal()
     }
 }
 
-const std::string_view json_node::as_resolved_string_view() const
+const std::string_view json_node::as_resolved_string_view() const noexcept
 {
     return as_string_view();
 }
 
-std::string json_node::dump() const
+std::string json_node::dump() const noexcept
 {
     std::ostringstream oss;
     dump(oss);
@@ -307,7 +307,7 @@ std::string json_node::dump() const
 }
 
 
-std::ostream& json_node::dump(std::ostream& os) const
+std::ostream& json_node::dump(std::ostream& os) const noexcept
 {
     if (is_object())
     {
@@ -372,7 +372,7 @@ std::ostream& json_node::dump(std::ostream& os) const
 namespace jsonland
 {
 
-size_t json_node::memory_consumption() const
+size_t json_node::memory_consumption() const noexcept
 {
     size_t retVal{0};
     
@@ -685,7 +685,7 @@ namespace parser_impl
 
             if (JSONLAND_LIKELY(curr_char == '"'))
             {
-                *const_cast<char*>(m_curr_char) = '\0';
+                //*const_cast<char*>(m_curr_char) = '\0';
                 
                 out_node.parser_direct_set(std::string_view(str_start, m_curr_char-str_start), jsonland::node_type::string_t);
                 next_char();
