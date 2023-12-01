@@ -113,17 +113,15 @@ public:
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);
 
-        std::ostringstream ofs;
         auto before = std::chrono::steady_clock::now();
-        rapidjson::OStreamWrapper osw(ofs);
-        rapidjson::Writer<OStreamWrapper> writer(osw);
+        rapidjson::StringBuffer jstr;
+        rapidjson::Writer<StringBuffer> writer(jstr);
         document_copy.Accept(writer);
         auto after = std::chrono::steady_clock::now();
-        results.write_copy_to_file_duration_milli = after - before;
+        results.write_to_string_duration_milli = after - before;
 
         std::ofstream ffs(out_file);
-        const std::string& s = ofs.str();
-        ffs.write(s.c_str(), s.size());
+        ffs.write(jstr.GetString(), jstr.GetSize());
     }
     rapidjson::Document document;
     rapidjson::Document document_copy;

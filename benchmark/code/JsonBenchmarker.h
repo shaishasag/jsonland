@@ -14,7 +14,7 @@ struct Benchmark_results
     size_t file_size;
     std::chrono::duration<double, std::milli> file_parse_duration_milli;
     std::chrono::duration<double, std::milli> resusive_copy_duration_milli;
-    std::chrono::duration<double, std::milli> write_copy_to_file_duration_milli;
+    std::chrono::duration<double, std::milli> write_to_string_duration_milli;
     
     void report_results(std::ostream& out_stream)
     {
@@ -32,8 +32,8 @@ struct Benchmark_results
             std::cout << "    " << "recursive copy time: " << std::fixed << resusive_copy_duration_milli.count()  << "ms; ";
             std::cout << copy_bytes_per_milli << " bytes per millisecond" << std::endl;
             
-            uint64_t write_copy_to_file_bytes_per_milli = double(file_size) / double(write_copy_to_file_duration_milli.count());
-            std::cout << "    " << "write copy to file time: " << std::fixed << write_copy_to_file_duration_milli.count()  << "ms; ";
+            uint64_t write_copy_to_file_bytes_per_milli = double(file_size) / double(write_to_string_duration_milli.count());
+            std::cout << "    " << "write to string time: " << std::fixed << write_to_string_duration_milli.count()  << "ms; ";
             std::cout << write_copy_to_file_bytes_per_milli << " bytes per millisecond" << std::endl;
         }
         else

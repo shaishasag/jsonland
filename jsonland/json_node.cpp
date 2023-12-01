@@ -3,6 +3,7 @@
 #include <array>
 #include <iterator>
 #include <cstdio>
+#include <charconv>
 
 using namespace jsonland;
 
@@ -299,74 +300,86 @@ const std::string_view json_node::as_resolved_string_view() const noexcept
     return as_string_view();
 }
 
-std::string json_node::dump() const noexcept
+std::ostream& json_node::dump(std::ostream& os) const noexcept
 {
-    std::ostringstream oss;
-    dump(oss);
-    return oss.str();
+    std::string str;
+    dump(str);
+    os.write(str.c_str(), str.size());
+    return os;
 }
 
 
-std::ostream& json_node::dump(std::ostream& os) const noexcept
+void json_node::dump(std::string& str) const noexcept
 {
     if (is_object())
     {
-        os.put('{');
+        str += '{';
         if (!m_values.empty())
         {
             auto io = m_values.begin();
-            io->m_key.dump_with_quotes(os);
-            os.put(':');
-            io->dump(os);
+            io->m_key.dump_with_quotes(str);
+            str += ':';
+            io->dump(str);
             
             for (++io; io != m_values.end(); ++io)
             {
-                os.put(',');
-                io->m_key.dump_with_quotes(os);
-                os.put(':');
-                io->dump(os);
+                str += ',';
+                io->m_key.dump_with_quotes(str);
+                str += ':';
+                io->dump(str);
             }
         }
-        os.put('}');
+        str += '}';
     }
     else if (is_array())
     {
-        os.put('[');
+        str += '[';
         if (!m_values.empty())
         {
             auto ai = m_values.begin();
-            ai->dump(os);
+            ai->dump(str);
 
             for (++ai; ai != m_values.end(); ++ai) {
-                os.put(',');
-                ai->dump(os);
+                str += ',';
+                ai->dump(str);
             }
         }
-        os.put(']');
+        str += ']';
     }
     else if (is_num())
-    {
+    {  // where art thou Grisu2 ?
         if (is_num_in_string())
         {
-            m_value.dump_no_quotes(os);
+            m_value.dump_no_quotes(str);
         }
         else
         {
-            if (m_hints & _num_is_int)
-                os << as_int<int64_t>();
-            else
-                os << as_double();
+            char buff[30];
+            if (m_hints & _num_is_int) {
+                auto res = std::to_chars(buff, buff+30, as_int<int64_t>());
+                str.append(buff, res.ptr-buff);
+            }
+            else {
+                // no to_chars(... double) in clang
+                //auto res = std::to_chars(buff, buff+30, as_double(), std::chars_format::fixed);
+                //str.append(buff, res.ptr-buff);
+                // resort to printf...
+                int num_chars = std::snprintf(buff, 30, "%lf", as_double());
+                while('0' == buff[num_chars-1]) {
+                    --num_chars;
+                }
+                str.append(buff, num_chars);
+            }
         }
     }
     else if (is_string())
     {
-        m_value.dump_with_quotes(os);
+        m_value.dump_with_quotes(str);
     }
     else
     {
-        m_value.dump_no_quotes(os);
+        m_value.dump_no_quotes(str);
     }
-    return os;
 }
 
 namespace jsonland
@@ -558,7 +571,7 @@ namespace parser_impl
 
         struct func_type_pair
         {
-            bool (Parser::*m_func)(parsing_node_type, json_node&);
+            bool (Parser::*m_func)(json_node& out_node);
             parsing_node_type m_type;
         };
         func_type_pair m_char_to_token_table[256];
@@ -600,7 +613,7 @@ namespace parser_impl
 #endif
         }
 
-        inline bool get_next_node(json_node& out_node)
+        inline bool get_next_node(json_node& out_node, parsing_node_type& out_type)
         {
             bool retVal = false;
             while (JSONLAND_LIKELY(!retVal && is_there_more_data()))
@@ -609,36 +622,40 @@ namespace parser_impl
                 if (256 > (unsigned int)curr_char)
                 {
                     func_type_pair& call_pair = m_char_to_token_table[curr_char];
-                    retVal = (this->*call_pair.m_func)(call_pair.m_type, out_node);
+                    out_type = call_pair.m_type;
+                    retVal = (this->*call_pair.m_func)(out_node);
                 }
                 else
                 {
                     func_type_pair& call_pair = m_char_to_token_table[0];
-                    retVal = (this->*call_pair.m_func)(call_pair.m_type, out_node);
+                    out_type = call_pair.m_type;
+                    retVal = (this->*call_pair.m_func)(out_node);
                 }
             }
             return retVal;
         }
 
-        bool parse_string(parsing_node_type, json_node& out_node)
+        bool parse_string(json_node& out_node)
         {
             // if parse_string was called then *curr == '"'
             bool retVal = false;
 
             char curr_char = next_char();
             char* str_start = m_curr_char;
-
+            
             out_node.m_value.m_num_escapes = 0;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
-                if (JSONLAND_UNLIKELY(curr_char == '\\'))
+                if (curr_char == '"') {
+                    break;
+                }
+                if (curr_char == '\\')
                 {
                     ++out_node.m_value.m_num_escapes;
                     curr_char = next_char();
                     if (JSONLAND_UNLIKELY(! is_there_more_data())) // the '\' was  the last char
                     {
-                        std::string message = "escape char '\\' is the last char";
-                        throw parsing_exception(message.c_str(), curr_offset());
+                        throw parsing_exception("escape char '\\' is the last char", curr_offset());
                     }
                     else if (! is_escapable_char(curr_char))
                     {
@@ -665,20 +682,17 @@ namespace parser_impl
                         }
                     }
                 }
-                else if (JSONLAND_UNLIKELY(is_must_be_escaped_char(curr_char)))
+                else if (is_must_be_escaped_char(curr_char))
                 {
                     std::string message = "char '";
                     message +=  name_of_control_char(curr_char);
                     message += "' should be escaped";
                     throw parsing_exception(message.c_str(), curr_offset());
                 }
-                else if (JSONLAND_UNLIKELY(is_illegal_string_char(curr_char)))
+                else if (is_illegal_string_char(curr_char))
                 {
-                    std::string message = "illegal char in string";
-                    throw parsing_exception(message.c_str(), curr_offset());
+                    throw parsing_exception("illegal char in string", curr_offset());
                 }
-                else if (JSONLAND_UNLIKELY(curr_char == '"'))
-                    break;
 
                 curr_char = next_char();
             }
@@ -693,14 +707,13 @@ namespace parser_impl
             }
             else
             {
-                std::string message = "string was not terminated with '\"'";
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception("string was not terminated with '\"'", curr_offset());
             }
 
             return retVal;
         }
 
-        bool parse_number(parsing_node_type, json_node& out_node)
+        bool parse_number(json_node& out_node)
         {
             char* str_start = m_curr_char;
             char curr_char = *m_curr_char;
@@ -793,7 +806,7 @@ scan_number_done:
             return true;
         }
         
-        bool parse_constant(parsing_node_type, json_node& out_node)
+        bool parse_constant(json_node& out_node)
         {
             bool retVal = false;
 
@@ -844,20 +857,19 @@ scan_number_done:
             return retVal;
         }
 
-        bool parse_control_char(parsing_node_type in_node_type, json_node& out_node)
+        bool parse_control_char(json_node&)
         {
-            out_node.parser_direct_set(std::string_view(m_curr_char, 1), static_cast<jsonland::node_type>(in_node_type));
             next_char();
             return true;
         }
 
-        bool skip_one_char(parsing_node_type, json_node&)
+        bool skip_one_char(json_node&)
         {
             throw parsing_exception("json syntax error: unexpected character", curr_offset());
             return false;
         }
 
-        bool skip_new_line(parsing_node_type, json_node&)
+        bool skip_new_line(json_node&)
         {
             ++m_current_line;
             next_char();
@@ -865,13 +877,13 @@ scan_number_done:
             return false;
         }
 
-        bool skip_whilespace(parsing_node_type, json_node&)
+        bool skip_whilespace(json_node&)
         {
             while(is_white_space_not_new_line(next_char())) ;
             return false;
         }
 
-        bool parse_array(parsing_node_type, json_node& out_node)
+        bool parse_array(json_node& out_node)
         {
             if (JSONLAND_UNLIKELY(++m_nesting_level > m_max_nesting_level))
             {
@@ -888,9 +900,9 @@ scan_number_done:
             uint32_t expecting = parsing_node_type::_value | parsing_node_type::_array_close;
             next_char();
             json_node next_node;
-            while (JSONLAND_LIKELY(get_next_node(next_node)))
+            parsing_node_type new_node_type;
+            while (JSONLAND_LIKELY(get_next_node(next_node, new_node_type)))
             {
-                const uint32_t new_node_type = next_node.m_node_type;
                 if (JSONLAND_UNLIKELY(!(new_node_type & expecting)))
                 {
                     throw parsing_exception("json syntax error: unexpected token during array creation", curr_offset());
@@ -934,7 +946,7 @@ scan_number_done:
             return false;
         }
 
-        bool parse_obj(parsing_node_type, json_node& out_node)
+        bool parse_obj(json_node& out_node)
         {
             if (JSONLAND_UNLIKELY(++m_nesting_level > m_max_nesting_level))
             {
@@ -944,23 +956,21 @@ scan_number_done:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
-            out_node.m_node_type = jsonland::node_type::object_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
             size_t obj_keys_stack_starting_index = m_obj_keys_stack.size();
 
             bool expecting_key = true;
             jsonland::node_type expecting = static_cast<jsonland::node_type>(parsing_node_type::_str | parsing_node_type::_obj_close);
             next_char();
-            json_node next_node;
             jsonland::string_or_view key;
-            while (JSONLAND_LIKELY(get_next_node(next_node)))
+            json_node next_node;
+            parsing_node_type new_node_type;
+            while (JSONLAND_LIKELY(get_next_node(next_node, new_node_type)))
             {
-                const uint32_t new_node_type = next_node.m_node_type;
                 if (JSONLAND_UNLIKELY(!(new_node_type & expecting)))
                 {
-                    throw parsing_exception("json syntax error: unexpected token during object initializtion", curr_offset());
+                    throw parsing_exception("json syntax error: unexpected token during object creation", curr_offset());
                 }
-
                 if ((new_node_type & parsing_node_type::_str) && expecting_key)
                 {
                     m_obj_keys_stack.emplace_back(next_node.m_value);
@@ -1026,13 +1036,12 @@ scan_number_done:
         // skip possibly whitespace at the beginning or end, while still keeping count of the number of new lines
         int skip_whitespace()
         {
-            parsing_node_type type_dummy = _uninitialized;
             json_node node_dummy;
-
+            
             while (is_there_more_data())
             {
                 if ('\n' == *m_curr_char) {
-                    skip_new_line(type_dummy, node_dummy);
+                    skip_new_line(node_dummy);
                 }
                 else if (is_white_space_not_new_line(*m_curr_char)) {
                     next_char();
@@ -1057,7 +1066,8 @@ public:
                 {
                     // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
-                    bool found_json = get_next_node(m_top_node);
+                    parsing_node_type type_dummy = _uninitialized;
+                    bool found_json = get_next_node(m_top_node, type_dummy);
                     if (found_json && m_top_node.is_valid())
                     {
                         // check that remaing characters are only whitespace

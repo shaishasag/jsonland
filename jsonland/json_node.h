@@ -176,6 +176,9 @@ public:
     : m_node_type(in_type)
     {
         m_value.store_value_deal_with_escapes(in_str);
+        if (number_t == in_type) {
+            m_hints = _num_in_string;
+        }
     }
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
     json_node& operator=(const TCHAR in_str[]) noexcept
@@ -323,8 +326,8 @@ public:
 
     size_t memory_consumption() const noexcept;
 
-    std::string   dump() const noexcept;
     std::ostream& dump(std::ostream& os) const noexcept;
+    void dump(std::string& str) const noexcept;
 
     // return the string with escaped characters where needed
     inline const std::string_view as_string_view() const noexcept

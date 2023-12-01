@@ -121,72 +121,47 @@ public:
         return retVal;
     }
     
-    std::string_view dump_with_quotes(std::ostream& os) const noexcept
+    void dump_with_quotes(std::string& str) const noexcept
     {
-        std::string_view retVal;
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
              {
-                 os.put('"');
-                 //os.write(arg.data(), arg.size());
-                 const char* cur = arg.data();
-                 const char* const last  = cur+arg.size();
-                 while (cur<last) {
-                     os.put(*cur++);
-                 }
-                 os.put('"');
+                 str += '"';
+                 str.append(arg);
+                 str += '"';
              }
              else if constexpr (std::is_same_v<T, std::string>)
              {
-                 os.put('"');
-                 //os.write(arg.c_str(), arg.size());
-                 const char* cur = arg.c_str();
-                 const char* const last  = cur+arg.size();
-                 while (cur<last) {
-                     os.put(*cur++);
-                 }
-                 os.put('"');
+                 str += '"';
+                 str.append(arg);
+                 str += '"';
              }
              else
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
          }, m_value);
         
-        return retVal;
     }
     
-    std::string_view dump_no_quotes(std::ostream& os) const noexcept
+    void dump_no_quotes(std::string& str) const noexcept
     {
-        std::string_view retVal;
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
              {
-                 // calling os.put in a loop proved faster than os.write
-                 //os.write(arg.data(), arg.size());
-                 const char* cur = arg.data();
-                 const char* const last  = cur+arg.size();
-                 while (cur<last) {
-                     os.put(*cur++);
-                 }
+                 str.append(arg);
              }
              else if constexpr (std::is_same_v<T, std::string>)
              {
-                 //os.write(arg.c_str(), arg.size());
-                 const char* cur = arg.c_str();
-                 const char* const last  = cur+arg.size();
-                 while (cur<last) {
-                     os.put(*cur++);
-                 }
+                 str.append(arg);
              }
              else {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
              }
          }, m_value);
         
-        return retVal;
     }
 
     size_t size() const noexcept

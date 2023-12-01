@@ -123,22 +123,17 @@ public:
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);
         {
-            std::ostringstream ofs;
-            ofs.setf(std::ios::fixed, std::ios::floatfield);
             auto before = std::chrono::steady_clock::now();
-            jdoc_copy.dump(ofs);
+            std::string jstr;
+            jdoc_copy.dump(jstr);
             auto after = std::chrono::steady_clock::now();
-            results.write_copy_to_file_duration_milli = after - before;
+            results.write_to_string_duration_milli = after - before;
             
             std::ofstream ffs(out_file);
-            const std::string& s = ofs.str();
-            ffs.write(s.c_str(), s.size());
+            ffs.write(jstr.c_str(), jstr.size());
         }
-        
-
     }
 
-    
     jsonland::json_doc jdoc;
     jsonland::json_node jdoc_copy;
 
