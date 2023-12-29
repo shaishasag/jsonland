@@ -24,9 +24,9 @@ TEST(Numbers, good_float)
         int parse_err = doc.parse(num_str);
         ASSERT_EQ(0, parse_err) << "parsing '" << num_str << "' should succeed";
         ASSERT_TRUE(doc.is_num()) << "parsing '" << num_str << "' should yield a number";;
-        ASSERT_EQ(doc.as_double(), std::atof(num_str.data()));
-        ASSERT_EQ(doc.as_int<int64_t>(), std::atoll(num_str.data()));
-        //std::cout << std::fixed << doc.as_double()  << "\n";
+        ASSERT_EQ(doc.get_float<double>(), std::atof(num_str.data()));
+        ASSERT_EQ(doc.get_int<int64_t>(), std::atoll(num_str.data()));
+        //std::cout << std::fixed << doc.get_float()  << "\n";
     }
 }
 
@@ -46,7 +46,7 @@ TEST(Numbers, bad_numbers)
         jsonland::json_doc doc;
         int parse_err = doc.parse(num);
         ASSERT_NE(0, parse_err) << "parsing '" << num << "' should fail";
-        ASSERT_EQ(0.0, doc.as_double());
-        //std::cout << std::fixed <<  doc.as_double()  << "\n";
+        ASSERT_EQ(0.0, doc.get_float<double>());
+        //std::cout << std::fixed <<  doc.get_float()  << "\n";
     }
 }

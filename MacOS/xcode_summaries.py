@@ -1,11 +1,11 @@
 # provides Summeries for jsonland objects in Xcode debugger - lldb
-# to enable this file add a line in ~/.lldbinit
+# to enable this file add a line in ~/.lldbinit:
 # command script import /path/to/jsonland/MacOS/xcode_summaries.py
 # where /path/to should be replaced with the path to jsonland project
 
 import sys
 import lldb
-
+import ctypes
 
 def json_node_summery(valobj, internal_dict, options):
 
@@ -44,11 +44,37 @@ def json_node_summery(valobj, internal_dict, options):
     else:
         return f"unknown type{m_node_type_value}"
 
+def char_pointer_to_string(char_pointer, num_chars): 
+    if num_chars == 0:
+        return "" 
+    error = lldb.SBError()  
+    address = char_pointer.GetValueAsUnsigned(error)  
+    process = char_pointer.GetProcess()  
+  
+    if error.Fail() or not process.IsValid():  
+        return "FAILED 1"  
+  
+    data = process.ReadMemory(address, num_chars, error)  
+    if error.Fail():  
+        return "FAILED 2"  
+  
+    # Assuming ASCII encoding, change it to the appropriate encoding if needed  
+    string = data.decode('ascii')  
+    return string
+     
+def string_or_view_summery(valobj, internal_dict, options):
+    string_SBValue = valobj.EvaluateExpression("data()")
+    string_size = valobj.EvaluateExpression("size()").GetValueAsUnsigned()
+    string = char_pointer_to_string(string_SBValue, string_size)
+    string = f"'{string}'"
+    return string
+
+
+
 def __lldb_init_module(debugger, dict):
     print("loading llvm/Xcode custom debugger summaries for jsonland")
-    #debugger.HandleCommand('type summary add jsonland::json_node --summary-string "${var.m_value.m_value}" -w jsonland')
     debugger.HandleCommand(f'type summary add jsonland::json_node  -F "{__name__}.json_node_summery"')
-    debugger.HandleCommand('type summary add jsonland::string_or_view --summary-string "${var.m_value}" -w jsonland')
+    debugger.HandleCommand(f'type summary add jsonland::string_or_view  -F "{__name__}.string_or_view_summery"')
     debugger.HandleCommand('type category enable jsonland')
     
     

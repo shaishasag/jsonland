@@ -28,7 +28,7 @@ TEST(TestWrite, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"(7.1+5=12.1)");
     oss.str("");
     
-    json_node ajn(jsonland::node_type::array_t);
+    json_node ajn(jsonland::value_type::array_t);
     oss << ajn;
     EXPECT_STREQ(oss.str().c_str(), "[]");
     oss.str("");
@@ -45,7 +45,7 @@ TEST(TestWrite, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"([1,"Motish","Neor"])");
     oss.str("");
 
-    json_node ojn(jsonland::node_type::object_t);
+    json_node ojn(jsonland::value_type::object_t);
     oss << ojn;
     EXPECT_STREQ(oss.str().c_str(), "{}");
     oss.str("");
@@ -63,27 +63,26 @@ TEST(TestWrite, to_ostream)
 
 TEST(Create, one)
 {
-    json_node jn(jsonland::node_type::object_t);
+    json_node jn(jsonland::value_type::object_t);
     jn["one"] = "one";
     jn["two"] = 2;
     jn["three"] = true;
     jn["four"].push_back(jn["one"]);
     jn["four"].push_back(jn["two"]);
     jn["four"].push_back(jn["three"]);
-    
-    std::cerr << jn;
 }
 
 TEST(TestArray, set_and_get)
 {
-    json_node jn(jsonland::node_type::array_t);
+    json_node jn(jsonland::value_type::array_t);
     jn.push_back(9);
-    EXPECT_EQ(jn[0].as_int<int>(), 9);
-    jn.push_back(0.1234);
-    EXPECT_EQ(jn[0].as_int<int>(), 9);
-    EXPECT_EQ(jn[1].as_double(), 0.1234);
+    EXPECT_EQ(jn[0].get_int<int>(), 9);
     
-    json_node jn2(jsonland::node_type::array_t);
+    jn.push_back(0.1234);
+    EXPECT_EQ(jn[0].get_int<int>(), 9);
+    EXPECT_EQ(jn[1].get_float<double>(), 0.1234);
+    
+    json_node jn2(jsonland::value_type::array_t);
     jn2.push_back(0);
     jn2.push_back(1);
     jn2.push_back(2);
@@ -91,7 +90,7 @@ TEST(TestArray, set_and_get)
     int n = 0;
     for (auto i = jn2.begin(); i != jn2.end(); ++i)
     {
-        int64_t the_int = i->as_int<int>();
+        int64_t the_int = i->get_int<int>();
         EXPECT_EQ(the_int, n++);
     }
 
@@ -104,53 +103,53 @@ TEST(TestSetValue, set_str)
     
     json_node jn;
     jn = some_str;
-    EXPECT_EQ(jn.as_string(), some_str)
-                << "json_node.operator=(" << some_str << ").as_string()" << " should return "  << '"' << some_str << '"';
+    EXPECT_EQ(jn.get_string(), some_str)
+                << "json_node.operator=(" << some_str << ").get_string()" << " should return "  << '"' << some_str << '"';
     jn = some_other_str;
-    EXPECT_EQ(jn.as_string(), some_other_str)
-                << "json_node.operator=(" << some_other_str << ").as_string()" << " should return "  << '"' << some_other_str << '"';
+    EXPECT_EQ(jn.get_string(), some_other_str)
+                << "json_node.operator=(" << some_other_str << ").get_string()" << " should return "  << '"' << some_other_str << '"';
 }
 
 TEST(TestGetValue, bool_value)
 {
     
-    EXPECT_FALSE(json_node().as_bool())
-                << "json_node().as_bool() should return " << "false";
-    EXPECT_FALSE(json_node().as<bool>())
-                << "json_node().as_bool() should return " << "false";
-    EXPECT_TRUE(json_node().as_bool(true))
-                << "json_node().as_bool(true) should return " << "true";
-    EXPECT_TRUE(json_node().as<bool>(true))
-                << "json_node().as_bool(true) should return " << "true";
+    EXPECT_FALSE(json_node().get_bool())
+                << "json_node().get_bool() should return " << "false";
+    EXPECT_FALSE(json_node().get_as<bool>())
+                << "json_node().get_bool() should return " << "false";
+    EXPECT_TRUE(json_node().get_bool(true))
+                << "json_node().get_bool(true) should return " << "true";
+    EXPECT_TRUE(json_node().get_as<bool>(true))
+                << "json_node().get_bool(true) should return " << "true";
 
-    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as_bool())
-                << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as<bool>())
-                << "json_node(jsonland::node_type::_bool).as_bool() should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as_bool(true))
-                << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::node_type::bool_t).as<bool>(true))
-                << "json_node(jsonland::node_type::_bool).as_bool(true) should return " << "false";
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_bool())
+                << "json_node(jsonland::value_type::_bool).get_bool() should return " << "false";
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_as<bool>())
+                << "json_node(jsonland::value_type::_bool).get_bool() should return " << "false";
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_bool(true))
+                << "json_node(jsonland::value_type::_bool).get_bool(true) should return " << "false";
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_as<bool>(true))
+                << "json_node(jsonland::value_type::_bool).get_bool(true) should return " << "false";
 
-    EXPECT_FALSE(json_node(false).as_bool())
-                << "json_node(" << "false" << ").as_bool() should return " << "false";
-    EXPECT_FALSE(json_node(false).as<bool>())
-                << "json_node(" << "false" << ").as_bool() should return " << "false";
+    EXPECT_FALSE(json_node(false).get_bool())
+                << "json_node(" << "false" << ").get_bool() should return " << "false";
+    EXPECT_FALSE(json_node(false).get_as<bool>())
+                << "json_node(" << "false" << ").get_bool() should return " << "false";
     
-    EXPECT_TRUE(json_node(true).as_bool())
-                << "json_node(" << "true" << ").as_bool() should return " << "true";
-    EXPECT_TRUE(json_node(true).as<bool>())
-                << "json_node(" << "true" << ").as_bool() should return " << "true";
+    EXPECT_TRUE(json_node(true).get_bool())
+                << "json_node(" << "true" << ").get_bool() should return " << "true";
+    EXPECT_TRUE(json_node(true).get_as<bool>())
+                << "json_node(" << "true" << ").get_bool() should return " << "true";
     
-    EXPECT_FALSE(json_node(false).as_bool(true))
-                << "json_node(" << "false" << ").as_bool(true) should return " << "false";
-    EXPECT_FALSE(json_node(false).as<bool>(true))
-                << "json_node(" << "false" << ").as_bool(true) should return " << "false";
+    EXPECT_FALSE(json_node(false).get_bool(true))
+                << "json_node(" << "false" << ").get_bool(true) should return " << "false";
+    EXPECT_FALSE(json_node(false).get_as<bool>(true))
+                << "json_node(" << "false" << ").get_bool(true) should return " << "false";
     
-    EXPECT_TRUE(json_node(true).as_bool(false))
-                << "json_node(" << "true" << ").as_bool(false) should return " << "true";
-    EXPECT_TRUE(json_node(true).as<bool>(false))
-                << "json_node(" << "true" << ").as_bool(false) should return " << "true";
+    EXPECT_TRUE(json_node(true).get_bool(false))
+                << "json_node(" << "true" << ").get_bool(false) should return " << "true";
+    EXPECT_TRUE(json_node(true).get_as<bool>(false))
+                << "json_node(" << "true" << ").get_bool(false) should return " << "true";
 }
 
 TEST(TestGetValue, integer_value)
@@ -158,25 +157,25 @@ TEST(TestGetValue, integer_value)
     const int64_t int_num = 17.19;
     const int64_t another_int_number = 23.45;
     
-    EXPECT_EQ(json_node(int_num).as_int<int>(), int_num)
-                << "json_node(" << int_num << ").as_double() should return " << int_num;
+    EXPECT_EQ(json_node(int_num).get_int<int>(), int_num)
+                << "json_node(" << int_num << ").get_int() should return " << int_num;
     
-    EXPECT_EQ(json_node(int_num).as_int(another_int_number), int_num)
-                << "json_node(" << int_num << ").as_double(" << another_int_number << ") should return " << int_num;
+    EXPECT_EQ(json_node(int_num).get_int(another_int_number), int_num)
+                << "json_node(" << int_num << ").get_int(" << another_int_number << ") should return " << int_num;
     
-    EXPECT_EQ(json_node(int_num).as_string(), "")
-                << "json_node(" << int_num << ").as_string() should return " << '"' << '"';
+    EXPECT_EQ(json_node(int_num).get_string(), "")
+                << "json_node(" << int_num << ").get_string() should return " << '"' << '"';
     
-    EXPECT_EQ(json_node(int_num).as_string("babushka"), "babushka")
-                << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
-    EXPECT_EQ(json_node(int_num).as<std::string_view>("babushka"), "babushka")
-                << "json_node(" << int_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
+    EXPECT_EQ(json_node(int_num).get_string("babushka"), "babushka")
+                << "json_node(" << int_num << R"(.get_string("babushka"))" << " should return " << R"("babushka")";
+    EXPECT_EQ(json_node(int_num).get_as<std::string_view>("babushka"), "babushka")
+                << "json_node(" << int_num << R"(.get_string("babushka"))" << " should return " << R"("babushka")";
 
-    EXPECT_EQ(json_node("babushka").as_int<int>(), 0);
-    EXPECT_EQ(json_node("babushka").as<int>(), 0);
+    EXPECT_EQ(json_node("babushka").get_int<int>(), 0);
+    EXPECT_EQ(json_node("babushka").get_as<int>(), 0);
 
-    EXPECT_EQ(json_node("babushka").as_int(190888), 190888);
-    EXPECT_EQ(json_node("babushka").as<int>(190888), 190888);
+    EXPECT_EQ(json_node("babushka").get_int(190888), 190888);
+    EXPECT_EQ(json_node("babushka").get_as<int>(190888), 190888);
 
 }
 
@@ -185,35 +184,35 @@ TEST(TestGetValue, floating_point_value)
     const double fp_num = 17.19;
     const double another_fp_number = 23.45;
     
-    EXPECT_EQ(json_node(fp_num).as_double(), fp_num)
-                << "json_node(" << fp_num << ").as_double() should return " << fp_num;
-    EXPECT_EQ(json_node(fp_num).as_double(another_fp_number), fp_num)
-                << "json_node(" << fp_num << ").as_double(" << another_fp_number << ") should return " << fp_num;
-    EXPECT_EQ(json_node(fp_num).as_string(), "")
-                << "json_node(" << fp_num << ").as_string() should return " << '"' << '"';
-    EXPECT_EQ(json_node(fp_num).as_string("babushka"), "babushka")
-                << "json_node(" << fp_num << R"(.as_string("babushka"))" << " should return " << R"("babushka")";
+    EXPECT_EQ(json_node(fp_num).get_float<double>(), fp_num)
+                << "json_node(" << fp_num << ").get_float() should return " << fp_num;
+    EXPECT_EQ(json_node(fp_num).get_float<double>(another_fp_number), fp_num)
+                << "json_node(" << fp_num << ").get_float(" << another_fp_number << ") should return " << fp_num;
+    EXPECT_EQ(json_node(fp_num).get_string(), "")
+                << "json_node(" << fp_num << ").get_string() should return " << '"' << '"';
+    EXPECT_EQ(json_node(fp_num).get_string("babushka"), "babushka")
+                << "json_node(" << fp_num << R"(.get_string("babushka"))" << " should return " << R"("babushka")";
 
-    EXPECT_EQ(json_node("babushka").as_double(), 0.0);
-    EXPECT_EQ(json_node("babushka").as_double(908.88), 908.88);
+    EXPECT_EQ(json_node("babushka").get_float<float>(), 0.0);
+    EXPECT_EQ(json_node("babushka").get_float<double>(908.88), 908.88);
 }
 
 TEST(TestGetValue, str_value)
 {
     const char* some_str = "babushka";
     const char* some_other_str = "pirushki";
-    EXPECT_EQ(json_node(some_str).as_string(), some_str)
-                << "json_node(" << some_str << ").as_string()" << " should return "  << '"' << some_str << '"';
+    EXPECT_EQ(json_node(some_str).get_string(), some_str)
+                << "json_node(" << some_str << ").get_string()" << " should return "  << '"' << some_str << '"';
     
-    EXPECT_EQ(json_node(some_str).as_string(some_other_str), some_str)
-                << "json_node(" << some_str << ").as_string(" << some_other_str << ")" << " should return "  << '"' << some_str << '"';
+    EXPECT_EQ(json_node(some_str).get_string(some_other_str), some_str)
+                << "json_node(" << some_str << ").get_string(" << some_other_str << ")" << " should return "  << '"' << some_str << '"';
 
-    EXPECT_EQ(json_node(some_str).as_double(), 0.0)
-                << "json_node(" << some_str << ").as_double()" << " should return 0.0";
-    EXPECT_EQ(json_node(some_str).as_double(456.87), 456.87)
-                << "json_node(" << some_str << ").as_double(456.87)" << " should return 456.87";
+    EXPECT_EQ(json_node(some_str).get_float<float>(), 0.0)
+                << "json_node(" << some_str << ").get_float()" << " should return 0.0";
+    EXPECT_EQ(json_node(some_str).get_float<float>(456.87), 456.87f)
+                << "json_node(" << some_str << ").get_float(456.87)" << " should return 456.87";
 
     json_node jn2(17);
-    EXPECT_EQ(jn2.as_string(), "");
-    EXPECT_EQ(jn2.as_string(some_str), some_str);
+    EXPECT_EQ(jn2.get_string(), "");
+    EXPECT_EQ(jn2.get_string(some_str), some_str);
 }

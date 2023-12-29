@@ -181,12 +181,17 @@ public:
         
         return retVal;
     }
-    friend struct string_or_view_hasher;
+
     friend bool operator==(const string_or_view& lhs, const string_or_view& rhs) noexcept
     {
-        return lhs.m_value == rhs.m_value;
+        bool retVal = lhs.as_string_view() == rhs.as_string_view();
+        return retVal;
     }
     
+    /// @return Estimation of amount of heap memory allocated by this object, not including the object itself.
+    /// <br>If holding std::string, will try to take into account "small string optimization",
+    /// in which case 0 will be reported.
+    /// <br>If holding std::string_view, 0 will be reported.
     size_t allocation_size() const noexcept
     {
         size_t retVal{0};
@@ -212,7 +217,8 @@ struct string_or_view_hasher
 {
     std::size_t operator()(const string_or_view& in_string_or_view_to_hash) const noexcept
     {
-        return std::hash<std::string_view>()(in_string_or_view_to_hash.as_string_view());
+        std::size_t the_hash = std::hash<std::string_view>()(in_string_or_view_to_hash.as_string_view());
+        return the_hash;
     }
 };
 

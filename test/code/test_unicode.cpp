@@ -33,7 +33,7 @@ TEST(Unicode, compare_escape_parse)
     int parse_error = landoc.parse(json_text);
     for (auto& node : landoc)
     {
-        std::cout << "jsonland: " << node.key() << " => " <<  node.as_string() << "\n";
+        std::cout << "jsonland: " << node.key() << " => " <<  node.get_string() << "\n";
     }
 }
 
@@ -60,8 +60,8 @@ TEST(Unicode, compare_unescape_parse)
 
     jsonland::json_doc landoc;
     int parse_error = landoc.parse(json_text);
-    std::cout << "jsonland: " << "house" << " => " <<  landoc["house"].as_string() << "\n";
-    std::cout << "jsonland: " << "post-office" << " => " <<  landoc["post-office"].as_string() << "\n";
+    std::cout << "jsonland: " << "house" << " => " <<  landoc["house"].get_string() << "\n";
+    std::cout << "jsonland: " << "post-office" << " => " <<  landoc["post-office"].get_string() << "\n";
 }
 
 
@@ -102,6 +102,6 @@ TEST(Unicode, compare_unescaped_initialization)
 
     for (auto& node : landoc)
     {
-        std::cout << "jsonland: " << node.key() << " => " <<  node.as_string() << "\n";
+        std::cout << "jsonland: " << node.key() << " => " <<  node.get_string() << "\n";
     }
 }

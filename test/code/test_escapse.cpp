@@ -19,7 +19,7 @@ TEST(TestEscape, just_a_string)
 
     jsonland::json_doc jl;
     jl.parse_insitu(const_cast<char*>(input_json_str.c_str()), const_cast<char*>(input_json_str.c_str())+input_json_str.size());
-    std::string out_json_string(jl.as_string());
+    std::string out_json_string(jl.get_string());
     std::cout << out_json_string << "\n";
 
 

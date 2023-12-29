@@ -29,12 +29,12 @@ TEST(TestCompare, numbers)
     auto num2_text = "1.000000000000000012";
     double num2_binary = 1.000000000000000012;
 
-    json_node jn_num1(num1_text, jsonland::node_type::number_t);
-    json_node jn_num2(num2_text, jsonland::node_type::number_t);
+    json_node jn_num1(num1_text, jsonland::value_type::number_t);
+    json_node jn_num2(num2_text, jsonland::value_type::number_t);
     EXPECT_NE(jn_num1, jn_num2); // not equal since both constructed with strings but the strings are different
 
-    auto as_num1 = jn_num1.as_double();
-    auto as_num2 = jn_num2.as_double();
+    auto as_num1 = jn_num1.get_float<double>();
+    auto as_num2 = jn_num2.get_float<double>();
     EXPECT_EQ(as_num1, as_num2); // equal because the binary representation is the same
 
     json_node jn_num3(num2_binary);

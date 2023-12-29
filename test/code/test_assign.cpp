@@ -9,16 +9,16 @@ TEST(TestAssign, repeated_rotating_assign)
     std::string_view a_sv = "lu lu lin"sv;
     std::string a_str(a_sv);
 
-    json_node jn_sources[6]{json_node("Margot Robbie"), 19.19, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::node_type::array_t)};
+    json_node jn_sources[6]{json_node("Margot Robbie"), 19.19f, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::value_type::array_t)};
     
-    json_node obj(jsonland::node_type::object_t);
+    json_node obj(jsonland::value_type::object_t);
     obj["one"] = 3.1415;
     obj["two"] = true;
-    obj["three"] = json_node("234.567", jsonland::node_type::number_t);
+    obj["three"] = json_node("234.567", jsonland::value_type::number_t);
     
     json_node a = obj["three"];
     
-    json_node array(jsonland::node_type::array_t);
+    json_node array(jsonland::value_type::array_t);
     array.push_back(json_node(1.2));
     array.push_back(json_node(true));
     array.push_back(obj["one"]);
@@ -33,27 +33,27 @@ TEST(TestAssign, repeated_rotating_assign)
         int target = i++ % 7;
         jn_targets[target] = jn_sources[0];
         EXPECT_TRUE(jn_targets[target].is_string()) << R"(json_node = json_node("Margot Robbie"), is_string() should return true)";
-        EXPECT_EQ(jn_targets[target].as_string_view(), "Margot Robbie"sv) <<  R"(json_node = json_node("Margot Robbie"),  as_string() should return "Margot Robbie")";
+        EXPECT_EQ(jn_targets[target].as_string_view(), "Margot Robbie"sv) <<  R"(json_node = json_node("Margot Robbie"),  get_string() should return "Margot Robbie")";
         
         target = i++ % 7;
         jn_targets[target] = jn_sources[1];
         EXPECT_TRUE(jn_targets[target].is_num()) << "json_node = json_node(19.19), is_num() should return true";
-        EXPECT_EQ(jn_targets[target].as_double(), 19.19) << "json_node = json_node(19.19), as_double() should return 19.19";
+        EXPECT_EQ(jn_targets[target].get_float<float>(), 19.19f) << "json_node = json_node(19.19), get_float() should return 19.19";
         
         target = i++ % 7;
         jn_targets[target] = jn_sources[2];
         EXPECT_TRUE(jn_targets[target].is_bool()) << "json_node = json_node(false), is_bool() should return true";
-        EXPECT_FALSE(jn_targets[target].as_bool()) << "json_node = json_node(false), as_bool() should return false";
+        EXPECT_FALSE(jn_targets[target].get_bool()) << "json_node = json_node(false), get_bool() should return false";
         
         target = i++ % 7;
        jn_targets[target] = jn_sources[3];
-        // check that type is set correctly to node_type_null
+        // check that type is set correctly to value_type_null
         EXPECT_TRUE(jn_targets[target].is_null()) << "json_node = json_node(nullptr), is_null() should return true";
         
         target = i++ % 7;
         jn_targets[target] = jn_sources[4];
         EXPECT_TRUE(jn_targets[target].is_bool()) << "json_node = json_node(true), is_bool() should return true";
-        EXPECT_TRUE(jn_targets[target].as_bool()) << "json_node = json_node(true), as_bool() should return true";
+        EXPECT_TRUE(jn_targets[target].get_bool()) << "json_node = json_node(true), get_bool() should return true";
     }
 }
 
@@ -65,23 +65,23 @@ TEST(TestAssign, repeated_assign_constants)
     {
         jn = 1.1;
         EXPECT_TRUE(jn.is_num()) << "json_node = 1.1, is_num() should return true";
-        EXPECT_EQ(jn.as_double(), 1.1) << "json_node = 1.1, as_double() should return 1.1";
+        EXPECT_EQ(jn.get_float<double>(), 1.1) << "json_node = 1.1, get_float() should return 1.1";
         
         jn = false;
         EXPECT_TRUE(jn.is_bool()) << "json_node = false, is_bool() should return true";
-        EXPECT_FALSE(jn.as_bool()) << "json_node = false, as_bool() should return false";
+        EXPECT_FALSE(jn.get_bool()) << "json_node = false, get_bool() should return false";
         
         jn = "Bimbatron";
         EXPECT_TRUE(jn.is_string()) << R"(json_node = "Bimbatron", is_string() should return true)";
-        EXPECT_EQ(jn.as_string(), "Bimbatron") <<  R"(json_node = "Bimbatron",  as_string() should return "Bimbatron")";
+        EXPECT_EQ(jn.get_string(), "Bimbatron") <<  R"(json_node = "Bimbatron",  get_string() should return "Bimbatron")";
 
         jn = nullptr;
-        // check that type is set correctly to node_type_null
+        // check that type is set correctly to value_type_null
         EXPECT_TRUE(jn.is_null()) << "json_node = nullptr, is_null() should return true";
 
         jn = true;
         EXPECT_TRUE(jn.is_bool()) << "json_node = true, is_bool() should return true";
-        EXPECT_TRUE(jn.as_bool()) << "json_node = true, as_bool() should return true";
+        EXPECT_TRUE(jn.get_bool()) << "json_node = true, get_bool() should return true";
     }
 }
 
@@ -91,11 +91,11 @@ TEST(TestAssign, str_value)
     json_node jn_str(178);
     jn_str = "Shmulik";
 
-    // check that type is set correctly to node_type_str
+    // check that type is set correctly to value_type_str
     EXPECT_TRUE(jn_str.is_string()) << R"(jn_str = "Shmulik", should return true)";
 
     // check that default value is initialized correctly
-    EXPECT_EQ(jn_str.as_string("????"), "Shmulik") << R"(jn_str = "Shmulik", as_string('????') should return "Shmulik")";
+    EXPECT_EQ(jn_str.get_string("????"), "Shmulik") << R"(jn_str = "Shmulik", get_string('????') should return "Shmulik")";
 
     EXPECT_FALSE(jn_str.is_object()) << R"(jn_str = "Shmulik", is_object() should return false)";
     EXPECT_FALSE(jn_str.is_array()) << R"(jn_str = "Shmulik", is_array() should return false)";
@@ -109,14 +109,14 @@ TEST(TestAssign, num_value)
     json_node jn17("kombucha");
     jn17 = 17.3;
     
-    // check that type is set correctly to node_type_num
+    // check that type is set correctly to value_type_num
     EXPECT_TRUE(jn17.is_num()) << "json_node = 17.3, is_num() should return true";
 
     // check that default value is initialized correctly
-    EXPECT_EQ(jn17.as_double(), 17.3) << "json_node = 17.3, as_double() should return 17.3";
-    EXPECT_EQ(jn17.as_int<int>(), 17) << "json_node = 17.3, as_int() should return 17";
+    EXPECT_EQ(jn17.get_float<long double>(), 17.3) << "json_node = 17.3, get_float() should return 17.3";
+    EXPECT_EQ(jn17.get_int<int>(), 17) << "json_node = 17.3, get_int() should return 17";
 
-    // check that type is not set incorrectly as another node_type
+    // check that type is not set incorrectly as another value_type
     EXPECT_FALSE(jn17.is_object()) << "json_node = 17.3, is_object() should return false";
     EXPECT_FALSE(jn17.is_array()) << "json_node = 17.3, is_array() should return false";
     EXPECT_FALSE(jn17.is_string()) << "json_node = 17.3, is_string() should return false";
@@ -131,15 +131,15 @@ TEST(TestAssign, bool_value)
     json_node bool_json_true("prognanza");
     bool_json_true = true;
     
-    // check that type is set correctly to node_type_bool
+    // check that type is set correctly to value_type_bool
     EXPECT_TRUE(bool_json_false.is_bool()) << "json_node = false, is_bool() should return true";
     EXPECT_TRUE(bool_json_true.is_bool()) << "json_node = true, is_bool() should return true";
     
     // check that default value is initialized correctly
-    EXPECT_FALSE(bool_json_false.as_bool()) << "json_node = false, as_bool() should return false";
-    EXPECT_TRUE(bool_json_true.as_bool()) << "json_node = true, as_bool() should return true";
+    EXPECT_FALSE(bool_json_false.get_bool()) << "json_node = false, get_bool() should return false";
+    EXPECT_TRUE(bool_json_true.get_bool()) << "json_node = true, get_bool() should return true";
 
-    // check that type is not set incorrectly as another node_type
+    // check that type is not set incorrectly as another value_type
     EXPECT_FALSE(bool_json_false.is_object()) << "json_node = false, is_object() should return false";
     EXPECT_FALSE(bool_json_true.is_object()) << "json_node = true, is_object() should return false";
     EXPECT_FALSE(bool_json_false.is_array()) << "json_node = false, is_array() should return false";
@@ -157,10 +157,10 @@ TEST(TestAssign, null_value)
     json_node jn_null(12345);
     jn_null = nullptr;
     
-    // check that type is set correctly to node_type_null
+    // check that type is set correctly to value_type_null
     EXPECT_TRUE(jn_null.is_null()) << "json_node = nullptr, is_null() should return true";
 
-    // check that type is not set incorrectly as another node_type
+    // check that type is not set incorrectly as another value_type
     EXPECT_FALSE(jn_null.is_object()) << "json_node = nullptr, is_object() should return false";
     EXPECT_FALSE(jn_null.is_array()) << "json_node = nullptr, is_array() should return false";
     EXPECT_FALSE(jn_null.is_string()) << "json_node = nullptr, is_string() should return false";
