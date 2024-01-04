@@ -128,10 +128,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a97b142c0ba648129e9b365183259d0c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5eba2b3ff12294247539f74fc61a747" id="r_ab5eba2b3ff12294247539f74fc61a747"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#ab5eba2b3ff12294247539f74fc61a747">store_value_deal_with_escapes</a> (std::string_view in_str) noexcept</td></tr>
 <tr class="separator:ab5eba2b3ff12294247539f74fc61a747"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5aa99cf1c2a765bfa40827a1bd3e189a" id="r_a5aa99cf1c2a765bfa40827a1bd3e189a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#a5aa99cf1c2a765bfa40827a1bd3e189a">unescape</a> (std::string &amp;out_unescaped) const noexcept</td></tr>
-<tr class="separator:a5aa99cf1c2a765bfa40827a1bd3e189a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbfefa3913c3b7e99dd24db280b90ccc" id="r_abbfefa3913c3b7e99dd24db280b90ccc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#abbfefa3913c3b7e99dd24db280b90ccc">unescape_internal</a> () noexcept</td></tr>
-<tr class="separator:abbfefa3913c3b7e99dd24db280b90ccc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1a7e3f1818a74cf727f37f3f63062e6" id="r_aa1a7e3f1818a74cf727f37f3f63062e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#aa1a7e3f1818a74cf727f37f3f63062e6">clear</a> () noexcept</td></tr>
 <tr class="separator:aa1a7e3f1818a74cf727f37f3f63062e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade5297978d8f36282ff8625c4858cbca" id="r_ade5297978d8f36282ff8625c4858cbca"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#ade5297978d8f36282ff8625c4858cbca">is_value_referenced</a> () const noexcept</td></tr>
@@ -152,6 +148,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a55f345f9f3d77ad7baec8eed618b1718"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92283c82fae381ed5841c7c1c40f2873" id="r_a92283c82fae381ed5841c7c1c40f2873"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#a92283c82fae381ed5841c7c1c40f2873">allocation_size</a> () const noexcept</td></tr>
 <tr class="separator:a92283c82fae381ed5841c7c1c40f2873"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ca61e0511e99739e0c0a71355a1e280" id="r_a6ca61e0511e99739e0c0a71355a1e280"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#a6ca61e0511e99739e0c0a71355a1e280">unescape</a> (std::string &amp;out_unescaped) const noexcept</td></tr>
+<tr class="separator:a6ca61e0511e99739e0c0a71355a1e280"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa88d6dad231208f2e06048d633c0cc58" id="r_aa88d6dad231208f2e06048d633c0cc58"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classjsonland_1_1string__or__view.html#aa88d6dad231208f2e06048d633c0cc58">unescape_internal</a> () noexcept</td></tr>
+<tr class="separator:aa88d6dad231208f2e06048d633c0cc58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -725,8 +725,8 @@ If holding std::string_view, 0 will be reported. </dd></dl>
 
 </div>
 </div>
-<a id="a5aa99cf1c2a765bfa40827a1bd3e189a" name="a5aa99cf1c2a765bfa40827a1bd3e189a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aa99cf1c2a765bfa40827a1bd3e189a">&#9670;&#160;</a></span>unescape()</h2>
+<a id="a6ca61e0511e99739e0c0a71355a1e280" name="a6ca61e0511e99739e0c0a71355a1e280"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ca61e0511e99739e0c0a71355a1e280">&#9670;&#160;</a></span>unescape()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -735,7 +735,7 @@ If holding std::string_view, 0 will be reported. </dd></dl>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void string_or_view::unescape </td>
+          <td class="memname">void jsonland::string_or_view::unescape </td>
           <td>(</td>
           <td class="paramtype">std::string &amp;&#160;</td>
           <td class="paramname"><em>out_unescaped</em></td><td>)</td>
@@ -744,15 +744,15 @@ If holding std::string_view, 0 will be reported. </dd></dl>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="abbfefa3913c3b7e99dd24db280b90ccc" name="abbfefa3913c3b7e99dd24db280b90ccc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abbfefa3913c3b7e99dd24db280b90ccc">&#9670;&#160;</a></span>unescape_internal()</h2>
+<a id="aa88d6dad231208f2e06048d633c0cc58" name="aa88d6dad231208f2e06048d633c0cc58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa88d6dad231208f2e06048d633c0cc58">&#9670;&#160;</a></span>unescape_internal()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -761,7 +761,7 @@ If holding std::string_view, 0 will be reported. </dd></dl>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void string_or_view::unescape_internal </td>
+          <td class="memname">void jsonland::string_or_view::unescape_internal </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -769,7 +769,7 @@ If holding std::string_view, 0 will be reported. </dd></dl>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

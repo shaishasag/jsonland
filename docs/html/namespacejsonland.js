@@ -3,6 +3,7 @@ var namespacejsonland =
     [ "parser_impl", "namespacejsonland_1_1parser__impl.html", "namespacejsonland_1_1parser__impl" ],
     [ "json_doc", "classjsonland_1_1json__doc.html", "classjsonland_1_1json__doc" ],
     [ "json_node", "classjsonland_1_1json__node.html", "classjsonland_1_1json__node" ],
+    [ "solve_escapes_iter", "classjsonland_1_1solve__escapes__iter.html", "classjsonland_1_1solve__escapes__iter" ],
     [ "string_or_view", "classjsonland_1_1string__or__view.html", "classjsonland_1_1string__or__view" ],
     [ "string_or_view_hasher", "structjsonland_1_1string__or__view__hasher.html", "structjsonland_1_1string__or__view__hasher" ],
     [ "value_type", "namespacejsonland.html#aa5fc983dabdd8c625495f5e42c563df6", [

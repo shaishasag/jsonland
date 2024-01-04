@@ -21,8 +21,8 @@ var classjsonland_1_1string__or__view =
     [ "size", "classjsonland_1_1string__or__view.html#a55f345f9f3d77ad7baec8eed618b1718", null ],
     [ "store_value", "classjsonland_1_1string__or__view.html#a0037736af4554a0f87a6fc7eb38ae94b", null ],
     [ "store_value_deal_with_escapes", "classjsonland_1_1string__or__view.html#ab5eba2b3ff12294247539f74fc61a747", null ],
-    [ "unescape", "classjsonland_1_1string__or__view.html#a5aa99cf1c2a765bfa40827a1bd3e189a", null ],
-    [ "unescape_internal", "classjsonland_1_1string__or__view.html#abbfefa3913c3b7e99dd24db280b90ccc", null ],
+    [ "unescape", "classjsonland_1_1string__or__view.html#a6ca61e0511e99739e0c0a71355a1e280", null ],
+    [ "unescape_internal", "classjsonland_1_1string__or__view.html#aa88d6dad231208f2e06048d633c0cc58", null ],
     [ "operator==", "classjsonland_1_1string__or__view.html#a1fcea6f5e304634497ad3902fd2b9849", null ],
     [ "m_num_escapes", "classjsonland_1_1string__or__view.html#a07c3eaad1fac4e6e16d6ffc0dbccce21", null ],
     [ "m_value", "classjsonland_1_1string__or__view.html#a73223b18885728e5adb6c1dcbe849c0a", null ]

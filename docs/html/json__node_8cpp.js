@@ -1,6 +1,5 @@
 var json__node_8cpp =
 [
-    [ "solve_escapes_iter", "classsolve__escapes__iter.html", "classsolve__escapes__iter" ],
     [ "jsonland::parser_impl::Parser", "classjsonland_1_1parser__impl_1_1_parser.html", "classjsonland_1_1parser__impl_1_1_parser" ],
     [ "jsonland::parser_impl::Parser::location_in_string", "structjsonland_1_1parser__impl_1_1_parser_1_1location__in__string.html", "structjsonland_1_1parser__impl_1_1_parser_1_1location__in__string" ],
     [ "jsonland::parser_impl::Parser::parsing_exception", "classjsonland_1_1parser__impl_1_1_parser_1_1parsing__exception.html", "classjsonland_1_1parser__impl_1_1_parser_1_1parsing__exception" ],

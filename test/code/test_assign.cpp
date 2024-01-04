@@ -37,7 +37,7 @@ TEST(TestAssign, repeated_rotating_assign)
         
         target = i++ % 7;
         jn_targets[target] = jn_sources[1];
-        EXPECT_TRUE(jn_targets[target].is_num()) << "json_node = json_node(19.19), is_num() should return true";
+        EXPECT_TRUE(jn_targets[target].is_number()) << "json_node = json_node(19.19), is_number() should return true";
         EXPECT_EQ(jn_targets[target].get_float<float>(), 19.19f) << "json_node = json_node(19.19), get_float() should return 19.19";
         
         target = i++ % 7;
@@ -64,7 +64,7 @@ TEST(TestAssign, repeated_assign_constants)
     for (int i = 0; i < 3; ++i)
     {
         jn = 1.1;
-        EXPECT_TRUE(jn.is_num()) << "json_node = 1.1, is_num() should return true";
+        EXPECT_TRUE(jn.is_number()) << "json_node = 1.1, is_number() should return true";
         EXPECT_EQ(jn.get_float<double>(), 1.1) << "json_node = 1.1, get_float() should return 1.1";
         
         jn = false;
@@ -99,7 +99,7 @@ TEST(TestAssign, str_value)
 
     EXPECT_FALSE(jn_str.is_object()) << R"(jn_str = "Shmulik", is_object() should return false)";
     EXPECT_FALSE(jn_str.is_array()) << R"(jn_str = "Shmulik", is_array() should return false)";
-    EXPECT_FALSE(jn_str.is_num()) << R"(jn_str = "Shmulik", is_num() should return false)";
+    EXPECT_FALSE(jn_str.is_number()) << R"(jn_str = "Shmulik", is_number() should return false)";
     EXPECT_FALSE(jn_str.is_bool()) << R"(jn_str = "Shmulik", is_bool() should return false)";
     EXPECT_FALSE(jn_str.is_null()) << R"(jn_str = "Shmulik", is_null() should return false)";
 }
@@ -110,7 +110,7 @@ TEST(TestAssign, num_value)
     jn17 = 17.3;
     
     // check that type is set correctly to value_type_num
-    EXPECT_TRUE(jn17.is_num()) << "json_node = 17.3, is_num() should return true";
+    EXPECT_TRUE(jn17.is_number()) << "json_node = 17.3, is_number() should return true";
 
     // check that default value is initialized correctly
     EXPECT_EQ(jn17.get_float<long double>(), 17.3) << "json_node = 17.3, get_float() should return 17.3";
@@ -146,8 +146,8 @@ TEST(TestAssign, bool_value)
     EXPECT_FALSE(bool_json_true.is_array()) << "json_node = true, is_array() should return false";
     EXPECT_FALSE(bool_json_false.is_string()) << "json_node = false, is_string() should return false";
     EXPECT_FALSE(bool_json_true.is_string()) << "json_node = true, is_string() should return false";
-    EXPECT_FALSE(bool_json_false.is_num()) << "json_node = false, is_num() should return false";
-    EXPECT_FALSE(bool_json_true.is_num()) << "json_node = true, is_num() should return false";
+    EXPECT_FALSE(bool_json_false.is_number()) << "json_node = false, is_number() should return false";
+    EXPECT_FALSE(bool_json_true.is_number()) << "json_node = true, is_number() should return false";
     EXPECT_FALSE(bool_json_false.is_null()) << "json_node = false, is_null() should return false";
     EXPECT_FALSE(bool_json_true.is_null()) << "json_node = true, is_null() should return false";
 }
@@ -164,6 +164,10 @@ TEST(TestAssign, null_value)
     EXPECT_FALSE(jn_null.is_object()) << "json_node = nullptr, is_object() should return false";
     EXPECT_FALSE(jn_null.is_array()) << "json_node = nullptr, is_array() should return false";
     EXPECT_FALSE(jn_null.is_string()) << "json_node = nullptr, is_string() should return false";
-    EXPECT_FALSE(jn_null.is_num()) << "json_node = nullptr, is_num() should return false";
+    EXPECT_FALSE(jn_null.is_number()) << "json_node = nullptr, is_number() should return false";
     EXPECT_FALSE(jn_null.is_bool()) << "json_node = nullptr, is_bool() should return false";
+}
+
+TEST(TestAssign, assign_to_object)
+{
 }

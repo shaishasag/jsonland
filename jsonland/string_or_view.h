@@ -9,6 +9,104 @@ namespace jsonland
 {
 template<class> constexpr bool always_false_v = false;
 
+
+class solve_escapes_iter
+{
+private:
+    const std::string_view m_str;
+    int m_str_i = -1;
+    char m_curr_char = '\0';
+    char m_waiting_char = '\0';
+
+    size_t m_num_escapes_found = 0;
+    
+public:
+    solve_escapes_iter(std::string_view in_str)
+    : m_str(in_str)
+    {
+        if (!m_str.empty())
+            operator++();
+    }
+    
+    operator bool()
+    {
+        return m_str_i < static_cast<int>(m_str.size()) && '\0' != m_curr_char;
+    }
+    
+    size_t num_escapes_found()
+    {
+        return m_num_escapes_found;
+    }
+
+    char hex2char(const char hi, const char lo)
+    {
+        uint8_t hi_t = (hi <= 57)? hi - 48 : (hi <= 70)? (hi - 65) + 0x0a : (hi - 97) + 0x0a;
+        uint8_t lo_t = (lo <= 57)? lo - 48 : (lo <= 70)? (lo - 65) + 0x0a : (lo - 97) + 0x0a;
+        return hi_t*16+lo_t;
+    }
+
+    
+    solve_escapes_iter& operator++()
+    {
+        if (m_str_i >= static_cast<int>(m_str.size()) && m_str_i != -1)
+            return *this;
+
+        if ('\0' != m_waiting_char)
+        {
+            m_curr_char = m_waiting_char;
+            m_waiting_char = '\0';
+        }
+        else
+        {
+            ++m_str_i;
+            m_curr_char = m_str[m_str_i];
+        
+            if ('\\' == m_curr_char)
+            {
+                ++m_num_escapes_found;
+                m_curr_char = m_str[++m_str_i];
+                switch (m_curr_char)
+                {
+                    case '\\':
+                    case '/':
+                    case '"':
+                        break;
+                    case 'n': m_curr_char = '\n'; break;
+                    case 'r': m_curr_char = '\r'; break;
+                    case 't': m_curr_char = '\t'; break;
+                    case 'b': m_curr_char = '\b'; break;
+                    case 'f': m_curr_char = '\f'; break;
+                    case 'u':
+                    {
+                        if (m_str_i+4 < static_cast<int>(m_str.size()))
+                        {
+                            char c1st = m_curr_char;
+                            char c2nd = m_str[++m_str_i];
+                            m_curr_char = hex2char(c1st, c2nd);
+                            c1st = m_str[++m_str_i];
+                            c2nd = m_str[++m_str_i];
+                            m_waiting_char = hex2char(c1st, c2nd);
+                        }
+                        else
+                        {
+                            m_curr_char = '\0';
+                            m_str_i = (int)m_str.size();
+                        }
+                    }
+                }
+            }
+        }
+        
+        return *this;
+    }
+    
+    char operator*()
+    {
+        return m_curr_char;
+    }
+    
+};
+
 class string_or_view
 {
 public:
@@ -61,9 +159,6 @@ public:
 
     void store_value_deal_with_escapes(std::string_view in_str)  noexcept;
     
-    // escape chars where needed and return true is escapes were found
-    void unescape(std::string& out_unescaped) const  noexcept;
-    void unescape_internal()  noexcept;
     
     void clear() noexcept
     {
@@ -211,6 +306,34 @@ public:
         
         return retVal;
     }
+    
+    void unescape(std::string& out_unescaped) const  noexcept
+    {
+        out_unescaped.reserve(size());
+
+        solve_escapes_iter iter(as_string_view());
+        
+        while (iter)
+        {
+            out_unescaped += *iter;
+            ++iter;
+        }
+    }
+
+    void unescape_internal()  noexcept
+    {
+        if (0 != m_num_escapes)
+        {
+            std::string temp_str(as_string_view());
+            unescape(temp_str);
+            m_num_escapes = 0;
+            m_value = std::move(temp_str);
+    #if JSONLAND_DEBUG==1
+            ++num_allocations;
+    #endif
+        }
+    }
+
 };
 
 struct string_or_view_hasher

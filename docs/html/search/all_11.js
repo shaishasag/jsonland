@@ -2,7 +2,7 @@ var searchData=
 [
   ['set_5fmax_5fnesting_5flevel_0',['set_max_nesting_level',['../classjsonland_1_1json__doc.html#a564331980a86369ab8da92530772ed07',1,'jsonland::json_doc']]],
   ['size_1',['size',['../classjsonland_1_1string__or__view.html#a55f345f9f3d77ad7baec8eed618b1718',1,'jsonland::string_or_view']]],
-  ['solve_5fescapes_5fiter_2',['solve_escapes_iter',['../classsolve__escapes__iter.html',1,'solve_escapes_iter'],['../classsolve__escapes__iter.html#addf6b61dad3d3629b8db629408f7f36a',1,'solve_escapes_iter::solve_escapes_iter()']]],
+  ['solve_5fescapes_5fiter_2',['solve_escapes_iter',['../classjsonland_1_1solve__escapes__iter.html',1,'jsonland::solve_escapes_iter'],['../classjsonland_1_1solve__escapes__iter.html#a74bfa7dff25b2c6aaf6d1e74fb0048e0',1,'jsonland::solve_escapes_iter::solve_escapes_iter()']]],
   ['store_5fvalue_3',['store_value',['../classjsonland_1_1string__or__view.html#a0037736af4554a0f87a6fc7eb38ae94b',1,'jsonland::string_or_view']]],
   ['store_5fvalue_5fdeal_5fwith_5fescapes_4',['store_value_deal_with_escapes',['../classjsonland_1_1string__or__view.html#ab5eba2b3ff12294247539f74fc61a747',1,'jsonland::string_or_view']]],
   ['str_5fcompare_5fcase_5finsensitive_5fn_5',['str_compare_case_insensitive_n',['../namespacejsonland_1_1parser__impl.html#a840c824774d0b5ead5e08ddd69eff750',1,'jsonland::parser_impl']]],

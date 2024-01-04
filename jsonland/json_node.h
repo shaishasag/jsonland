@@ -71,7 +71,7 @@ public:
     /// Decide if two #json_node object are equal.
     /// @param[in] lhs the first #json_node to compare.
     /// @param[in] rhs the second #json_node to compare.
-    /// @return true if the two given #json_node's values are identical, false otherwise
+    /// @return true if the two given #json_node's values are identical, i.e. both have same JSON value type and same value. <br> return false otherwise.
     friend bool operator==(const json_node& lhs, const json_node& rhs);
 
     /// Decide if two #json_node object are not equal.
@@ -93,10 +93,10 @@ public:
 public:
     /// Type declaration of mapping of a string to the index of a value in #m_values.
     using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
-    /// Type declaration of a vector of #json_node's.
+    /// Type declaration of a vector of #json_nodes.
     using ArrayVec = std::vector<json_node>;
 
-///private:
+private:
     
     /// JSON value type of this instance, can be any of the values in enum #value_type.
     /// Initilay it is set to #null_t
@@ -120,8 +120,8 @@ public:
     enum hints : uint32_t
     {
         _hint_none = 0,
-        _num_is_int = 1<<1,
-        _num_in_string = 1<<2,
+        _num_is_int = 1<<0,
+        _num_in_string = 1<<1,
     };
     
     hints m_hints{_hint_none};
@@ -135,9 +135,6 @@ public:
     /// String representation of a null value.
     static constexpr std::string_view the_null_string_view{"null"};
 
-    
-
-private:
 
     /// template to decide if a type is a number (floating point or integer)
     template<typename NUM> using IsNum = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) || std::is_floating_point<NUM>::value>;
@@ -223,6 +220,7 @@ public:
     /// If in_type == #number_t, value will be set to 0.0 and the number type is floating point.<br>
     /// If in_type == #array_t, value will be set to empty array.<br>
     /// If in_type == #object_t, value will be set to empty object.<br>
+    /// If in_type == #null_t, value will be set to null.<br>
     inline json_node& operator=(jsonland::value_type in_type) noexcept
     {
         if (in_type != m_value_type) {
@@ -231,9 +229,9 @@ public:
         return *this;
     }
 
-    /// Assign a new value string,#value_type to set to #string_t
+    /// Assign a new value string, JSON value type is set to #string_t
     /// @param in_str_value the new string value.<br>
-    /// Life time note: since in_str_value is a std::string_view, life time of this #json_node depends on the life time of in_str_value.
+    /// Life time note: since in_str_value is a std::string_view, life time of this #json_node depends on the life time of #in_str_value.
     json_node& operator=(const std::string_view in_str_value) noexcept
     {
         clear(string_t);
@@ -242,14 +240,28 @@ public:
     }
 
 
-    /// Constructor with string value.
+    /// Constructor with string value, but #value_type to set to #in_type not necessarily #string_t.
     /// @param in_str_value the new string value.
-    /// @param in_type the #value_type, defaults to #string_t, but can be other #value_type, e.g.<br>
-    /// <code>json_node j("12.34", number_t); // JSON value is the number 12.34</code>
-    inline json_node(const std::string_view in_str_value, jsonland::value_type in_type=jsonland::string_t) noexcept
+    /// @param in_type the #value_type.
+    /// Example:<br>
+    /// @code
+    /// jsonland::json_node n1("1234", jsonland::number_t);
+    /// n1.
+    /// @codeend
+    inline json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
     , m_value(in_str_value)
-    {}
+    {
+        if (m_value_type == number_t) {
+            m_hints = json_node::_num_in_string;
+            // (C++23): in_str_value.contains('.')
+            if (auto pos = in_str_value.find('.'); pos==std::string_view::npos)
+            {
+                m_hints = static_cast<hints>(m_hints | json_node::_num_is_int);
+            }
+            
+        }
+    }
 
     /// Construct with std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
@@ -261,7 +273,7 @@ public:
     }
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
-    /// Effciancy note: a copy of in_str_value will be created, requiring an allocation.
+    /// Effciancy note: a copy of in_str_value will be created, (most likely) requiring an allocation.
     json_node& operator=(const std::string& in_str_value) noexcept
     {
         clear(string_t);
@@ -269,8 +281,14 @@ public:
         return *this;
     }
 
+    /// Assign a new value from std::string_view, but #value_type to set to #in_type, not necessarily #string_t
+    /// @param in_str_value the new value.<br>
+    /// Example:<br>
+    /// @code
+    /// 
+    /// @codeend
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    explicit json_node(const TCHAR in_str[], jsonland::value_type in_type=string_t) noexcept
+    explicit json_node(std::string in_str, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
     {
         m_value.store_value_deal_with_escapes(in_str);
@@ -294,6 +312,7 @@ public:
     , m_num(static_cast<double>(in_num))
     , m_hints(_num_is_int)
     {}
+    
     // assign number
     template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node& operator=(const NUM in_num) noexcept
@@ -395,7 +414,7 @@ public:
     /// Returns true if and only if the JSON value type is #string_t.
     inline bool is_string() const noexcept {return string_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t (float or integer).
-    inline bool is_num() const noexcept {return number_t == m_value_type;}
+    inline bool is_number() const noexcept {return number_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t, and the value is an integer (signed or unsigned).
     inline bool is_int() const noexcept {return number_t == m_value_type && (m_hints & _num_is_int);}
     /// Returns true if and only if the JSON value type is #number_t, and the value is floating point (float, double).
@@ -403,7 +422,7 @@ public:
     /// Returns true if and only if the JSON value type is #bool_t.
     inline bool is_bool() const noexcept {return bool_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #bool_t, #number_t or #string_t.
-    inline bool is_scalar() const noexcept {return is_string() || is_num() || is_bool();}
+    inline bool is_scalar() const noexcept {return is_string() || is_number() || is_bool();}
     /// Returns true if and only if the JSON value is set, i.e. not #uninitialized_t.
     inline bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
     /// Returns true if and only if the JSON type is structured (#array_t or #object_t).
@@ -441,6 +460,10 @@ public:
     }
 #endif
     
+    /// functions for JSON value types #object_t or array_t
+
+    /// Number of elements in a object or array
+    /// @return the number of elements if JSON value type is #object_t or #array_t. 0 for all other types.
     size_t num_elements() const noexcept
     {
         size_t retVal = 0;
@@ -448,10 +471,6 @@ public:
         {
             case object_t: retVal = m_values.size(); break;
             case array_t: retVal = m_values.size(); break;
-            case string_t: retVal = 1; break;  // one string, not the size of the string
-            case number_t: retVal = 1; break;
-            case bool_t: retVal = 1; break;
-            case null_t:
             default:
                 break;
 
@@ -459,255 +478,54 @@ public:
         return retVal;
     }
 
-    /// @return
-    /// Number of child elements with given key if JSON value type of this object is #object_t. This is either 1 or 0 since #object_t does not allow duplicates.
-    /// <br>Otherwise: 0.
-    size_t count(std::string_view in_key) const noexcept
+    /// @brief Returns the number of elements that the object or array has currently allocated space for, similiar to std::vector::capacity().
+    /// @return Capacity of the currently allocated storage.
+    size_t capacity() noexcept
     {
-        size_t retVal = 0;
-        if (is_object())
+        size_t capa = 0;
+        if (JSONLAND_LIKELY(is_array() || is_object()))
         {
-            retVal = m_obj_key_to_index.count(in_key);
+            capa = m_values.capacity();
         }
-        
-        return retVal;
-    }
-
-    /// Checks if there is a child element with given key.
-    /// @return <b>true</b> if JSON value type of this object is #object_t AND the object contains
-    /// child element with the given key.
-    /// <br> <b>false</b> otherwise
-    bool contains(std::string_view in_key) const noexcept
-    {
-        bool retVal = 1 == count(in_key);
-        return retVal;
-    }
-                  
-    /// Estimates the amount of heap memory allocated by the object.
-    size_t memory_consumption() const noexcept;
-
-    /// Serialize json to text and appends the text to #out_str.
-    /// @param out_str text will be appended to this string, previous content will not be erased.
-    void dump(std::string& out_str) const noexcept;
-
-    /// Serilize json to text and return as std::string.
-    /// @return Text represntation of this json object.
-    std::string dump() const noexcept;
-
-    /// Serilize json to text and append the text to a stream.
-    /// @param os Text will be appended to this stream.
-    /// @return os.
-    std::ostream& dump(std::ostream& os) const noexcept;
-
-    /// Get the string value as std::string_view
-    /// @return the string value with .
-    /// <br>If JSON value type is #null_t: null
-    /// <br>If JSON value type is #bool_t: true or false
-    /// <br>If JSON value type is #string_t: the string, unquoted, with escaped characters if/where needed.
-    /// <br>If JSON value type is #number_t: if the number was parsed as string, will return that string, otherwise empty string.
-    /// <br>If JSON value type is #array_t or #object_t: empty string.
-    inline const std::string_view as_string_view() const noexcept
-    {
-        return m_value.as_string_view();
+        return capa;
     }
     
-    const std::string_view as_resolved_string_view() const noexcept;
- 
-    /// @brief Assuming JSON value type is string, returns the string value. Otherwise returns the given default value.
-    ///
-    /// @return
-    /// If JSON value type is #string_t, return the string value.
-    /// <br>If JSON value type is not #string_t, return the given default value.
-    /// @param in_default_str the value to return if JSON value type is not #string_t. If #in_default_str is not provided it will default to the empty string.
-
-    /// <br><br>Example:
-    /// @code
-    /// jsonland::json_node string_node{"a string"};
-    /// std::string_view s1 = string_node.get_string();         // s1 == "a string", since string_node hold a string value.
-    /// std::string_view s2 = string_node.get_string("banana"); // s2 == "a string", since string_node hold a string value, and so explicit default value ("banana") is ignored.
-    /// jsonland::json_node float_node{7.17};
-    /// std::string_view s3 = float_node.get_string();         // s3 == "", since float_node does not hold a string value.
-    /// std::string_view s4 = float_node.get_string("rama");   // s4 == "rama", since float_node does not hold a string value, so explicit default value ("rama") is ignored.
-    /// @endcode
-    std::string_view get_string(std::string_view in_default_str={}) const noexcept
+    /// @brief Increase the capacity of the object or array, similiar to std::vector::reserve().
+    /// Increase the capacity of the object or array (the total number of elements that the object or array can hold without requiring reallocation) to a value that's greater or equal to new_cap. If new_cap is greater than the current capacity(), new storage is allocated, otherwise the function does nothing.
+    /// reserve() does not change the size of the object or array.
+    /// <br>Does nothing if JSON value type is not #object_t or #array_t.
+    /// @param new_cap new capacity of the object or array, in number of elements
+    void reserve(const size_t new_cap) noexcept
     {
-        if (is_string())
+        if (JSONLAND_LIKELY(is_array() || is_object()))
         {
-            if (0 != m_value.m_num_escapes) {
-                m_value.unescape_internal();
-            }
-            return as_string_view();
+            m_values.reserve(new_cap);
+            if (is_object())
+                m_obj_key_to_index.reserve(new_cap);
         }
-        else
-            return in_default_str;
     }
 
-    /// @brief Assuming JSON value type is number, returns the number as a floating point. Otherwise returns the given default value.
-    ///
-    /// @return
-    /// If JSON value type is #number_t, return the number value.
-    /// <br>If JSON value type is not #number_t, return the given default value.
-    /// @param in_default_fp the value to return if JSON value type is not #number_t. If #in_default_fp is not provided it will default to 0.0.
-    /// @note this function can be called templated as any floating point type: get_float<float>(), get_float<double>(), etc
-    /// <br><br>Example:
-    /// @code
-    /// jsonland::json_node float_node{17.18f};
-    /// float f1 = float_node.get_float<float>();    // f1 == 17.18f, since float_node holds the number value 17.18f.
-    /// double f2 = float_node.get_float<double>(19.18);  // f2 == 17.18, since float_node holds the number value 17.18, so given default value of 19 is ignored.
-    ///
-    /// jsonland::json_node string_node{"a string"};
-    /// double f3 = string_node.get_float<double>();    // f3 == 0.0, since string_node does not hold a number value, and implicit default value (0.0) is used.
-    /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
-    /// @endcode
-    template<typename TFLOAT, IsFloat<TFLOAT>* = nullptr>
-    TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
-    {
-        double retVal = in_default_fp;
-        if (JSONLAND_LIKELY(is_num()))
-        {
-            if (m_hints & json_node::_num_in_string)
-                retVal = static_cast<TFLOAT>(std::atof(m_value.data()));
-            else
-                retVal = static_cast<TFLOAT>(m_num);
-        }
-
-        return retVal;
-    }
-
-    /// @brief Assuming JSON value type is number, returns the number as an integer. Otherwise returns the given default value.
-    ///
-    /// @return
-    /// If JSON value type is #number_t, return the number value.
-    /// <br>If JSON value type is not #number_t, return the given default value.
-    /// @param in_default_int the value to return if JSON value type is not #number_t. If #in_default_int is not provided it will default to 0.
-    /// @note this function can be called templated as any integer type (signed or unsigned): get_int<int32_t>(), get_int<uint64_t>(), etc
-    /// <br><br>Example:
-    /// @code
-    /// jsonland::json_node int_node{17};
-    /// int16_t i1 = int_node.get_int();    // i1 == int16_t(17), since int_node holds the number value 17.
-    /// uint32_t i2 = int_node.get_int(19);  // i2 == uint32_t(17), since int_node holds the number value 17, so given default value of 19 is ignored.
-    ///
-    /// jsonland::json_node string_node{"a string"};
-    /// int32_t i3 = string_node.get_int();    // i3 == int32_t(0), since string_node does not hold a number value, and implicit default value (0) is used.
-    /// uint64_t i4 = string_node.get_int(23); // i4 == uint64_t(23), since string_node does not hold a number value, and explicit default value (23) is used.
-    /// @endcode
-    template<typename TINT, IsInteger<TINT>* = nullptr>
-    TINT get_int(const TINT in_default_int=0) const noexcept
-    {
-        TINT retVal = in_default_int;
-        if (JSONLAND_LIKELY(is_num()))
-        {
-            if (m_hints & json_node::_num_in_string)
-                retVal = static_cast<TINT>(std::atoll(m_value.data()));
-            else
-                retVal = static_cast<TINT>(m_num);
-        }
-
-        return retVal;
-    }
-
-    /// @brief Assuming JSON value type is #bool_t, returns the boolean value (true/false). Otherwise returns the given default value.
-    ///
-    /// @return
-    /// If JSON value type is #bool_t, return the boolean value.
-    /// <br>If JSON value type is not #bool_t, return the given default value.
-    /// @param in_default_bool the value to return if JSON value type is not #bool_t. If #in_default_bool is not provided it will default to false.
-    /// <br>Example:
-    /// @code
-    /// jsonland::json_node bool_node{false};
-    /// bool b1 = bool_node.get_bool();      // b1 == false, since bool_node holds the boolean value false.
-    /// bool b2 = bool_node.get_bool(true);  // b2 == false, since bool_node holds the boolean value false, so given default value of true is ignored.
-    ///
-    /// jsonland::json_node string_node{"a string"};
-    /// bool b3 = string_node.get_bool();    // b3 == false, since string_node does not hold a boolean value, and implicit default value (false) is used.
-    /// bool b4 = string_node.get_bool(true); // b4 == true, since string_node does not hold a boolean value, and explicit default value (true) is used.
-    /// @endcode
-    bool get_bool(const bool in_default_bool=false) const noexcept
-    {
-        if (JSONLAND_LIKELY(is_bool()))
-            return m_value.data()[0] == 't';
-        else
-            return in_default_bool;
-    }
-    
-    /// @brief Return nullptr
-    ///
-    /// get_null() is provided for completeness with the other get_... functions such as #get_bool, #get_int, #get_float, etc
-    /// @return
-    /// nullptr is returned regardless of JSON value type.
-
-    /// <br>Example:
-    /// @code
-    /// jsonland::json_node null_node{nullptr};
-    /// nullptr n1 = bool_node.get_null();   // n1 == nullptr
-    /// jsonland::json_node string_node{"a string"};
-    /// auto n2 = string_node.get_null();    // n2 == nullptr, because nullptr is returned regardless of JSON value type.
-    /// @endcode
-    nullptr_t get_null() const noexcept
-    {
-        return nullptr;
-    }
-
-    /// @brief Get the value according the the type of #TASTYPE.
-    ///
-    /// If there is a mismatch between the JSON value type and the type of #TASTYPE, the gived default will be returned.
-    /// <br>This function is shorthand for calling the explicit get_... functions
-    /// and can be called from other templated functions without needing to explicitly call a get_... function.
-    /// Type of TASTYPE  | JSON value type | will return |
-    /// -------------    | -------------   | -------------
-    /// nullptr_t       | #null_t | #get_null()
-    /// bool            | #bool_t | #get_bool()
-    /// any signed int  | #number_t | #get_int()
-    /// any unsigned int  | #number_t | #get_int()
-    /// any floating point  | #number_t | #get_float()
-    /// any other type | any |  #in_default
-    /// <br>Example:
-    /// @code
-    /// jsonland::json_node number_node{123.456};
-    /// int f1 = number_node.get_as<int>();   // f1 == 123
-    /// float f2 = number_node.get_as<float>();   // f2 == 123.456
-    /// bool f3 = number_node.get_as<bool>();   // f3 == false
-    /// @endcode
-
-    template<typename TASTYPE>
-    TASTYPE get_as(const TASTYPE in_default={}) noexcept
-    {
-        if constexpr (std::is_same<bool, TASTYPE>::value) {
-            return get_bool(in_default);
-        }
-        else if constexpr (std::is_floating_point_v<TASTYPE>) {
-            return get_float<TASTYPE>(in_default);
-        }
-        else if constexpr (std::is_integral_v<TASTYPE>) {
-            return get_int<TASTYPE>(in_default);
-        }
-//        else if (std::is_same<const char*, TASTYPE>::value) {
-//            return get_string(in_default);
-//        }
-        else if (std::is_same<std::string_view, TASTYPE>::value) {
-            return get_string(in_default);
-        }
-        else if constexpr (std::is_null_pointer_v<TASTYPE>) {
-            return nullptr;
-        }
-        
-        return in_default;
-    }
+    /// functions for JSON value type #object_t
     
     /// @brief Return the value of an object's member.
-    ///
-    /// @return The value if the member:
+    /// @param key the key to the member
+    /// @param in_default the value that will be returned in case the object does not contain #key or JSON value type is not #object_t.
+    /// @return The value of the member:
     /// If called on an object with JSON value type #object_t,
     /// and the object contains a member by given name
-    /// and the member type is compatible with #TGETTYPE
-    /// <br> The default value #in_default:
-    /// in any other case,
-
+    /// and the member type is compatible with #TGETTYPE.
+    /// <br> Otherwise the default value #in_default will be returned.
+    /// <br> To make sure the object contains the member call <code> contains(key)</code>
     /// <br>Example:
     /// @code
+    /// jsonland::json_node an_object;
+    /// an_object["one"] = 1;
+    /// int i1 = an_object.member_value("one")  // i1 == 1
+    /// std::string s1 = an_object.member_value("one", "not found")  // s1 == "not found" since object does contains "one" but it's type is int not string, and so default value is returned.
+    /// int i2 = an_object.member_value("one-by-one", 123)  // i2 == 123 since since object does contains "one", and so default value is returned.
     /// @endcode
     template<typename TGETTYPE>
-    TGETTYPE get_value(std::string_view key, const TGETTYPE in_default={}) noexcept
+    TGETTYPE member_value(std::string_view key, const TGETTYPE in_default={}) noexcept
     {
         TGETTYPE retVal = in_default;
         if (contains(key))
@@ -733,35 +551,28 @@ public:
         return retVal;
     }
 
-    std::string_view key() const noexcept
+    /// @return
+    /// Number of child elements with given key if JSON value type of this object is #object_t. This is either 1 or 0 since #object_t does not allow duplicates.
+    /// <br>Otherwise: 0.
+    size_t count(std::string_view in_key) const noexcept
     {
-        m_key.unescape_internal();
-        return m_key.as_string_view();
-    }
-    
-    KeyToIndex& get_key_to_index_map() noexcept
-    {
-        return m_obj_key_to_index;
-    }
-
-    ArrayVec& as_array() noexcept
-    {
-        return m_values;
-    }
-
-    const ArrayVec& as_array() const noexcept
-    {
-        return m_values;
-    }
-
-    void reserve(const size_t in_num_to_reserve) noexcept
-    {
-        if (JSONLAND_LIKELY(is_array() || is_object()))
+        size_t retVal = 0;
+        if (is_object())
         {
-            m_values.reserve(in_num_to_reserve);
-            if (is_object())
-                m_obj_key_to_index.reserve(in_num_to_reserve);
+            retVal = m_obj_key_to_index.count(in_key);
         }
+        
+        return retVal;
+    }
+
+    /// Checks if there is a child element with given key.
+    /// @return <b>true</b> if JSON value type of this object is #object_t AND the object contains
+    /// child element with the given key.
+    /// <br> <b>false</b> otherwise
+    bool contains(std::string_view in_key) const noexcept
+    {
+        bool retVal = 1 == count(in_key);
+        return retVal;
     }
 
     json_node& operator[](std::string_view in_key) noexcept
@@ -812,6 +623,8 @@ public:
         }
         return retVal;
     }
+
+    /// functions for JSON value type #array_t
     
     json_node& push_back(const json_node& in_node) noexcept
     {
@@ -898,6 +711,231 @@ public:
     const_iterator end() const
     {
         return const_iterator(*this, m_values.size());
+    }
+
+    /// Estimates the amount of heap memory allocated by the object.
+    size_t memory_consumption() const noexcept;
+
+    /// Serialize json to text and appends the text to #out_str.
+    /// @param out_str text will be appended to this string, previous content will not be erased.
+    void dump(std::string& out_str) const noexcept;
+
+    /// Serialize json to text and return as std::string.
+    /// @return Text represntation of this json object.
+    std::string dump() const noexcept;
+
+    /// Serilize json to text and append the text to a stream.
+    /// @param os Text will be appended to this stream.
+    /// @return os.
+    std::ostream& dump(std::ostream& os) const noexcept;
+
+    /// Get the string value as std::string_view
+    /// @return the string value with .
+    /// <br>If JSON value type is #null_t: null
+    /// <br>If JSON value type is #bool_t: true or false
+    /// <br>If JSON value type is #string_t: the string, unquoted, with escaped characters if/where needed.
+    /// <br>If JSON value type is #number_t: if the number was parsed as string, will return that string, otherwise empty string.
+    /// <br>If JSON value type is #array_t or #object_t: empty string.
+    inline const std::string_view as_string_view() const noexcept
+    {
+        return m_value.as_string_view();
+    }
+     
+    /// @brief If JSON value type is #string_t, return the string value (without quoates). Otherwise returns the given default value.
+    ///
+    ///@note This function pnly returns string value for JSON value type #string_t, To get other value types (#number_t, #bool_t, #null_t, #array_t,object_t) as string use <b>json_node::dump()</b>.
+    ///
+    /// @return
+    /// If JSON value type is #string_t, return the string value.
+    /// <br>If JSON value type is not #string_t, return the given default value.
+    /// @param in_default_str the value to return if JSON value type is not #string_t. If #in_default_str is not provided it will default to the empty string.
+
+    /// <br><br>Example:
+    /// @code
+    /// jsonland::json_node string_node{"a string"};
+    /// std::string_view s1 = string_node.get_string();         // s1 == "a string", since string_node hold a string value.
+    /// std::string_view s2 = string_node.get_string("banana"); // s2 == "a string", since string_node hold a string value, and so explicit default value ("banana") is ignored.
+    /// jsonland::json_node float_node{7.17};
+    /// std::string_view s3 = float_node.get_string();         // s3 == "", since float_node does not hold a string value.
+    /// std::string_view s4 = float_node.get_string("rama");   // s4 == "rama", since float_node does not hold a string value, so explicit default value ("rama") is ignored.
+    /// @endcode
+    std::string_view get_string(std::string_view in_default_str={}) const noexcept
+    {
+        if (is_string())
+        {
+            if (0 != m_value.m_num_escapes) {
+                m_value.unescape_internal();
+            }
+            return as_string_view();
+        }
+        else
+            return in_default_str;
+    }
+
+    /// @brief If JSON value type is #number_t, returns the number as a floating point. Otherwise returns the given default value.
+    ///
+    /// @return
+    /// If JSON value type is #number_t, return the number value.
+    /// <br>If JSON value type is not #number_t, return the given default value.
+    /// @param in_default_fp the value to return if JSON value type is not #number_t. If #in_default_fp is not provided it will default to 0.0.
+    /// @note this function can be called templated as any floating point type: get_float<float>(), get_float<double>(), etc
+    /// <br><br>Example:
+    /// @code
+    /// jsonland::json_node float_node{17.18f};
+    /// float f1 = float_node.get_float<float>();    // f1 == 17.18f, since float_node holds the number value 17.18f.
+    /// double f2 = float_node.get_float<double>(19.18);  // f2 == 17.18, since float_node holds the number value 17.18, so given default value of 19 is ignored.
+    ///
+    /// jsonland::json_node string_node{"a string"};
+    /// double f3 = string_node.get_float<double>();    // f3 == 0.0, since string_node does not hold a number value, and implicit default value (0.0) is used.
+    /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
+    /// @endcode
+    template<typename TFLOAT, IsFloat<TFLOAT>* = nullptr>
+    TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
+    {
+        double retVal = in_default_fp;
+        if (JSONLAND_LIKELY(is_number()))
+        {
+            if (m_hints & json_node::_num_in_string)
+                retVal = static_cast<TFLOAT>(std::atof(m_value.data()));
+            else
+                retVal = static_cast<TFLOAT>(m_num);
+        }
+
+        return retVal;
+    }
+
+    /// @brief If JSON value type is number, returns the number as an integer. Otherwise returns the given default value.
+    ///
+    /// @return
+    /// If JSON value type is #number_t, return the number value.
+    /// <br>If JSON value type is not #number_t, return the given default value.
+    /// @param in_default_int the value to return if JSON value type is not #number_t. If #in_default_int is not provided it will default to 0.
+    /// @note this function can be called templated as any integer type (signed or unsigned): get_int<int32_t>(), get_int<uint64_t>(), etc
+    /// <br><br>Example:
+    /// @code
+    /// jsonland::json_node int_node{17};
+    /// int16_t i1 = int_node.get_int();    // i1 == int16_t(17), since int_node holds the number value 17.
+    /// uint32_t i2 = int_node.get_int(19);  // i2 == uint32_t(17), since int_node holds the number value 17, so given default value of 19 is ignored.
+    ///
+    /// jsonland::json_node string_node{"a string"};
+    /// int32_t i3 = string_node.get_int();    // i3 == int32_t(0), since string_node does not hold a number value, and implicit default value (0) is used.
+    /// uint64_t i4 = string_node.get_int(23); // i4 == uint64_t(23), since string_node does not hold a number value, and explicit default value (23) is used.
+    /// @endcode
+    template<typename TINT, IsInteger<TINT>* = nullptr>
+    TINT get_int(const TINT in_default_int=0) const noexcept
+    {
+        TINT retVal = in_default_int;
+        if (JSONLAND_LIKELY(is_number()))
+        {
+            if (m_hints & json_node::_num_in_string)
+                retVal = static_cast<TINT>(std::atoll(m_value.data()));
+            else
+                retVal = static_cast<TINT>(m_num);
+        }
+
+        return retVal;
+    }
+
+    /// @brief If JSON value type is #bool_t, returns the boolean value (true/false). Otherwise returns the given default value.
+    ///
+    /// @return
+    /// If JSON value type is #bool_t, return the boolean value.
+    /// <br>If JSON value type is not #bool_t, return the given default value.
+    /// @param in_default_bool the value to return if JSON value type is not #bool_t. If #in_default_bool is not provided it will default to false.
+    /// <br>Example:
+    /// @code
+    /// jsonland::json_node bool_node{false};
+    /// bool b1 = bool_node.get_bool();      // b1 == false, since bool_node holds the boolean value false.
+    /// bool b2 = bool_node.get_bool(true);  // b2 == false, since bool_node holds the boolean value false, so given default value of true is ignored.
+    ///
+    /// jsonland::json_node string_node{"a string"};
+    /// bool b3 = string_node.get_bool();    // b3 == false, since string_node does not hold a boolean value, and implicit default value (false) is used.
+    /// bool b4 = string_node.get_bool(true); // b4 == true, since string_node does not hold a boolean value, and explicit default value (true) is used.
+    /// @endcode
+    bool get_bool(const bool in_default_bool=false) const noexcept
+    {
+        if (JSONLAND_LIKELY(is_bool()))
+            return m_value.data()[0] == 't';
+        else
+            return in_default_bool;
+    }
+    
+    /// @brief Return nullptr
+    ///
+    /// get_null() is provided for completeness with the other get_... functions such as #get_bool, #get_int, #get_float, etc
+    /// @return
+    /// nullptr is returned regardless of JSON value type.
+
+    /// <br>Example:
+    /// @code
+    /// jsonland::json_node null_node{nullptr};
+    /// nullptr n1 = bool_node.get_null();   // n1 == nullptr
+    /// jsonland::json_node string_node{"a string"};
+    /// auto n2 = string_node.get_null();    // n2 == nullptr, because nullptr is returned regardless of JSON value type.
+    /// @endcode
+    nullptr_t get_null() const noexcept
+    {
+        return nullptr;
+    }
+
+    /// @brief Get the value according the the type of #TASTYPE.
+    ///
+    /// If there is a mismatch between the JSON value type and the type of #TASTYPE, the gived default will be returned.
+    /// <br>This function is shorthand for calling the explicit get_... functions
+    /// and can be called from other templated functions without needing to explicitly call a get_... function.
+    /// Type of TASTYPE  | JSON value type | will return |
+    /// -------------    | -------------   | -------------
+    /// nullptr_t       | #null_t | #get_null()
+    /// bool            | #bool_t | #get_bool()
+    /// any signed int  | #number_t | #get_int()
+    /// any unsigned int  | #number_t | #get_int()
+    /// any floating point  | #number_t | #get_float()
+    /// any other type | any |  #in_default
+    /// <br>Example:
+    /// @code
+    /// jsonland::json_node number_node{123.456};
+    /// int f1 = number_node.get_as<int>();   // f1 == 123
+    /// float f2 = number_node.get_as<float>();   // f2 == 123.456
+    /// bool f3 = number_node.get_as<bool>();   // f3 == false
+    /// @endcode
+
+    template<typename TASTYPE>
+    TASTYPE get_as(const TASTYPE in_default={}) noexcept
+    {
+        if constexpr (std::is_same<bool, TASTYPE>::value) {
+            return get_bool(in_default);
+        }
+        else if constexpr (std::is_floating_point_v<TASTYPE>) {
+            return get_float<TASTYPE>(in_default);
+        }
+        else if constexpr (std::is_integral_v<TASTYPE>) {
+            return get_int<TASTYPE>(in_default);
+        }
+        else if (std::is_convertible_v<TASTYPE, std::string_view>) {
+
+            TASTYPE retVal = static_cast<TASTYPE>(get_string(in_default));
+            return retVal;
+        }
+//        else if (std::is_same<std::string_view, TASTYPE>::value) {
+//            return get_string(in_default);
+//        }
+        else if constexpr (std::is_null_pointer_v<TASTYPE>) {
+            return nullptr;
+        }
+        
+        return in_default;
+    }
+
+private:
+    std::string_view key() const noexcept
+    {
+        m_key.unescape_internal();
+        return m_key.as_string_view();
+    }
+    
+    KeyToIndex& get_key_to_index_map() noexcept
+    {
+        return m_obj_key_to_index;
     }
 
 protected:
