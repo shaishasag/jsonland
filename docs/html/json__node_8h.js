@@ -3,6 +3,7 @@ var json__node_8h =
     [ "jsonland::json_node", "classjsonland_1_1json__node.html", "classjsonland_1_1json__node" ],
     [ "jsonland::json_node::iterator_template< TNode >", "classjsonland_1_1json__node_1_1iterator__template.html", "classjsonland_1_1json__node_1_1iterator__template" ],
     [ "jsonland::json_doc", "classjsonland_1_1json__doc.html", "classjsonland_1_1json__doc" ],
+    [ "JSONLAND_ASSERT_TYPE_CONSISTENCY", "json__node_8h.html#aa1e1751399f6c43c861f3bb4f9ef38ca", null ],
     [ "JSONLAND_LIKELY", "json__node_8h.html#a5047414afe14a2616851486d0b080dfb", null ],
     [ "JSONLAND_UNLIKELY", "json__node_8h.html#a32485db75741a2e9b8ea304fbbc9e427", null ],
     [ "value_type", "json__node_8h.html#aa5fc983dabdd8c625495f5e42c563df6", [

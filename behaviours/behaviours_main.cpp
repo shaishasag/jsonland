@@ -21,6 +21,7 @@ std::string RapidJsonStringify(rapidjson::Value& rapid_val)
     rapid_val.Accept(writer);
     return sb.GetString();
 }
+
 static const char* RapidJsonTypeName(rapidjson::Type in_type)
 {
     const char* retVal = "Unknown";
@@ -56,20 +57,22 @@ static const char* NlohmannTypeName(nlohmann::detail::value_t in_type)
 }
 
 
-void string_as_array(int argc, char* argv[])
+static void string_as_array()
 {
     std::cout << "--- " << "!string_as_array" << std::endl;
     // what happens when creating a string node and treating it like an array?
-    try { // nlohmann throws unless object is an array or null
+    try
+    {   // nlohmann throws unless object is an array or null
         nlohmann::json str_nloh_j("nlohmann json string");
         std::cout << "nlohmann::json before: (" << NlohmannTypeName(str_nloh_j.type()) << "): " << str_nloh_j.dump() << std::endl;
-        str_nloh_j.push_back(123);
+        str_nloh_j.push_back(123);  // push_back to a string
         std::cout << "nlohmann::json after: (" << NlohmannTypeName(str_nloh_j.type()) << "): " << str_nloh_j.dump() << std::endl;
     } catch (nlohmann::detail::exception& ex) {
         std::cout << "nlohmann::json exception: " << ex.what() << std::endl;
     }
     
-    try { // rapid asserts unless object is an array
+    try
+    { // rapid asserts unless object is an array
         rapidjson::Document doc;
         rapidjson::Value str_rapid_j("rapid json string");
         std::cout << "rapid before (" << RapidJsonTypeName(str_rapid_j.GetType()) << "): '" << str_rapid_j.GetString() << "'" << std::endl;
@@ -82,8 +85,8 @@ void string_as_array(int argc, char* argv[])
         std::cout << "rapid exception: " << ex.what() << std::endl;
     }
     
-    try { // nlohmann throws unless object is an array or null
-        jsonland::json_node str_land_j("nlohmann json string");
+    try { // jsonland throws unless object is an array or null
+        jsonland::json_node str_land_j("jsonland json string");
         std::cout << "jsonland::json_node before: (" << jsonland::value_type_name(str_land_j.value_type()) << "): " << str_land_j.dump() << std::endl;
         str_land_j.push_back(123);
         std::cout << "jsonland::json_node after: (" << jsonland::value_type_name(str_land_j.value_type()) << "): " << str_land_j.dump() << std::endl;
@@ -94,7 +97,7 @@ void string_as_array(int argc, char* argv[])
     std::cout << "..." << std::endl;
 }
 
-void as_string()
+static void as_string()
 {
     std::cout << "--- " << "!as_string" << std::endl;
     {   // get the value as string for any type : jsonland
@@ -140,7 +143,7 @@ void as_string()
     std::cout << "..." << std::endl;
 }
 
-void operator_equal()
+static void operator_equal()
 {
     std::cout << "--- " << "!operator_equal" << std::endl;
     // what is you use operator= on a non object
@@ -194,8 +197,24 @@ void operator_equal()
     std::cout << "..." << std::endl;
 }
 
+static void preserve_ordering()
+{
+    std::cout << "--- " << "!preserve_ordering" << std::endl;
+    jsonland::json_node J(jsonland::object_t);
+    J["1st"] = "a";
+    J["2nd"] = "b";
+    J["3rd"] = "c";
+
+    for (auto& iter : J)
+    {
+        std::cout << iter.key() << ": " << iter.dump() << std::endl;
+    }
+}
+
 int main(int argc, char* argv[])
 {
+    string_as_array();
     as_string();
     operator_equal();
+    preserve_ordering();
 }

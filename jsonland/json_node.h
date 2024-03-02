@@ -33,6 +33,11 @@
 
 // #define JSONLAND_DEBUG
 
+#ifdef JSONLAND_ASSERT_TYPE_CONSISTENCY
+#undef JSONLAND_ASSERT_TYPE_CONSISTENCY
+#endif
+#define JSONLAND_ASSERT_TYPE_CONSISTENCY 1
+
 namespace jsonland
 {
 
@@ -93,7 +98,7 @@ public:
 public:
     /// Type declaration of mapping of a string to the index of a value in #m_values.
     using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
-    /// Type declaration of a vector of #json_nodes.
+    /// Type declaration for a vector of #json_nodes.
     using ArrayVec = std::vector<json_node>;
 
 private:
@@ -114,7 +119,7 @@ private:
     /// Mapping of keys to the JSON values in #m_values. Only relevant if #m_value_type is #object_t.
     KeyToIndex m_obj_key_to_index;
     
-    /// The key of this JSON value in case it is a part of another an object.
+    /// The key of this JSON value in case it is a part of another object.
     mutable string_or_view m_key{the_empty_string_view};
 
     enum hints : uint32_t
@@ -160,6 +165,7 @@ public:
     /// Default constructor.
     /// JSON value type (#m_value_type) is set to #null_t.
     json_node() noexcept = default;
+    /// Default destructor.
     ~json_node() = default;
     
     /// Copy constructor
@@ -180,7 +186,7 @@ public:
 
     /// Constructor by value_type
     /// @param in_type JSON value type this instance will have.
-    /// Value is set to the default value which is
+    /// <br>Value is set to the default value which is:
     /// Value type  | Default value
     /// ----------- | -------------
     /// null_t      | null
@@ -214,7 +220,7 @@ public:
     /// If in_type is the same as the currently assigned type, <B>the value will not change</B>.<br>
     /// To clear the value without changing the type call #clear()<br>
     /// <br>
-    /// If in_type is different from the currently assigned type, previous value is erased, and:<br>
+    /// If in_type is different from the currently assigned type, <B>previous value is erased</B>, and:<br>
     /// If in_type == #string_t, value will be set to the empty string.<br>
     /// If in_type == #bool_t, value will be set to false.<br>
     /// If in_type == #number_t, value will be set to 0.0 and the number type is floating point.<br>
@@ -281,11 +287,17 @@ public:
         return *this;
     }
 
-    /// Assign a new value from std::string_view, but #value_type to set to #in_type, not necessarily #string_t
-    /// @param in_str_value the new value.<br>
+    /// Assign a new value from std::string_view, but #value_type set to #in_type, not necessarily #string_t.
+    /// Note: Calling with the string value mismatched with the #value_type could lead to inconsitant state:
+    /// @code
+    /// json_node n1("abc", number_t); // n1 is a number, value is 0
+    /// @codeend
+   /// @param in_str the new value.<br>
     /// Example:<br>
     /// @code
-    /// 
+    /// json_node n1("123", number_t);
+    /// n1.is_number();  // true, it's a number intialized with a string
+    /// n1.get_int<int32_t>() == 123;  // true, value is now 123
     /// @codeend
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
     explicit json_node(std::string in_str, jsonland::value_type in_type) noexcept
@@ -296,6 +308,15 @@ public:
             m_hints = _num_in_string;
         }
     }
+
+    /// Assign a new value from a string, #value_type to set to #string_t.
+    /// @param in_str the new value.<br>
+    /// Example:<br>
+    /// @code
+    /// json_node n1("123");
+    /// n1.is_number();  // false, it's not a number it's a string
+    /// n1.get_int<int32_t>() == 123;  // false, value is the string "123"
+    /// @codeend
     template <typename TCHAR, IsChar<TCHAR>* = nullptr >
     json_node& operator=(const TCHAR in_str[]) noexcept
     {
@@ -641,6 +662,10 @@ public:
     template<typename TNODEVAL>
     json_node& push_back(const TNODEVAL in_val) noexcept
     {
+#if JSONLAND_ASSERT_TYPE_CONSISTENCY != 0
+        assert(is_array() || is_null());
+#endif
+        m_value_type = array_t;
         m_values.emplace_back(in_val);
         return m_values.back();
     }
@@ -926,12 +951,13 @@ public:
         return in_default;
     }
 
-private:
     std::string_view key() const noexcept
     {
         m_key.unescape_internal();
         return m_key.as_string_view();
     }
+
+private:
     
     KeyToIndex& get_key_to_index_map() noexcept
     {
@@ -1008,7 +1034,7 @@ public:
 
     int parse_error() { return m_parse_error; }
     std::string parse_error_message() { return m_parse_error_message; }
-    
+    size_t byte_position() { return 0; }   // todo return the byte position where error was discovered
     size_t memory_consumption();
     
     void clear();

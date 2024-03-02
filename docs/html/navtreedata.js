@@ -25,6 +25,10 @@
 var NAVTREE =
 [
   [ "jsonland", "index.html", [
+    [ "Design considerations", "index.html#autotoc_md0", [
+      [ "Type mismatch", "index.html#autotoc_md1", null ],
+      [ "Ordering of object members", "index.html#autotoc_md2", null ]
+    ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -63,7 +67,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classjsonland_1_1string__or__view.html#a97b142c0ba648129e9b365183259d0c2"
+"classjsonland_1_1string__or__view.html#a7907b87cce23b7d522bd3f5924c60e85"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

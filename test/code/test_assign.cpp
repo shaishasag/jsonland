@@ -168,6 +168,75 @@ TEST(TestAssign, null_value)
     EXPECT_FALSE(jn_null.is_bool()) << "json_node = nullptr, is_bool() should return false";
 }
 
-TEST(TestAssign, assign_to_object)
+TEST(TestAssign, move_assign_array)
 {
+    // moving array should not allocate new memory
+    
+    jsonland::json_node j;
+    j.push_back(true);
+    j.push_back(false);
+    j.push_back("mamaliga");
+    j.push_back(987);
+    EXPECT_TRUE(j.is_array());
+    EXPECT_EQ(j.num_elements(), 4);
+    EXPECT_TRUE(j[0].is_bool());
+    EXPECT_TRUE(j[1].is_bool());
+    EXPECT_TRUE(j[2].is_string());
+    EXPECT_TRUE(j[3].is_number());
+
+    jsonland::json_node moved_j;
+    moved_j = std::move(j);
+    
+    EXPECT_TRUE(j.is_array());
+    EXPECT_EQ(j.num_elements(), 0);
+
+    EXPECT_TRUE(moved_j.is_array());
+    EXPECT_EQ(moved_j.num_elements(), 4);
+    EXPECT_TRUE(moved_j[0].is_bool());
+    EXPECT_TRUE(moved_j[1].is_bool());
+    EXPECT_TRUE(moved_j[2].is_string());
+    EXPECT_TRUE(moved_j[3].is_number());
+}
+
+
+TEST(TestAssign, move_assign_object)
+{
+    // moving object should not allocate new memory
+    
+    jsonland::json_node j;
+    j["1st"] = true;
+    j["2nd"] = false;
+    j["3rd"] = "mamaliga";
+    j["4th"] = 987;
+    j["5th"] = jsonland::json_node(jsonland::object_t);
+    j["5th"]["sub1"] = "Matityahu";
+    j["5th"]["sub2"] = 175.009;
+
+    EXPECT_TRUE(j.is_object());
+    EXPECT_EQ(j.num_elements(), 5);
+    EXPECT_TRUE(j["1st"].is_bool());
+    EXPECT_TRUE(j["2nd"].is_bool());
+    EXPECT_TRUE(j["3rd"].is_string());
+    EXPECT_TRUE(j["4th"].is_number());
+    EXPECT_TRUE(j["5th"].is_object());
+    EXPECT_EQ(j["5th"].num_elements(), 2);
+    EXPECT_TRUE(j["5th"]["sub1"].is_string());
+    EXPECT_TRUE(j["5th"]["sub2"].is_number());
+
+    jsonland::json_node moved_j;
+    moved_j = std::move(j);
+    
+    EXPECT_TRUE(j.is_object());
+    EXPECT_EQ(j.num_elements(), 0);
+
+    EXPECT_TRUE(moved_j.is_object());
+    EXPECT_EQ(moved_j.num_elements(), 5);
+    EXPECT_TRUE(moved_j["1st"].is_bool());
+    EXPECT_TRUE(moved_j["2nd"].is_bool());
+    EXPECT_TRUE(moved_j["3rd"].is_string());
+    EXPECT_TRUE(moved_j["4th"].is_number());
+    EXPECT_TRUE(moved_j["5th"].is_object());
+    EXPECT_EQ(moved_j["5th"].num_elements(), 2);
+    EXPECT_TRUE(moved_j["5th"]["sub1"].is_string());
+    EXPECT_TRUE(moved_j["5th"]["sub2"].is_number());
 }

@@ -1,0 +1,39 @@
+/** \mainpage
+# Design considerations
+## Type mismatch
+What to do when json_node is initialised as one type but later treated as another?
+
+For example:
+@code
+jsonland::json_node J("I'm a json string");  // initialised as #string_t
+J.push_back(123);                            // assigned to as #array_t
+@endcode
+
+Possible approaches could be:
++ <code>J</code> is implicitly converted to the new type, so <code>J.is_number() == true;</code> 
++ Type mismach is asserted, so if <code>NDEBUG</code> is defined the above code will crash.
++ An exception is thrown upon type mismatch.
+
+## Ordering of object members
+See: https://datatracker.ietf.org/doc/html/rfc8259#section-4<br>
+While JSON standard does not require preserving of the order in which members of an object were inserted, the jsonland implementation does maintain the order.
+For example:
+@code
+jsonland::json_node J(jsonland::object_t);  
+J["1st"] = "a";                           
+J["2nd"] = "b";                           
+J["3rd"] = "c";                          
+
+for (auto& iter : J)
+{
+    std::cout iter.key() << ": " << iter.dump() << std::endl;
+}
+@endcode
+Will print:<br>
+1st: "a"<br>
+2nd: "b"<br>
+3rd: "c"<br>
+
+How is ordered preserved?
+Internal members of an object are kept in a vector (<code>vector<jsonland::json_node></code>) and each member keeps it's key in the owning object. To allow fast access to object members, a separate mapping maps each key to it's location in the vector, so accessing by key does not require searching the vector.
+*/
