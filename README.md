@@ -1,30 +1,41 @@
 # Jsonland
 
-C++17 json parser/builder
+C++17 JSON Parser/Builder
+
+## Overview
+Jsonland is a JSON parser and builder written in C++17. It is designed to be fast, efficient, and easy to use, focusing on minimal memory allocation and straightforward API.
 
 ## Getting Started
-
-- Add the file jsonland/json_node.cpp to your project.
-- Make sure the compiler search paths include the jsonland folder.
-- ```#include "jsonland/json_node.h"```
+- Add `jsonland/json_node.cpp` to your project.
+- Ensure your compiler's search paths include the `jsonland` folder.
+- Use `#include "jsonland/json_node.h"` in your code.
 
 ### Prerequisites
+- Any C++17 or above compliant compiler.
 
-Any C++17 or above compiler.
+## Design Goals
+- **Fast Parsing**: Minimal allocation and copying during parsing.
+- **Clear API**: Intuitive and programmer-friendly API for JSON manipulation.
+- **Efficient JSON Creation**: Easy JSON creation in code with minimal allocation and copying.
+- **Debugger-Friendly**: Easy inspection of JSON objects in debuggers.
+- **Compact Code**: Small code footprint, using simple and clear C++17 code without specialized allocators or macros.
+- **Stable Order**: JSON objects maintain the order of insertion during iteration.
+- **Just-In-Time Conversions**: Number-to-string and string-to-number conversions are done only when needed.
 
+## Examples
+Here are some basic examples of using Jsonland:
 
-## Design goals
-- parsing should be fast with minimal allocation and copying.
-- API to access parsed json should be clear and easy to work with.
-- Creating json in code should be easy with minimal allocation and copying.
-- View of json objects in debugger should be easily to understood.
-- Small code footprint
-- Special efficiency for parsing small (up to 1k) jsons.
-- Simple and clear C++17 code, no fancy stuff like specialized allocators or macros.
-- Stable order: iteration on a json object should return element in the same order they were inserted.
-- Convert numbers to string and string to numbers only when needed (JIT).
+### Parsing JSON
+```cpp
+#include "jsonland/json_node.h"
 
-##Examples
+int main() {
+    jsonland::json_doc myJson;
+    myJson.parse(R"({"name": "Jsonland", "version": 1.0})");
+
+    std::string name = myJson["name"].get_value();
+    double version = myJson["version"].get_value();
+}
 
 
 
