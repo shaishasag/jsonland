@@ -598,6 +598,11 @@ public:
 
     json_node& operator[](std::string_view in_key) noexcept
     {
+        if (is_null())
+        {
+            clear(object_t);
+        }
+        
         if (JSONLAND_LIKELY(is_object()))
         {
             int index = -1;

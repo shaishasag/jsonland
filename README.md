@@ -36,48 +36,56 @@ int main() {
     std::string name = myJson["name"].get_value();
     double version = myJson["version"].get_value();
 }
+```
+### Creating JSON programmatically
 
+```cpp
+    // Create an instance of json_node
+    jsonland::json_node person;
 
+    // Add string value
+    person["name"] = "Jane Doe";
+
+    // Add integer value
+    person["age"] = 30;
+
+    // Create an array of hobbies
+    jsonland::json_node hobbies;
+    hobbies.push_back("Reading");
+    hobbies.push_back("Hiking");
+    hobbies.push_back("Coding");
+    
+    // Add array to the person object
+    person["hobbies"] = hobbies;
+
+    // access some values
+    std::string some_values_str = "My name is ";
+    some_values_str += person["name"].get_string();
+    some_values_str += ", my first hobby is ";
+    some_values_str += person["hobbies"][0].get_string();
+    std::cout << some_values_str << std::endl;
+
+    // Serialize the whole JSON object to string
+    std::string json_string = person.dump();
+
+    // Output the JSON string
+    std::cout << json_string << std::endl;
+```
 
 ## Tests
 
 Test were implemented with googletest
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 
 
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
 ## Authors
 
 * **Shai Shasag**
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the BSD-3-Clause license - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
 

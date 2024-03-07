@@ -23,8 +23,8 @@
 		F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61F26D272C40035D17F /* test_assign.cpp */; };
 		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6A706302B99D1B70024E0B4 /* examples.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6A7062F2B99D1B70024E0B4 /* examples.cpp */; };
 		F6ABDE332B065AFC007ACD9A /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
-		F6C14DBC2B1A121900E0202D /* just_parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6C14DBB2B1A121900E0202D /* just_parse.cpp */; };
 		F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F5A08626EB975E007E11BE /* test_iter.cpp */; };
 		F6FB299B2B28CC3D005D1D23 /* test_get_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */; };
 /* End PBXBuildFile section */
@@ -130,6 +130,7 @@
 		F68EC13F26E23A7600B8BA77 /* json_node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_node.cpp; path = jsonland/json_node.cpp; sourceTree = SOURCE_ROOT; };
 		F6963C5626D4D81000C71771 /* test_escapse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escapse.cpp; path = test/code/test_escapse.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6A7062F2B99D1B70024E0B4 /* examples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = examples.cpp; path = examples/examples.cpp; sourceTree = "<group>"; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = parse_timing_main.cpp; path = ../benchmark/code/parse_timing_main.cpp; sourceTree = "<group>"; };
@@ -232,6 +233,7 @@
 		F65C68B226C95D1A00E4AA5F = {
 			isa = PBXGroup;
 			children = (
+				F6A7062F2B99D1B70024E0B4 /* examples.cpp */,
 				F65C68BD26C95D1B00E4AA5F /* jsonland */,
 				F6A9BB4A2B470B81001D7684 /* behaviours */,
 				F674D58B2B27005300C47E9A /* examples */,
@@ -515,7 +517,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6C14DBC2B1A121900E0202D /* just_parse.cpp in Sources */,
+				F6A706302B99D1B70024E0B4 /* examples.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

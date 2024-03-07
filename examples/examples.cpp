@@ -1,62 +1,38 @@
-#include <string_view>
-#include <iostream>
 
-#include "jsonland/json_node.h"
+#include "json_node.h"
 
-int main(int argc, char* argv[])
+int main()
 {
+    // Create an instance of json_node
+    jsonland::json_node person;
+
+    // Add string value
+    person["name"] = "Jane Doe";
+
+    // Add integer value
+    person["age"] = 30;
+
+    // Create an array of hobbies
+    jsonland::json_node hobbies;
+    hobbies.push_back("Reading");
+    hobbies.push_back("Hiking");
+    hobbies.push_back("Coding");
     
-    std::string_view json_str = R"(
-        [   {"name": "a bee", "price"  : 10.10, "valid": true},
-            {"name": "a fly", "price": 21.21, "valid": false},
-            {"name": "a bird", "price": 31.31, "valid": true},
-            {"name": "a deer", "price": 41.41}
-        ]
-    )";
+    // Add array to the person object
+    person["hobbies"] = hobbies;
 
-    jsonland::json_doc jdoc;
-    jdoc.parse(json_str);
-    
-    assert(jdoc.is_array());
-    
-    std::cout << "json before: " << jdoc << "\n";
+    // access some values
+    std::string some_values_str = "My name is ";
+    some_values_str += person["name"].get_string();
+    some_values_str += ", my first hobby is ";
+    some_values_str += person["hobbies"][0].get_string();
+    std::cout << some_values_str << std::endl;
 
-    double total = 0.0;
-    int num_valid_items = 0;
-    // sum all items marked "valid": true ,
-    // if item does not have "valid" field defaukt to false
-    // if item does not have price field, add one with value 0.0
-    for (auto& j : jdoc)
-    {
-        j.get_value("price", 17);
-        j.get_value<int>("price", 17);
-        j.get_value<double>("price", 17);
-        j.get_value<const char*>("name", "petri dish");
-        j.get_value<std::string_view>("name", "petri dish");
-        j.get_value<std::string>("name", "petri dish");
+    // Serialize the whole JSON object to string
+    std::string json_string = person.dump();
 
-        if (j.is_object()) {
-            
-            if (! j.contains("price")) {
-                j["price"] = 0.0;
-            }
+    // Output the JSON string
+    std::cout << json_string << std::endl;
 
-            bool is_valid = j.get_value<bool_t>("valid", false);
-            if (is_valid)
-            {
-                total += j["price"].get_float();
-                num_valid_items += 1;
-            }
-            
-        }
-    }
-    
-    
-    std::cout << "json after: " << jdoc << "\n";
-
-    std::cout << "found " << num_valid_items << " valid items" << "\n";
-    std::cout << "total " << total << "\n";
-
+    return 0;
 }
-
-
