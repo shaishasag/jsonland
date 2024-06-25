@@ -252,7 +252,6 @@ public:
     /// Example:<br>
     /// @code
     /// jsonland::json_node n1("1234", jsonland::number_t);
-    /// n1.
     /// @codeend
     inline json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
@@ -265,13 +264,12 @@ public:
             {
                 m_hints = static_cast<hints>(m_hints | json_node::_num_is_int);
             }
-            
         }
     }
 
     /// Construct with std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
-    /// Effciancy note: a copy of in_str_value will be created, requiring an allocation.
+    /// Efficiency note: a copy of in_str_value will be created, requiring an allocation.
     json_node(const std::string& in_str_value) noexcept
     : m_value_type(string_t)
     {
@@ -279,7 +277,7 @@ public:
     }
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
-    /// Effciancy note: a copy of in_str_value will be created, (most likely) requiring an allocation.
+    /// Efficiency note: a copy of in_str_value will be created, requiring an allocation (most likely).
     json_node& operator=(const std::string& in_str_value) noexcept
     {
         clear(string_t);
@@ -344,7 +342,7 @@ public:
         
         return *this;
     }
-    //...
+
     //--- float constructor
     template <typename NUM, IsFloat<NUM>* = nullptr >
     json_node(const NUM in_num) noexcept
@@ -361,7 +359,6 @@ public:
 
         return *this;
     }
-    //...
 
     //--- bool constructor
     template <typename TBOOL, IsBool<TBOOL>* = nullptr >
@@ -377,8 +374,6 @@ public:
         m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
         return *this;
     }
-    //...
-
 
     //--- null constructor
     template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
@@ -391,7 +386,6 @@ public:
         clear(null_t);
         return *this;
     }
-    //...
 
     /// Clears the JSON value, deallocate child elemets, if any, and sets the value type to the given param.
     /// @param in_new_type the new type to set. Deafults to #null_t.
