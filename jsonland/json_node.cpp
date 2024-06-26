@@ -240,6 +240,9 @@ void json_node::dump(std::string& out_str) const noexcept
                 while('0' == buff[num_chars-1]) {
                     --num_chars;
                 }
+                if ('.' == buff[num_chars-1]) {
+                    --num_chars;
+                }
                 out_str.append(buff, num_chars);
             }
         }

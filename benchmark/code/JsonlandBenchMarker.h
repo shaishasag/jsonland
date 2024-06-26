@@ -5,6 +5,7 @@
 
 #include "JsonBenchmarker.h"
 #include "jsonland/json_node.h"
+#include "jsonland/json_acumulator.h"
 
 using namespace jsonland;
 
@@ -64,25 +65,25 @@ public:
         if (jdoc.is_string())
         {
             ++is_string_count;
-            std::string the_string(jdoc.as_string());
+            std::string the_string(jdoc.get_string());
             jNodeOut = the_string;
         }
         else if (jdoc.is_bool())
         {
             ++is_bool_count;
-            const bool b = jdoc.as_bool();
+            const bool b = jdoc.get_bool();
             jNodeOut = b;
         }
         else if (jdoc.is_float())
         {
             ++is_float_count;
-            const double d = jdoc.as_double();
+            const double d = jdoc.get_float<double>();
             jNodeOut = d;
         }
         else if (jdoc.is_int())
         {
             ++is_int_count;
-            const int64_t i = jdoc.as_int<int64_t>();
+            const int64_t i = jdoc.get_int<int64_t>();
             jNodeOut = i;
         }
         else if (jdoc.is_object())
@@ -116,12 +117,103 @@ public:
         }
     }
     
+    
+    void acumulate_object(const jsonland::json_node& in_obj_node, object_acumulator& out_acum) const noexcept
+    {
+        for (const auto& key_val : in_obj_node)
+        {
+            if (key_val.is_object())
+            {
+                auto sub_obj = out_acum.append_object(key_val.key());
+                acumulate_object(key_val, sub_obj);
+            }
+            else if (key_val.is_array())
+            {
+                auto sub_array = out_acum.append_array(key_val.key());
+                acumulate_array(key_val, sub_array);
+            }
+            else if (key_val.is_int())
+            {
+                out_acum.append(key_val.key(), key_val.get_int<int64_t>());
+            }
+            else if (key_val.is_float())
+            {
+                out_acum.append(key_val.key(), key_val.get_float<double>());
+            }
+            else if (key_val.is_string())
+            {
+                out_acum.append(key_val.key(), key_val.get_string());
+            }
+            else if (key_val.is_bool())
+            {
+                out_acum.append(key_val.key(), key_val.get_bool());
+            }
+            else if (key_val.is_null())
+            {
+                out_acum.append(key_val.key(), key_val.get_null());
+            }
+        }
+    }
+    
+    void acumulate_array(const jsonland::json_node& in_array_node, array_acumulator& out_acum) const noexcept
+    {
+        for (auto& val : in_array_node)
+        {
+            if (val.is_object())
+            {
+                auto sub_obj = out_acum.append_object();
+                acumulate_object(val, sub_obj);
+            }
+            else if (val.is_array())
+            {
+                auto sub_array = out_acum.append_array();
+                acumulate_array(val, sub_array);
+            }
+            else if (val.is_int())
+            {
+                out_acum.append(val.get_int<int64_t>());
+            }
+            else if (val.is_float())
+            {
+                out_acum.append(val.get_float<double>());
+            }
+            else if (val.is_string())
+            {
+                out_acum.append(val.get_string());
+            }
+            else if (val.is_bool())
+            {
+                out_acum.append(val.get_bool());
+            }
+            else if (val.is_null())
+            {
+                out_acum.append(val.get_null());
+            }
+        }
+    }
+    
+    void acumulate_doc(const jsonland::json_node& in_doc, std::string& out_str) const noexcept
+    {
+        if (in_doc.is_object())
+        {
+            object_acumulator obj_acum(out_str);
+            acumulate_object(in_doc, obj_acum);
+        }
+        else if (in_doc.is_array())
+        {
+            array_acumulator array_acum(out_str);
+            acumulate_array(in_doc, array_acum);
+        }
+    }
+
     void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
     {
         auto out_file = in_path;
+        auto out_file2 = in_path;
         std::string new_extension = parser_name;
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);
+        out_file2.replace_extension("acum.json");
         {
             auto before = std::chrono::steady_clock::now();
             std::string jstr;
@@ -131,6 +223,16 @@ public:
             
             std::ofstream ffs(out_file);
             ffs.write(jstr.c_str(), jstr.size());
+
+            before = std::chrono::steady_clock::now();
+            std::string acum_str;
+            acum_str.reserve(results.file_size*2);
+            acumulate_doc(jdoc_copy, acum_str);
+            after = std::chrono::steady_clock::now();
+            results.write_to_string_duration_milli_2 = after - before;
+            
+            std::ofstream ffs2(out_file2);
+            ffs2.write(acum_str.c_str(), acum_str.size());
         }
     }
 

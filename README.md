@@ -74,7 +74,7 @@ int main() {
 
 ## Tests
 
-Test were implemented with googletest
+Test were implemented with googletest.
 
 
 ## Contributing
