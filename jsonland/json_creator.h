@@ -1,5 +1,5 @@
-#ifndef __json_acumulator_h__
-#define __json_acumulator_h__
+#ifndef __json_creator_h__
+#define __json_creator_h__
 
 #include <string.h>
 #include <string>
@@ -89,6 +89,8 @@ int float_to_str(const TFloat value_to_convert, char buffer_to_fill[], int buf_s
         int64_t farc_part_as_int = static_cast<int64_t>(std::abs(val - int_part) * std::pow(10, percision+1));
         farc_part_as_int +=  5;
         
+        //for (int i=num_chars; i<buf_size; ++i) {buffer_to_fill[i] = 'X';}
+
         for (int i = percision - 1; i >= 0; --i) {
             farc_part_as_int /= 10;
             buffer_to_fill[num_chars+i] = '0' + farc_part_as_int % 10;
@@ -119,11 +121,10 @@ int float_to_str(const TFloat value_to_convert, char buffer_to_fill[], int buf_s
     return num_chars;
 }
 
-
 template<typename TFloat>
 int float_to_str(const TFloat value_to_convert, std::string& out_str, int percision=6)
 {
-    int num_chars = 0;
+    size_t num_chars_before = out_str.size();
     if (std::isnormal(value_to_convert))
     {
         TFloat val{value_to_convert};
@@ -131,14 +132,12 @@ int float_to_str(const TFloat value_to_convert, std::string& out_str, int percis
         {
             val = -val;
             out_str += '-';
-            ++num_chars;
         }
         
         int64_t int_part = static_cast<uint64_t>(val);
-        num_chars += int_to_str(int_part, out_str);
+        int_to_str(int_part, out_str);
         
         out_str += '.';
-        ++num_chars;
 
         percision = std::max(1, percision);
         
@@ -146,35 +145,33 @@ int float_to_str(const TFloat value_to_convert, std::string& out_str, int percis
         int64_t farc_part_as_int = static_cast<int64_t>(std::abs(val - int_part) * std::pow(10, percision+1));
         farc_part_as_int +=  5;
         
-        for (int i = percision - 1; i >= 0; --i) {
+        out_str.resize(out_str.size()+percision);
+        for (int i = 1; i <= percision; ++i) {
             farc_part_as_int /= 10;
-            buffer_to_fill[num_chars+i] = '0' + farc_part_as_int % 10;
+            out_str[out_str.size()-i] = '0' + farc_part_as_int % 10;
         }
         
-        num_chars += percision;
-        while (buffer_to_fill[num_chars-1] == '0') {
-            --num_chars;
+        while (out_str.back() == '0') {
+            out_str.resize(out_str.size()-1);
         }
-        if (buffer_to_fill[num_chars-1] == '.') {
-            ++num_chars;
+        if (out_str.back() == '.') {
+            out_str += '0';
         }
         
     }
     else if (TFloat(0.0) == value_to_convert) {  // std::isnormal(0.0)==false
-        memcpy(buffer_to_fill, "0.0", 3);
-        num_chars = 3;
+        out_str += "0.0";
     }
     else if (std::isnan(value_to_convert)) {
-        memcpy(buffer_to_fill, "nan", 3);
-        num_chars = 3;
+        out_str += "nan";
     }
     else if (std::isinf(value_to_convert)) {
-        memcpy(buffer_to_fill, "inf", 3);
-        num_chars = 3;
+        out_str += "inf";
     }
     
-    return num_chars;
+    return static_cast<int>(out_str.size() - num_chars_before);
 }
+
 
 using TStr = std::string;
 
@@ -230,11 +227,11 @@ inline static void write_value(TStr& in_json_str, const TValue& in_value)
 }
 
 template<const std::string_view& t_empty_structure, size_t t_max_levels=15>
-class acumulator_base
+class creator_base
 {
     
 protected:
-    acumulator_base(TStr& the_str, size_t start_level)
+    creator_base(TStr& the_str, size_t start_level)
     : m_json_str(the_str)
     , m_level(start_level)
     {
@@ -258,7 +255,7 @@ protected:
     class save_restore_end
     {
     public:
-        save_restore_end(acumulator_base& to_save)
+        save_restore_end(creator_base& to_save)
         : m_to_save(to_save)
         {
             std::string_view end_to_save = m_to_save.save_end();
@@ -273,7 +270,7 @@ protected:
             m_to_save.m_json_str += m_saved_end;
         }
     private:
-        acumulator_base&   m_to_save;
+        creator_base&   m_to_save;
         std::string_view m_saved_end;
         char    m_save_buf[t_max_levels+1];
     };
@@ -295,24 +292,24 @@ public:
     
     bool empty() const { return m_json_str[1] == m_empty_structure[1]; }
     
-    friend class object_acumulator;
-    friend class array_acumulator;
+    friend class object_creator;
+    friend class array_creator;
 };
 
-class object_acumulator;
-class array_acumulator;
+class object_creator;
+class array_creator;
 
 constexpr std::string_view empty_json_object{"{}"};
 
-class object_acumulator : public acumulator_base<empty_json_object>
+class object_creator : public creator_base<empty_json_object>
 {
-    friend class array_acumulator;
+    friend class array_creator;
     
 private:
     
     inline void prepare_for_additional_value(const std::string_view in_key)
     {
-        acumulator_base::prepare_for_additional_value();
+        creator_base::prepare_for_additional_value();
         
         m_json_str += '"';
         m_json_str += in_key;
@@ -320,30 +317,30 @@ private:
     }
     
     // this constructor can only be called from append_object
-    object_acumulator(TStr& the_str, size_t start_level)
-    : acumulator_base(the_str, start_level)
+    object_creator(TStr& the_str, size_t start_level)
+    : creator_base(the_str, start_level)
     {
         m_json_str += m_empty_structure;
     }
     
 public:
     
-    object_acumulator(TStr& the_str)
-    : acumulator_base(the_str, 0)
+    object_creator(TStr& the_str)
+    : creator_base(the_str, 0)
     {
         m_json_str += m_empty_structure;
     }
     
-    object_acumulator append_object(std::string_view in_key)
+    object_creator append_object(std::string_view in_key)
     {
         save_restore_end save_end(*this);
         prepare_for_additional_value(in_key);
-        object_acumulator retVal(m_json_str, m_level+1);
+        object_creator retVal(m_json_str, m_level+1);
         
         return retVal;
     }
     
-    array_acumulator append_array(std::string_view in_key);
+    array_creator append_array(std::string_view in_key);
     
     // add a value that is already formated as json
     inline void push_json_str(const std::string_view in_key, const std::string_view in_value)
@@ -364,41 +361,41 @@ public:
 
 const std::string_view empty_json_array{"[]"};
 
-class array_acumulator : private acumulator_base<empty_json_array>
+class array_creator : private creator_base<empty_json_array>
 {
-    friend class object_acumulator;
+    friend class object_creator;
     
 private:
     
 protected:
-    array_acumulator(TStr& the_str, size_t start_level)
-    : acumulator_base(the_str, start_level)
+    array_creator(TStr& the_str, size_t start_level)
+    : creator_base(the_str, start_level)
     {
         m_json_str += m_empty_structure;
     }
     
 public:
     
-    array_acumulator(TStr& the_str)
-    : acumulator_base(the_str, 0)
+    array_creator(TStr& the_str)
+    : creator_base(the_str, 0)
     {
         m_json_str += m_empty_structure;
     }
     
-    array_acumulator append_array()
+    array_creator append_array()
     {
         save_restore_end save_end(*this);
         prepare_for_additional_value();
-        array_acumulator retVal(m_json_str, m_level+1);
+        array_creator retVal(m_json_str, m_level+1);
         
         return retVal;
     }
     
-    object_acumulator append_object()
+    object_creator append_object()
     {
         save_restore_end save_end(*this);
         prepare_for_additional_value();
-        object_acumulator retVal(m_json_str, m_level+1);
+        object_creator retVal(m_json_str, m_level+1);
         
         return retVal;
     }
@@ -439,15 +436,15 @@ protected:
 };
 
 
-array_acumulator object_acumulator::append_array(std::string_view in_key)
+array_creator object_creator::append_array(std::string_view in_key)
 {
     save_restore_end save_end(*this);
     prepare_for_additional_value(in_key);
-    array_acumulator retVal(m_json_str, m_level+1);
+    array_creator retVal(m_json_str, m_level+1);
     
     return retVal;
 }
 
 } // namespace jsonland
 
-#endif // __json_acumulator_h__
+#endif // __json_creator_h__

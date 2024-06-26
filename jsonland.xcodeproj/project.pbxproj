@@ -22,6 +22,7 @@
 		F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6963C5626D4D81000C71771 /* test_escapse.cpp */; };
 		F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61F26D272C40035D17F /* test_assign.cpp */; };
 		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = F6625B7E2C2C607B00C66A2A /* json_creator.h */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6A706302B99D1B70024E0B4 /* examples.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6A7062F2B99D1B70024E0B4 /* examples.cpp */; };
 		F6ABDE332B065AFC007ACD9A /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
@@ -123,6 +124,7 @@
 		F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = behaviours_main.cpp; path = behaviours/behaviours_main.cpp; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
+		F6625B7E2C2C607B00C66A2A /* json_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json_creator.h; sourceTree = "<group>"; };
 		F66782582B39CFF2003C59F8 /* ArduinoJsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArduinoJsonBenchmarker.h; sourceTree = "<group>"; };
 		F667825A2B39D1CF003C59F8 /* ArduinoJson */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ArduinoJson; sourceTree = "<group>"; };
 		F674D58B2B27005300C47E9A /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = examples; sourceTree = "<group>"; };
@@ -138,7 +140,6 @@
 		F6C14DBB2B1A121900E0202D /* just_parse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = just_parse.cpp; sourceTree = "<group>"; };
 		F6C77A612B3D96F700A2952F /* document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.h; sourceTree = "<group>"; };
 		F6D0F7202B188CD5009EF661 /* jsonland.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = jsonland.profdata; sourceTree = "<group>"; };
-		F6DD2D062BB7174B0005673D /* json_acumulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = json_acumulator.h; sourceTree = "<group>"; };
 		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
 		F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_get_value.cpp; path = test/code/test_get_value.cpp; sourceTree = "<group>"; };
 		F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_string_or_view.cpp; path = test/code/test_string_or_view.cpp; sourceTree = "<group>"; };
@@ -265,10 +266,10 @@
 		F65C68BD26C95D1B00E4AA5F /* jsonland */ = {
 			isa = PBXGroup;
 			children = (
+				F6625B7E2C2C607B00C66A2A /* json_creator.h */,
 				F68EC13E26E23A7600B8BA77 /* json_node.h */,
 				F68EC13F26E23A7600B8BA77 /* json_node.cpp */,
 				F6ABDE342B07C175007ACD9A /* string_or_view.h */,
-				F6DD2D062BB7174B0005673D /* json_acumulator.h */,
 			);
 			path = jsonland;
 			sourceTree = "<group>";
@@ -332,6 +333,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

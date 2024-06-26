@@ -5,7 +5,7 @@
 
 #include "JsonBenchmarker.h"
 #include "jsonland/json_node.h"
-#include "jsonland/json_acumulator.h"
+#include "jsonland/json_creator.h"
 
 using namespace jsonland;
 
@@ -118,7 +118,7 @@ public:
     }
     
     
-    void acumulate_object(const jsonland::json_node& in_obj_node, object_acumulator& out_acum) const noexcept
+    void acumulate_object(const jsonland::json_node& in_obj_node, object_creator& out_acum) const noexcept
     {
         for (const auto& key_val : in_obj_node)
         {
@@ -155,7 +155,7 @@ public:
         }
     }
     
-    void acumulate_array(const jsonland::json_node& in_array_node, array_acumulator& out_acum) const noexcept
+    void acumulate_array(const jsonland::json_node& in_array_node, array_creator& out_acum) const noexcept
     {
         for (auto& val : in_array_node)
         {
@@ -196,12 +196,12 @@ public:
     {
         if (in_doc.is_object())
         {
-            object_acumulator obj_acum(out_str);
+            object_creator obj_acum(out_str);
             acumulate_object(in_doc, obj_acum);
         }
         else if (in_doc.is_array())
         {
-            array_acumulator array_acum(out_str);
+            array_creator array_acum(out_str);
             acumulate_array(in_doc, array_acum);
         }
     }

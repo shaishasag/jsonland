@@ -1,6 +1,6 @@
 
 #include "json_node.h"
-#include "json_acumulator.h"
+#include "json_creator.h"
 
 #include<array>
 #include<vector>
@@ -41,10 +41,10 @@ static void personhood()
 
 }
 
-static void acumulate_array()
+static void create_array()
 {
     std::string str;
-    jsonland::array_acumulator array(str);
+    jsonland::array_creator array(str);
     array.append("Dancing Queen");
     array.append("Gimme", "Gimme", "Gimme");
     std::vector<std::string_view> vec{"Mama", "Mia"};
@@ -52,42 +52,47 @@ static void acumulate_array()
 
     std::cout << str << std::endl;
 }
-static void acumulate_object()
+static void create_object()
 {
     std::string str;
-    jsonland::object_acumulator object(str);
+    jsonland::object_creator object(str);
     object.append("People Need Love", 1972);
     object.append("Nina, Pretty Ballerina", 1973);
     object.append("Waterloo", 1974);
 
     std::cout << str << std::endl;
 }
-static void acumulate_object_and_array()
+static void create_object_and_array()
 {
     std::string str;
-    jsonland::object_acumulator album(str);
+    jsonland::object_creator album(str);
     
     album.append("Artist", "ABBA");
     album.append("Name", "Arrival");
     album.append("Year", 1976);
     album.append("Studio", "Metronome");
-    album.append("Time", 33.09);
-    
-    jsonland::array_acumulator personnel = album.append_array("Personnel");
+    album.append("Time", 33.009876);
+
+    std::string m("marshmelo man is ");
+    jsonland::float_to_str(30.123456789, m, 5);
+    m += " feet tall";
+    std::cout << m << std::endl;
+
+    jsonland::array_creator personnel = album.append_array("Personnel");
     personnel.append("👩🏼‍👩🏼‍👦🏼‍👦🏼");
     personnel.append("Agnetha Fältskog");
     personnel.append("Anni-Frid Lyngstad");
     personnel.append("Björn Ulvaeus");
     personnel.append("Benny Andersson");
 
-    jsonland::object_acumulator tracks = album.append_object("Tracks");
+    jsonland::object_creator tracks = album.append_object("Tracks");
     
-    jsonland::array_acumulator side_1 = tracks.append_array("Side 1");
+    jsonland::array_creator side_1 = tracks.append_array("Side 1");
     side_1.append("When I Kissed the Teacher");
     side_1.append("Dancing Queen", "My Love, My Life");
     side_1.append("Dum Dum Diddle", "Knowing Me, Knowing You");
     
-    jsonland::array_acumulator side_2 = tracks.append_array("Side 2");
+    jsonland::array_creator side_2 = tracks.append_array("Side 2");
     side_2.append("Money, Money, Money");
     std::array<std::string_view, 2> songs_array{"That's Me", "Why Did It Have to Be Me?"};
     side_2.extend(songs_array);
@@ -97,16 +102,16 @@ static void acumulate_object_and_array()
     std::cout << str << std::endl;
 }
 
-static void acumulate()
+static void create()
 {
-    acumulate_array();
-    acumulate_object();
-    acumulate_object_and_array();
+    create_array();
+    create_object();
+    create_object_and_array();
 }
 
 int main()
 {
-    acumulate();
+    create();
     
     return 0;
 }
