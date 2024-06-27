@@ -47,8 +47,11 @@ static void create_array()
     jsonland::array_creator array(str);
     array.append("Dancing Queen");
     array.append("Gimme", "Gimme", "Gimme");
-    std::vector<std::string_view> vec{"Mama", "Mia"};
-    array.extend(vec);
+    std::vector<float> f_vec{17.f, 18.f};
+    array.extend(f_vec);
+    std::vector<std::string_view> sv_vec{"Mama", "Mia"};
+    array.extend(sv_vec);
+    
 
     std::cout << str << std::endl;
 }
@@ -72,11 +75,6 @@ static void create_object_and_array()
     album.append("Year", 1976);
     album.append("Studio", "Metronome");
     album.append("Time", 33.009876);
-
-    std::string m("marshmelo man is ");
-    jsonland::float_to_str(30.123456789, m, 5);
-    m += " feet tall";
-    std::cout << m << std::endl;
 
     jsonland::array_creator personnel = album.append_array("Personnel");
     personnel.append("👩🏼‍👩🏼‍👦🏼‍👦🏼");
