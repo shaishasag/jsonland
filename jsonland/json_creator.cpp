@@ -150,9 +150,6 @@ creator_base<TStr>::save_restore_end::save_restore_end(creator_base& to_save)
     m_saved_end_chars = std::string_view(m_save_buf, end_to_save.size());
 }
 template creator_base<std::string>::save_restore_end::save_restore_end(creator_base& to_save);
-#if JSONLAND_DEBUG==1
-template creator_base<fixed::fstring_ref>::save_restore_end::save_restore_end(creator_base& to_save);
-#endif
 
 template<typename TStr>
 creator_base<TStr>::save_restore_end::~save_restore_end()
@@ -160,9 +157,6 @@ creator_base<TStr>::save_restore_end::~save_restore_end()
     m_creator_to_save.m_json_str += m_saved_end_chars;
 }
 template creator_base<std::string>::save_restore_end::~save_restore_end();
-#if JSONLAND_DEBUG==1
-template creator_base<fixed::fstring_ref>::save_restore_end::~save_restore_end();
-#endif
 
 template<typename TStr>
 std::string_view creator_base<TStr>::save_end()

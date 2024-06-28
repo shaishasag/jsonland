@@ -6,11 +6,6 @@
 #include <string_view>
 #include <charconv>
 
-#if JSONLAND_DEBUG==1
-#include "fstring.h"
-#include "fstringstream.h"
-#endif
-
 /* Copy to include
 #include "jsonland/json_creator.h"
 */
@@ -171,7 +166,7 @@ public:
     }
    
     bool empty() const { return this->m_json_str[1] == empty_json_object[1]; }
-    bool clear() const { return this->m_json_str = empty_json_object; }
+    void clear() const { this->m_json_str = empty_json_object; }
 };
 
 
@@ -233,13 +228,8 @@ public:
     }
 
     bool empty() const { return this->m_json_str[1] == empty_json_array[1]; }
-    bool clear() const { return this->m_json_str = empty_json_array; }
+    void clear() const { this->m_json_str = empty_json_array; }
 };
 } // namespace jsonland
-
-#if JSONLAND_DEBUG==1
-using array_creator_fixed = jsonland::array_creator<fixed::fstring_ref>;
-using object_creator_fixed = jsonland::object_creator<fixed::fstring_ref>;
-#endif
 
 #endif // __json_creator_h__
