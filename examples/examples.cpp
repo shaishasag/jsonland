@@ -5,6 +5,13 @@
 #include<array>
 #include<vector>
 #include<tuple>
+#if JSONLAND_DEBUG==1
+#include "fstring.h"
+#endif
+
+using under_string = std::string;
+
+
 
 static void personhood()
 {
@@ -43,61 +50,65 @@ static void personhood()
 
 static void create_array()
 {
-    std::string str;
-    jsonland::array_creator array(str);
-    array.append("Dancing Queen");
-    array.append("Gimme", "Gimme", "Gimme");
+    fixed::fstring511 actual;
+    under_string str(actual);
+    jsonland::array_creator<under_string> array(str);
+    array.append_value("Dancing Queen");
+    array.append_value("Gimme", "Gimme", "Gimme");
     std::vector<float> f_vec{17.f, 18.f};
     array.extend(f_vec);
     std::vector<std::string_view> sv_vec{"Mama", "Mia"};
     array.extend(sv_vec);
     
 
-    std::cout << str << std::endl;
+    std::cout << std::string_view(str) << std::endl;
 }
 static void create_object()
 {
-    std::string str;
-    jsonland::object_creator object(str);
-    object.append("People Need Love", 1972);
-    object.append("Nina, Pretty Ballerina", 1973);
-    object.append("Waterloo", 1974);
+    fixed::fstring511 actual;
+    under_string str(actual);
+    jsonland::object_creator<under_string> object(str);
+    object.append_value("People Need Love", 1972);
+    object.append_value("Nina, Pretty Ballerina", 1973);
+    object.append_value("Waterloo", 1974);
 
-    std::cout << str << std::endl;
+    std::cout << std::string_view(str) << std::endl;
 }
+
 static void create_object_and_array()
 {
-    std::string str;
-    jsonland::object_creator album(str);
+    fixed::fstring511 actual;
+    under_string str(actual);
+    jsonland::object_creator<under_string> album(str);
     
-    album.append("Artist", "ABBA");
-    album.append("Name", "Arrival");
-    album.append("Year", 1976);
-    album.append("Studio", "Metronome");
-    album.append("Time", 33.009876);
+    album.append_value("Artist", "ABBA");
+    album.append_value("Name", "Arrival");
+    album.append_value("Year", 1976);
+    album.append_value("Studio", "Metronome");
+    album.append_value("Time", 33.009876);
 
-    jsonland::array_creator personnel = album.append_array("Personnel");
-    personnel.append("👩🏼‍👩🏼‍👦🏼‍👦🏼");
-    personnel.append("Agnetha Fältskog");
-    personnel.append("Anni-Frid Lyngstad");
-    personnel.append("Björn Ulvaeus");
-    personnel.append("Benny Andersson");
+    auto personnel = album.append_array("Personnel");
+    personnel.append_value("👩🏼‍👩🏼‍👦🏼‍👦🏼");
+    personnel.append_value("Agnetha Fältskog");
+    personnel.append_value("Anni-Frid Lyngstad");
+    personnel.append_value("Björn Ulvaeus");
+    personnel.append_value("Benny Andersson");
 
-    jsonland::object_creator tracks = album.append_object("Tracks");
+    auto tracks = album.append_object("Tracks");
     
-    jsonland::array_creator side_1 = tracks.append_array("Side 1");
-    side_1.append("When I Kissed the Teacher");
-    side_1.append("Dancing Queen", "My Love, My Life");
-    side_1.append("Dum Dum Diddle", "Knowing Me, Knowing You");
+    auto side_1 = tracks.append_array("Side 1");
+    side_1.append_value("When I Kissed the Teacher");
+    side_1.append_value("Dancing Queen", "My Love, My Life");
+    side_1.append_value("Dum Dum Diddle", "Knowing Me, Knowing You");
     
-    jsonland::array_creator side_2 = tracks.append_array("Side 2");
-    side_2.append("Money, Money, Money");
+    auto side_2 = tracks.append_array("Side 2");
+    side_2.append_value("Money, Money, Money");
     std::array<std::string_view, 2> songs_array{"That's Me", "Why Did It Have to Be Me?"};
     side_2.extend(songs_array);
     std::vector<std::string_view> songs_vector{"Tiger", "Arrival"};
     side_2.extend(songs_vector);
 
-    std::cout << str << std::endl;
+    std::cout << std::string_view(str) << std::endl;
 }
 
 static void create()
@@ -107,9 +118,46 @@ static void create()
     create_object_and_array();
 }
 
+static void all_types()
+{
+    fixed::fstring511 actual;
+    under_string str(actual);
+    jsonland::object_creator<under_string> object(str);
+    
+    object.append_value("True", true);
+    object.append_value("False", false);
+    object.append_value("float", -1.234500f);
+    object.append_value("double", -5.432100f);
+    object.append_value("int", (int)-17);
+    object.append_value("unsigned int", (unsigned int)17);
+    object.append_value("short", (short)-17);
+    object.append_value("unsigned short", (unsigned short)17);
+    object.append_value("long", (long)-17);
+    object.append_value("unsigned long", (unsigned long)17);
+    object.append_value("long long", (long long)-17);
+    object.append_value("unsigned long long", (unsigned long long)17);
+
+    object.append_value("int16_t", (int16_t)-1787);
+    object.append_value("uint16_t", (uint16_t)1787);
+    object.append_value("int32_t", (int32_t)-17879796);
+    object.append_value("uint32_t", (uint32_t)17879796);
+    object.append_value("int64_t", (int64_t)-1787979617879796);
+    object.append_value("uint64_t", (uint64_t)1787979617879796);
+
+    const char* p_c = "some dummy text";
+    std::string dstr{p_c};
+    std::string_view dsv{dstr};
+    object.append_value("const char*", p_c);
+    object.append_value("std::string", dsv);
+    object.append_value("std::string_view", dsv);
+
+    std::cout << std::string_view(str) << std::endl;
+}
+
 int main()
 {
     create();
+    all_types();
     
     return 0;
 }

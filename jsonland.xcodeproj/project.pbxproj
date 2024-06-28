@@ -30,6 +30,7 @@
 		F6AA89A92C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89AA2C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89AB2C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
+		F6AA89B82C2D9CB500D5ED6E /* fstring.h in Headers */ = {isa = PBXBuildFile; fileRef = F6AA89B72C2D9CB500D5ED6E /* fstring.h */; };
 		F6ABDE332B065AFC007ACD9A /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6F5A08726EB975E007E11BE /* test_iter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F5A08626EB975E007E11BE /* test_iter.cpp */; };
 		F6FB299B2B28CC3D005D1D23 /* test_get_value.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */; };
@@ -128,6 +129,7 @@
 		F648C9BA2B3AEE550061D302 /* behaviours */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = behaviours; sourceTree = BUILT_PRODUCTS_DIR; };
 		F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = behaviours_main.cpp; path = behaviours/behaviours_main.cpp; sourceTree = "<group>"; };
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6507AF72C2EF19A001A3B94 /* fstringstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fstringstream.h; path = ../fstring/fstringstream.h; sourceTree = "<group>"; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
 		F6625B7E2C2C607B00C66A2A /* json_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json_creator.h; sourceTree = "<group>"; };
 		F66782582B39CFF2003C59F8 /* ArduinoJsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArduinoJsonBenchmarker.h; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 		F6A7062F2B99D1B70024E0B4 /* examples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = examples.cpp; path = examples/examples.cpp; sourceTree = "<group>"; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = json_creator.cpp; sourceTree = "<group>"; };
+		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = parse_timing_main.cpp; path = ../benchmark/code/parse_timing_main.cpp; sourceTree = "<group>"; };
 		F6ABDE342B07C175007ACD9A /* string_or_view.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string_or_view.h; sourceTree = "<group>"; };
@@ -241,6 +244,8 @@
 		F65C68B226C95D1A00E4AA5F = {
 			isa = PBXGroup;
 			children = (
+				F6AA89B72C2D9CB500D5ED6E /* fstring.h */,
+				F6507AF72C2EF19A001A3B94 /* fstringstream.h */,
 				F6A7062F2B99D1B70024E0B4 /* examples.cpp */,
 				F65C68BD26C95D1B00E4AA5F /* jsonland */,
 				F6A9BB4A2B470B81001D7684 /* behaviours */,
@@ -340,6 +345,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F6AA89B82C2D9CB500D5ED6E /* fstring.h in Headers */,
 				F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -717,9 +723,9 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"USE_FSTRING=1",
 					"JSONLAND_DEBUG=1",
 					"DEBUG=1",
-					"$(inherited)",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -740,6 +746,7 @@
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../fstring",
 				);
 			};
 			name = Debug;
@@ -785,7 +792,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "JSONLAND_DEBUG=0";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"USE_FSTRING=1",
+					"JSONLAND_DEBUG=0",
+					"DEBUG=0",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -805,6 +816,7 @@
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../fstring",
 				);
 			};
 			name = Release;
