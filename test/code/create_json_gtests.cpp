@@ -24,7 +24,11 @@ TEST(TestWrite, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"("Moti" "Shneor")");
     oss.str("");
     
-    oss << json_node(7.1) << "+" << json_node(5) << "=" << json_node(12.1);
+    oss << json_node(7.1);
+    oss << "+";
+    oss  << json_node(5);
+    oss << "=";
+    oss  << json_node(12.1);
     EXPECT_STREQ(oss.str().c_str(), R"(7.1+5=12.1)");
     oss.str("");
     

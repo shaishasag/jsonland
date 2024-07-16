@@ -721,6 +721,17 @@ public:
         return m_values.back();
     }
 
+    template<typename TNODEVAL>
+    json_node& push_back(const TNODEVAL in_val) noexcept
+    {
+#if JSONLAND_ASSERT_TYPE_CONSISTENCY != 0
+        assert(is_array() || is_null());
+#endif
+        m_value_type = array_t;
+        m_values.emplace_back(in_val);
+        return m_values.back();
+    }
+
     template <typename INT, IsInteger<INT>* = nullptr >
     json_node& operator[](const INT in_dex) noexcept
     {

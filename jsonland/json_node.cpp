@@ -4,7 +4,6 @@
 #include <iterator>
 #include <cstdio>
 #include <charconv>
-#include "fixed/json_creator.h"
 
 using namespace jsonland;
 
@@ -60,7 +59,7 @@ inline bool is_escapable_char(const char in_c)
     return retVal;
 }
 
-inline bool is_must_be_escaped_char(const char in_c)
+inline bool is_a_char_that_must_be_escaped(const char in_c)
 {
     const bool retVal = '\b' == in_c or
                         '\f' == in_c or
@@ -180,6 +179,49 @@ std::ostream& json_node::dump(std::ostream& os) const noexcept
     return os;
 }
 
+template<typename TToPrintf>
+static int __printf(char* in_buff, const size_t in_buff_size, const TToPrintf in_to_print, const char* printf_format=nullptr) noexcept
+{
+    bool remove_zeros{false};
+    if (nullptr == printf_format)
+    {
+        if constexpr (std::is_floating_point_v<TToPrintf>) {
+            printf_format = "%llf";
+            remove_zeros = true;
+        }
+        else if constexpr (std::is_integral_v<TToPrintf> && std::is_signed_v<TToPrintf>) {
+            printf_format = "%lli";
+        }
+        else if constexpr (std::is_integral_v<TToPrintf> && std::is_unsigned_v<TToPrintf>) {
+            printf_format = "%llu";
+        }
+    }
+
+    int num_chars = std::snprintf(in_buff, in_buff_size, printf_format, in_to_print);
+    if (in_buff_size == (size_t)num_chars)
+    {
+        // this means there was not enough room for the number
+        // but final '\0' was printed anyway so actualy there are num_chars-1 chars
+        --num_chars;
+    }
+
+    if (remove_zeros && num_chars > 1)// when ouput_size==1 there are no extra '0's
+    {
+        const bool is_dot_found = (memchr(in_buff, '.', num_chars-1) != nullptr);
+        if (is_dot_found)
+        {
+            while (*(in_buff+(num_chars-1)) == '0') {// remove trailing zeros - if any
+                --num_chars;
+            }
+            if (*(in_buff+(num_chars-1)) == '.') {  // if . came before 0, leave the last 0 so number will look like 2.0
+                ++num_chars;
+            }
+        }
+    }
+
+
+    return num_chars;
+}
 
 void json_node::dump(std::string& out_str) const noexcept
 {
@@ -226,10 +268,10 @@ void json_node::dump(std::string& out_str) const noexcept
         }
         else
         {
-            fixed::fstring127 buff;
+            char buff[128]{'\0'};
             if (m_hints & _num_is_int) {
-                buff.printf(get_int<int64_t>());
-                out_str.append(buff);
+                size_t num_chars = __printf(buff, 127, get_int<int64_t>());
+                out_str.append(buff, num_chars);
             }
             else
             {
@@ -237,8 +279,8 @@ void json_node::dump(std::string& out_str) const noexcept
                 //auto res = std::to_chars(buff, buff+30, get_float(), std::chars_format::fixed);
                 //out_str.append(buff, res.ptr-buff);
                 // resort to printf...
-                buff.printf(get_float<long double>());
-                out_str.append(buff);
+                size_t num_chars = __printf(buff, 127, get_float<long double>());
+                out_str.append(buff, num_chars);
             }
         }
     }
@@ -580,7 +622,7 @@ namespace parser_impl
                         }
                     }
                 }
-                else if (is_must_be_escaped_char(curr_char))
+                else if (is_a_char_that_must_be_escaped(curr_char))
                 {
                     std::string message = "char '";
                     message +=  name_of_control_char(curr_char);
