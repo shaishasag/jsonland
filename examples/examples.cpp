@@ -9,9 +9,6 @@
 #include "fstring.h"
 #endif
 
-using under_string = std::string;
-
-
 
 static void personhood()
 {
@@ -50,9 +47,7 @@ static void personhood()
 
 static void create_array()
 {
-    fixed::fstring511 actual;
-    under_string str(actual);
-    jsonland::array_creator<under_string> array(str);
+    fixed::array_json_creator array;
     array.append_value("Dancing Queen");
     array.append_value("Gimme", "Gimme", "Gimme");
     std::vector<float> f_vec{17.f, 18.f};
@@ -61,25 +56,21 @@ static void create_array()
     array.extend(sv_vec);
     
 
-    std::cout << std::string_view(str) << std::endl;
+    std::cout << std::string_view(array) << std::endl;
 }
 static void create_object()
 {
-    fixed::fstring511 actual;
-    under_string str(actual);
-    jsonland::object_creator<under_string> object(str);
+    fixed::object_json_creator object;
     object.append_value("People Need Love", 1972);
     object.append_value("Nina, Pretty Ballerina", 1973);
     object.append_value("Waterloo", 1974);
 
-    std::cout << std::string_view(str) << std::endl;
+    std::cout << std::string_view(object) << std::endl;
 }
 
 static void create_object_and_array()
 {
-    fixed::fstring511 actual;
-    under_string str(actual);
-    jsonland::object_creator<under_string> album(str);
+    fixed::object_json_creator album;
     
     album.append_value("Artist", "ABBA");
     album.append_value("Name", "Arrival");
@@ -108,7 +99,7 @@ static void create_object_and_array()
     std::vector<std::string_view> songs_vector{"Tiger", "Arrival"};
     side_2.extend(songs_vector);
 
-    std::cout << std::string_view(str) << std::endl;
+    std::cout << std::string_view(album) << std::endl;
 }
 
 static void create()
@@ -120,9 +111,7 @@ static void create()
 
 static void all_types()
 {
-    fixed::fstring511 actual;
-    under_string str(actual);
-    jsonland::object_creator<under_string> object(str);
+    fixed::object_json_creator object;
     
     object.append_value("True", true);
     object.append_value("False", false);
@@ -151,7 +140,7 @@ static void all_types()
     object.append_value("std::string", dsv);
     object.append_value("std::string_view", dsv);
 
-    std::cout << std::string_view(str) << std::endl;
+    std::cout << std::string_view(object) << std::endl;
 }
 
 int main()

@@ -40,7 +40,7 @@ struct Benchmark_results
             
             if (0.0 != write_to_string_duration_milli_2.count())
             {
-                std::cout << "    " << "write to string 2 time: " << std::fixed << write_to_string_duration_milli_2.count()  << "ms; " << std::endl;
+                std::cout << "    " << "fixed::json_creator write time: " << std::fixed << write_to_string_duration_milli_2.count()  << "ms; " << std::endl;
             }
         }
         else

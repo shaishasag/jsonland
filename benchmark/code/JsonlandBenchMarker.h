@@ -5,7 +5,7 @@
 
 #include "JsonBenchmarker.h"
 #include "jsonland/json_node.h"
-#include "jsonland/json_creator.h"
+#include "json_creator.h"
 
 using namespace jsonland;
 
@@ -118,7 +118,7 @@ public:
     }
     
     
-    void acumulate_object(const jsonland::json_node& in_obj_node, object_creator& out_acum) const noexcept
+    void acumulate_object(const jsonland::json_node& in_obj_node, fixed::sub_object_json_creator& out_acum) const noexcept
     {
         for (const auto& key_val : in_obj_node)
         {
@@ -134,28 +134,28 @@ public:
             }
             else if (key_val.is_int())
             {
-                out_acum.append(key_val.key(), key_val.get_int<int64_t>());
+                out_acum.append_value(key_val.key(), key_val.get_int<int64_t>());
             }
             else if (key_val.is_float())
             {
-                out_acum.append(key_val.key(), key_val.get_float<double>());
+                out_acum.append_value(key_val.key(), key_val.get_float<double>());
             }
             else if (key_val.is_string())
             {
-                out_acum.append(key_val.key(), key_val.get_string());
+                out_acum.append_value(key_val.key(), key_val.get_string());
             }
             else if (key_val.is_bool())
             {
-                out_acum.append(key_val.key(), key_val.get_bool());
+                out_acum.append_value(key_val.key(), key_val.get_bool());
             }
             else if (key_val.is_null())
             {
-                out_acum.append(key_val.key(), key_val.get_null());
+                out_acum.append_value(key_val.key(), key_val.get_null());
             }
         }
     }
     
-    void acumulate_array(const jsonland::json_node& in_array_node, array_creator& out_acum) const noexcept
+    void acumulate_array(const jsonland::json_node& in_array_node, fixed::sub_array_json_creator& out_acum) const noexcept
     {
         for (auto& val : in_array_node)
         {
@@ -171,23 +171,23 @@ public:
             }
             else if (val.is_int())
             {
-                out_acum.append(val.get_int<int64_t>());
+                out_acum.append_value(val.get_int<int64_t>());
             }
             else if (val.is_float())
             {
-                out_acum.append(val.get_float<double>());
+                out_acum.append_value(val.get_float<double>());
             }
             else if (val.is_string())
             {
-                out_acum.append(val.get_string());
+                out_acum.append_value(val.get_string());
             }
             else if (val.is_bool())
             {
-                out_acum.append(val.get_bool());
+                out_acum.append_value(val.get_bool());
             }
             else if (val.is_null())
             {
-                out_acum.append(val.get_null());
+                out_acum.append_value(val.get_null());
             }
         }
     }
@@ -196,13 +196,15 @@ public:
     {
         if (in_doc.is_object())
         {
-            object_creator obj_acum(out_str);
+            fixed::object_json_creator<100'000> obj_acum;
             acumulate_object(in_doc, obj_acum);
+            out_str = obj_acum;
         }
         else if (in_doc.is_array())
         {
-            array_creator array_acum(out_str);
+            fixed::array_json_creator<100'000> array_acum;
             acumulate_array(in_doc, array_acum);
+            out_str = array_acum;
         }
     }
 

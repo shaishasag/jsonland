@@ -13,6 +13,7 @@
 #include "rapidjson/writer.h"
 #include "nlohmann/json.hpp"
 #include "jsonland/json_node.h"
+#include "fstring.h"
 
 std::string RapidJsonStringify(rapidjson::Value& rapid_val)
 {
@@ -211,10 +212,90 @@ static void preserve_ordering()
     }
 }
 
+static void nlohmann_weird_insertions()
+{
+    nlohmann::json jsonData;
+
+    jsonData["mixInfoVersion"] = "1.2.3.4";
+
+    jsonData["id"] = 182364;
+    jsonData["trackName"] = "Lady Stardust";
+    for (int32_t preset = 0; preset < 2; ++preset)
+    {
+        jsonData["Presets"][preset]["what"] = preset;
+        jsonData["Presets"][preset]["PresetName"] = "band";
+        jsonData["Presets"][preset]["PresetGuid"] = "was";
+        jsonData["Presets"][preset]["isLicensedPresets"] = "all";
+        jsonData["Presets"][preset]["PresetLocation"] = "together";
+    }
+    
+    std::cout << jsonData.dump() << std::endl;
+}
+
+class b
+{
+public:
+    template <typename TValue>
+    b(const TValue i)
+    {
+        if constexpr (std::is_floating_point_v<TValue> || std::is_integral_v<TValue>) {
+            m_value.printf(i);
+        }
+        else if constexpr (std::is_convertible_v<TValue, std::string_view>) {
+            m_value = i;
+        }
+    }
+
+    b& operator+=(const b& in_b)
+    {
+        m_sub_values.push_back(in_b);
+        return *this;
+    }
+
+    b& operator+=(b&& in_b)
+    {
+        m_sub_values.push_back(std::move(in_b));
+        return *this;
+    }
+
+    std::vector<b> m_sub_values;
+    fixed::fstring31    m_value;
+};
+
+std::ostream& operator<<(std::ostream& os, const b& bob)
+{
+    os << bob.m_value.c_str();
+    
+    if (!bob.m_sub_values.empty())
+    {
+        os << ": [";
+        os << bob.m_sub_values.front();
+        
+        for (auto sub_bob = bob.m_sub_values.begin()+1; sub_bob != bob.m_sub_values.end(); ++sub_bob)
+        {
+            os << ", " << *sub_bob;
+        }
+        
+        os << "]";
+    }
+    
+    return os;
+}
+
 int main(int argc, char* argv[])
 {
-    string_as_array();
-    as_string();
-    operator_equal();
-    preserve_ordering();
+    b b1(1);
+    b b2(2);
+    b1 += b2;
+    b1 += b(3);
+    b1 += 4;
+    b1 += "5";
+
+    std::cout << b1 << std::endl;
+    
+//    string_as_array();
+//    as_string();
+//    operator_equal();
+//    preserve_ordering();
+//    nlohmann_weird_insertions();
 }

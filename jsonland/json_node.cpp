@@ -4,6 +4,7 @@
 #include <iterator>
 #include <cstdio>
 #include <charconv>
+#include "fixed/json_creator.h"
 
 using namespace jsonland;
 
@@ -73,7 +74,7 @@ inline const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_c
 {
     const char* retVal = in_c;
     out_chars_to_copy = 2;
-    
+
     switch(*in_c)
     {
         case '\b': retVal = "\\b"; break;
@@ -85,7 +86,7 @@ inline const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_c
             out_chars_to_copy = 1;
             break;
     }
-    
+
     return retVal;
 }
 
@@ -156,7 +157,7 @@ void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noex
     m_num_escapes = 0;
     std::string temp_str;
     temp_str.reserve(in_str.size()*1.1);
-    
+
     for (char curr : in_str)
     {
         size_t num_chars_to_copy = 0;
@@ -191,7 +192,7 @@ void json_node::dump(std::string& out_str) const noexcept
             io->m_key.dump_with_quotes(out_str);
             out_str += ':';
             io->dump(out_str);
-            
+
             for (++io; io != m_values.end(); ++io)
             {
                 out_str += ',';
@@ -225,10 +226,10 @@ void json_node::dump(std::string& out_str) const noexcept
         }
         else
         {
-            char buff[30];
+            fixed::fstring127 buff;
             if (m_hints & _num_is_int) {
-                auto res = std::to_chars(buff, buff+30, get_int<int64_t>());
-                out_str.append(buff, res.ptr-buff);
+                buff.printf(get_int<int64_t>());
+                out_str.append(buff);
             }
             else
             {
@@ -236,14 +237,8 @@ void json_node::dump(std::string& out_str) const noexcept
                 //auto res = std::to_chars(buff, buff+30, get_float(), std::chars_format::fixed);
                 //out_str.append(buff, res.ptr-buff);
                 // resort to printf...
-                int num_chars = std::snprintf(buff, 30, "%Lf", get_float<long double>());
-                while('0' == buff[num_chars-1]) {
-                    --num_chars;
-                }
-                if ('.' == buff[num_chars-1]) {
-                    --num_chars;
-                }
-                out_str.append(buff, num_chars);
+                buff.printf(get_float<long double>());
+                out_str.append(buff);
             }
         }
     }
@@ -267,21 +262,21 @@ std::string json_node::dump() const noexcept
 size_t json_node::memory_consumption() const noexcept
 {
     size_t retVal{0};
-    
+
     // add allocation by this object's own value
     retVal += m_value.allocation_size();
     retVal += m_key.allocation_size();
-    
+
     // add allocations by child elements if array or object
     for (const json_node& val : m_values)
     {
         retVal += sizeof(ArrayVec::value_type);
         retVal += val.memory_consumption();
     }
-    
+
     // if m_values has more capcity than is actually used...
     retVal += (m_values.capacity() - m_values.size()) * sizeof(ArrayVec::value_type);
-    
+
     // add allocations by keys values if object
     for (const KeyToIndex::value_type& val : m_obj_key_to_index)
     {
@@ -314,7 +309,7 @@ const char* value_type_name(jsonland::value_type in_type)
 namespace parser_impl
 {
 
-    
+
     // case_insensitive string compare
     // When this function is called, str_left must have at least str_right.size() before terminating '\0'
     inline bool str_compare_case_sensitive_n(const char* str_left, std::string_view str_right)
@@ -334,7 +329,7 @@ namespace parser_impl
         bool retVal = 0 == chars_left;
         return retVal;
     }
-    
+
     // case_sensitive string compare
     // When this function is called, str_left must have at least str_right.size() before terminating '\0'
     // str_right is also assumed to contain only lower case chars
@@ -381,7 +376,7 @@ namespace parser_impl
             _colon = 1 << 8,
             _array_close = 1 << 9,
             _obj_close = 1 << 10,
-            
+
             _scalar = _null|_bool|_num|_str,
             _value = _scalar|_array|_obj,
         };
@@ -431,7 +426,7 @@ namespace parser_impl
         const size_t m_str_size;
         const char* m_start = nullptr;
         const char* m_end = nullptr;
-        
+
         char* m_curr_char = nullptr;
         size_t m_max_nesting_level = 64;
         size_t m_nesting_level = 0;
@@ -450,7 +445,7 @@ namespace parser_impl
         {
             return *++m_curr_char;
         }
-        
+
         inline char next_chars(const ssize_t in_num_chars_to_skip)
         {
             m_curr_char += in_num_chars_to_skip;
@@ -545,7 +540,7 @@ namespace parser_impl
 
             char curr_char = next_char();
             char* str_start = m_curr_char;
-            
+
             out_node.m_value.m_num_escapes = 0;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
@@ -603,7 +598,7 @@ namespace parser_impl
             if (JSONLAND_LIKELY(curr_char == '"'))
             {
                 //*const_cast<char*>(m_curr_char) = '\0';
-                
+
                 out_node.parser_direct_set(std::string_view(str_start, m_curr_char-str_start), jsonland::value_type::string_t);
                 next_char();
                 retVal = true;
@@ -621,7 +616,7 @@ namespace parser_impl
             char* str_start = m_curr_char;
             char curr_char = *m_curr_char;
             bool num_is_int{true};
-            
+
             // json number should start with '-' or a digit
             if ('-' == curr_char)
                 curr_char = next_char();
@@ -673,7 +668,7 @@ after_decimal_point:
             if ('e' == curr_char or 'E' == curr_char)
                 goto after_exponent;
             else
-                goto scan_number_done;            
+                goto scan_number_done;
 
 after_exponent:
             num_is_int = false;
@@ -708,7 +703,7 @@ scan_number_done:
             }
             return true;
         }
-        
+
         bool parse_constant(json_node& out_node)
         {
             bool retVal = false;
@@ -844,7 +839,7 @@ scan_number_done:
             {
                 throw parsing_exception("unexpected end of tokens during array initializtion", curr_offset());
             }
-            
+
             return false;
         }
 
@@ -930,7 +925,7 @@ scan_number_done:
             {
                 throw parsing_exception("unexpected end of tokens during object initializtion", curr_offset());
             }
-            
+
             return false;
         }
 
@@ -938,7 +933,7 @@ scan_number_done:
         int skip_whitespace()
         {
             json_node node_dummy;
-            
+
             while (is_there_more_data())
             {
                 if ('\n' == *m_curr_char) {
@@ -991,7 +986,7 @@ public:
                 m_top_node.m_parse_error = -1;
                 m_top_node.m_parse_error_message = p_ex.what();
             }
-            
+
             return m_top_node.m_parse_error;
         }
     };
@@ -1063,9 +1058,9 @@ int json_doc::parse(const std::string_view in_json_str)
 size_t json_doc::memory_consumption()
 {
     size_t retVal = sizeof(*this);
-    
+
     retVal += json_node::memory_consumption();
-    
+
     return retVal;
 }
 

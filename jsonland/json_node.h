@@ -72,7 +72,7 @@ public:
     /// @param[in] jn the JSON to dump.
     /// @return the stream #os
     friend std::ostream& operator<<(std::ostream& os, const json_node& jn);
-    
+
     /// Decide if two #json_node object are equal.
     /// @param[in] lhs the first #json_node to compare.
     /// @param[in] rhs the second #json_node to compare.
@@ -94,7 +94,7 @@ public:
     // m_num_escapes == 0 - no escapes were found
     // m_num_escapes > 0 - some escapes were found
 
-    
+
 public:
     /// Type declaration of mapping of a string to the index of a value in #m_values.
     using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
@@ -102,23 +102,25 @@ public:
     using ArrayVec = std::vector<json_node>;
 
 private:
-    
+
     /// JSON value type of this instance, can be any of the values in enum #value_type.
     /// Initilay it is set to #null_t
     value_type m_value_type{null_t};
     /// String representation of the JSON value.
     mutable string_or_view m_value{the_null_string_view};
     /// Holds the JSON value if the value type is #number_t - but only when the number was changed from code.
-    /// If the number value was parsed from string, #m_value will hold the nember as test and #m_num will <b>not be assigned</b>. This will delay the conversion to binary number until if and when the number is actually needed.
+    /// If the number value was parsed from string, #m_value will hold the number as text
+    /// and #m_num will <b>not be assigned</b>.
+    /// This will delay the conversion to binary number until if and when the number is actually needed.
     double m_num = 0.0;
 
     /// List of values when #m_value_type is #array_t or #object_t.
     /// Values are kept in the order they were parsed or programatically added to the object or array.
     ArrayVec m_values;
-    
+
     /// Mapping of keys to the JSON values in #m_values. Only relevant if #m_value_type is #object_t.
     KeyToIndex m_obj_key_to_index;
-    
+
     /// The key of this JSON value in case it is a part of another object.
     mutable string_or_view m_key{the_empty_string_view};
 
@@ -128,7 +130,7 @@ private:
         _num_is_int = 1<<0,
         _num_in_string = 1<<1,
     };
-    
+
     hints m_hints{_hint_none};
 
     /// Default value for a string.
@@ -143,10 +145,10 @@ private:
 
     /// template to decide if a type is a number (floating point or integer)
     template<typename NUM> using IsNum = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) || std::is_floating_point<NUM>::value>;
-    
+
     /// template to decide if a type is an integer
     template<typename NUM> using IsInteger = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) && !std::is_floating_point<NUM>::value>;
-    
+
     /// template to decide if a type is a floating point
     template<typename NUM> using IsFloat = std::enable_if_t<std::is_floating_point<NUM>::value>;
 
@@ -167,25 +169,26 @@ public:
     json_node() noexcept = default;
     /// Default destructor.
     ~json_node() = default;
-    
+
     /// Copy constructor
     /// @param in_node the #json_node to copy
     json_node(const json_node& in_node) noexcept = default;
-    
+
     /// Move constructor
     /// @param in_node the #json_node to move
     json_node(json_node&& in_node) noexcept = default;
-    
+
     /// Copy assignment
     /// @param in_node the #json_node to copy
     json_node& operator=(const json_node& in_node) noexcept;
-    
+
     /// Move assignment
     /// @param in_node the #json_node to move
     json_node& operator=(json_node&& in_node) noexcept;
 
     /// Constructor by value_type
-    /// @param in_type JSON value type this instance will have.
+    /// @param in_type the JSON value type this instance will have.
+    /// @in_reserve num of reserved places in if in_type os object_t or array_t
     /// <br>Value is set to the default value which is:
     /// Value type  | Default value
     /// ----------- | -------------
@@ -195,7 +198,7 @@ public:
     /// string_t    | ""
     /// array_t     | []
     /// object_t    | {}
-    inline explicit json_node(jsonland::value_type in_type) noexcept
+    inline explicit json_node(jsonland::value_type in_type, size_t in_reserve=0) noexcept
     : m_value_type(in_type)
     {
         switch (m_value_type)
@@ -208,6 +211,12 @@ public:
             break;
             case bool_t:
                 m_value = the_false_string_view;
+            break;
+            case object_t:
+                reserve(in_reserve);
+            break;
+            case array_t:
+                reserve(in_reserve);
             break;
             default:
                 m_value = the_empty_string_view;
@@ -267,10 +276,10 @@ public:
         }
     }
 
-    /// Construct with std::string, #value_type to set to #string_t
+    /// Construct with std::string_view, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
     /// Efficiency note: a copy of in_str_value will be created, requiring an allocation.
-    json_node(const std::string& in_str_value) noexcept
+    json_node(const std::string_view in_str_value) noexcept
     : m_value_type(string_t)
     {
         m_value.store_value_deal_with_escapes(in_str_value);
@@ -331,7 +340,7 @@ public:
     , m_num(static_cast<double>(in_num))
     , m_hints(_num_is_int)
     {}
-    
+
     // assign number
     template <typename NUM, IsInteger<NUM>* = nullptr >
     json_node& operator=(const NUM in_num) noexcept
@@ -339,7 +348,7 @@ public:
         clear(number_t);
         m_num = static_cast<double>(in_num);
         m_hints = _num_is_int;
-        
+
         return *this;
     }
 
@@ -419,7 +428,7 @@ public:
 
     /// Returns the #value_type of this instance
     inline jsonland::value_type value_type() const noexcept {return m_value_type;}
-    
+
     /// Returns true if and only if the JSON value type is #null_t.
     inline bool is_null() const noexcept {return null_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #object_t.
@@ -470,11 +479,11 @@ public:
         else if constexpr (std::is_null_pointer_v<TISTYPE>) {
             return is_null();
         }
-        
+
         return false;
     }
 #endif
-    
+
     /// functions for JSON value types #object_t or array_t
 
     /// Number of elements in a object or array
@@ -504,7 +513,7 @@ public:
         }
         return capa;
     }
-    
+
     /// @brief Increase the capacity of the object or array, similiar to std::vector::reserve().
     /// Increase the capacity of the object or array (the total number of elements that the object or array can hold without requiring reallocation) to a value that's greater or equal to new_cap. If new_cap is greater than the current capacity(), new storage is allocated, otherwise the function does nothing.
     /// reserve() does not change the size of the object or array.
@@ -521,7 +530,7 @@ public:
     }
 
     /// functions for JSON value type #object_t
-    
+
     /// @brief Return the value of an object's member.
     /// @param key the key to the member
     /// @param in_default the value that will be returned in case the object does not contain #key or JSON value type is not #object_t.
@@ -555,14 +564,14 @@ public:
             else if constexpr (std::is_integral_v<TGETTYPE>) {
                 return theJ.get_int(in_default);
             }
-             else if (std::is_convertible_v<TGETTYPE, std::string_view>) {
+             else  if constexpr (std::is_convertible_v<TGETTYPE, std::string_view>) {
                 return theJ.get_string(in_default);
             }
             else if constexpr (std::is_null_pointer_v<TGETTYPE>) {
                 return nullptr;
             }
         }
-        
+
         return retVal;
     }
 
@@ -576,7 +585,7 @@ public:
         {
             retVal = m_obj_key_to_index.count(in_key);
         }
-        
+
         return retVal;
     }
 
@@ -596,13 +605,13 @@ public:
         {
             clear(object_t);
         }
-        
+
         if (JSONLAND_LIKELY(is_object()))
         {
             int index = -1;
             string_or_view key;
             key.store_value_deal_with_escapes(in_key);
-            
+
             if (0 == m_obj_key_to_index.count(key))
             {
                 index = static_cast<int>(m_values.size());
@@ -633,6 +642,60 @@ public:
             return *this;  // what to return here?
     }
 
+    /// Erase from object by key and return the number of items erased (0 or 1)
+    /// If key object does not contain the key, do nothing and return 0
+    /// If not an object, do nothing and return 0
+    size_t erase(std::string_view in_key)
+    {
+        size_t retVal{0};
+        if (JSONLAND_LIKELY(is_object()))
+        {
+            string_or_view key;
+            key.store_value_deal_with_escapes(in_key);
+            if (auto iKey = m_obj_key_to_index.find(key);
+                iKey != m_obj_key_to_index.end())
+            {
+                int index = iKey->second;
+                m_obj_key_to_index.erase(iKey);
+                m_values.erase(m_values.begin() + index);
+                retVal = 1;
+            }
+        }
+
+        return retVal;
+    }
+
+    /// Erase from array by index and return the number of items erased (0 or 1)
+    /// If key array does not contain the index, do nothing and return 0
+    /// If not an array, do nothing and return 0
+    size_t erase(size_t in_index)
+    {
+        size_t retVal{0};
+        if (JSONLAND_LIKELY(is_array()))
+        {
+            if (in_index < m_values.size()) {
+                m_values.erase(m_values.begin() + in_index);
+                retVal = 1;
+            }
+        }
+
+        return retVal;
+    }
+
+    json_node& append_array(std::string_view in_key, size_t in_reserve=0)
+    {
+        if (JSONLAND_LIKELY(is_object()))
+        {
+            json_node& retVal = this->operator[](in_key);
+            retVal = array_t;
+            retVal.reserve(in_reserve);
+
+            return retVal;
+        }
+        else
+            return *this;  // what to return here?
+    }
+
     /// @return a list of the object's keys in the order they were parsed or inserted,
     /// or empty list if #this is not an #object_t
     std::vector<std::string_view> keys()
@@ -645,27 +708,16 @@ public:
     }
 
     /// functions for JSON value type #array_t
-    
+
     json_node& push_back(const json_node& in_node) noexcept
     {
         m_values.push_back(in_node);
         return m_values.back();
     }
-    
+
     json_node& push_back(json_node&& in_node) noexcept
     {
         m_values.emplace_back(std::move(in_node));
-        return m_values.back();
-    }
-
-    template<typename TNODEVAL>
-    json_node& push_back(const TNODEVAL in_val) noexcept
-    {
-#if JSONLAND_ASSERT_TYPE_CONSISTENCY != 0
-        assert(is_array() || is_null());
-#endif
-        m_value_type = array_t;
-        m_values.emplace_back(in_val);
         return m_values.back();
     }
 
@@ -691,6 +743,32 @@ public:
             return *this;  // what to return here?
     }
 
+    json_node& append_object(size_t in_reserve=0)
+    {
+        if (JSONLAND_LIKELY(is_array()))
+        {
+            json_node& retVal = m_values.emplace_back(object_t);
+            retVal.reserve(in_reserve);
+
+            return retVal;
+        }
+        else
+            return *this;  // what to return here?
+    }
+
+    json_node& append_array(size_t in_reserve=0)
+    {
+        if (JSONLAND_LIKELY(is_array()))
+        {
+            json_node& retVal = m_values.emplace_back(array_t);
+            retVal.reserve(in_reserve);
+
+            return retVal;
+        }
+        else
+            return *this;  // what to return here?
+    }
+
     template<typename TNode>
     class iterator_template
     {
@@ -698,10 +776,10 @@ public:
         iterator_template(TNode& in_parent, const size_t in_index)
         : m_parent(in_parent)
         , m_index(in_index) {}
-        
+
         TNode& m_parent;
         size_t     m_index = 0;
-        
+
         iterator_template  operator++(int) /* postfix */         { ++m_index; return iterator_template(m_parent, m_index-1);  }
         iterator_template& operator++()    /* prefix */          { ++m_index; return *this; }
         TNode& operator* () const                    { return m_parent.m_values[m_index]; }
@@ -714,7 +792,7 @@ public:
         //json_node& key() const                    { return m_parent.m_obj_key_to_index[m_index]; }
 
     };
-    
+
     using iterator = iterator_template<json_node>;
     using const_iterator = iterator_template<const json_node>;
 
@@ -722,7 +800,7 @@ public:
     {
         return iterator(*this, 0);
     }
-    
+
     iterator end()
     {
         return iterator(*this, m_values.size());
@@ -731,7 +809,7 @@ public:
     {
         return const_iterator(*this, 0);
     }
-    
+
     const_iterator end() const
     {
         return const_iterator(*this, m_values.size());
@@ -764,10 +842,10 @@ public:
     {
         return m_value.as_string_view();
     }
-     
+
     /// @brief If JSON value type is #string_t, return the string value (without quoates). Otherwise returns the given default value.
     ///
-    ///@note This function pnly returns string value for JSON value type #string_t, To get other value types (#number_t, #bool_t, #null_t, #array_t,object_t) as string use <b>json_node::dump()</b>.
+    ///@note This function only returns string value for JSON value type #string_t, To get other value types (#number_t, #bool_t, #null_t, #array_t,object_t) as string use <b>json_node::dump()</b>.
     ///
     /// @return
     /// If JSON value type is #string_t, return the string value.
@@ -883,7 +961,7 @@ public:
         else
             return in_default_bool;
     }
-    
+
     /// @brief Return nullptr
     ///
     /// get_null() is provided for completeness with the other get_... functions such as #get_bool, #get_int, #get_float, etc
@@ -946,7 +1024,7 @@ public:
         else if constexpr (std::is_null_pointer_v<TASTYPE>) {
             return nullptr;
         }
-        
+
         return in_default;
     }
 
@@ -957,7 +1035,7 @@ public:
     }
 
 private:
-    
+
     KeyToIndex& get_key_to_index_map() noexcept
     {
         return m_obj_key_to_index;
@@ -972,7 +1050,7 @@ protected:
         m_value_type = in_type;
         m_value = std::move(in_str);
     }
-    
+
     inline void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
@@ -985,7 +1063,7 @@ protected:
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
     }
-    
+
 private:
     // null, bool, and string are all represented in m_str_view, even when new value is assigned programatically.
     // the only place where there could be a value without string representation is when a number value is assigned
@@ -1004,17 +1082,17 @@ const char* value_type_name(jsonland::value_type in_type);
 class json_doc : public json_node
 {
 public:
-    
+
     inline explicit json_doc(jsonland::value_type in_type) noexcept :  json_node(in_type) {}
     json_doc() = default;
     ~json_doc() = default;
-    
+
     inline json_doc& operator=(jsonland::value_type in_type)
     {
         json_node::operator=(in_type);
         return *this;
     }
-    
+
     friend class jsonland::parser_impl::Parser;
 
 
@@ -1035,7 +1113,7 @@ public:
     std::string parse_error_message() { return m_parse_error_message; }
     size_t byte_position() { return 0; }   // todo return the byte position where error was discovered
     size_t memory_consumption();
-    
+
     void clear();
 
 private:

@@ -240,3 +240,33 @@ TEST(TestAssign, move_assign_object)
     EXPECT_TRUE(moved_j["5th"]["sub1"].is_string());
     EXPECT_TRUE(moved_j["5th"]["sub2"].is_number());
 }
+
+TEST(TestAssign, mixed_types)
+{
+    jsonland::json_node obj(jsonland::object_t);
+    obj["1"] = 1;
+    
+    jsonland::json_node arr1(jsonland::array_t);
+    arr1.push_back(1);
+    arr1.push_back(2);
+    
+    obj["2"] = arr1;
+    EXPECT_EQ(obj["1"], 1);
+    EXPECT_TRUE(obj["2"].is_array());
+    EXPECT_EQ(obj["2"].num_elements(), 2);
+    EXPECT_EQ(obj["2"][0], 1);
+    EXPECT_EQ(obj["2"][1], 2);
+    
+    jsonland::json_node arr2(jsonland::array_t);
+    arr2.push_back(3);
+    arr2.push_back(4);
+    arr2.push_back(5);
+    obj["3"] = std::move(arr2);
+}
+
+TEST(TestAssign, rvalue)
+{
+    jsonland::json_node arr1(jsonland::array_t);
+    std::string_view sv("sv");
+    arr1.push_back(sv);
+}

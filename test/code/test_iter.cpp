@@ -23,9 +23,9 @@ TEST(TestIter, obj)
     for (auto& s : numbers) {
         jn[s] = s;
     }
-    EXPECT_EQ(numbers[0], jn[numbers[0]]);
-    EXPECT_EQ(numbers[1], jn[numbers[1]]);
-    EXPECT_EQ(numbers[2], jn[numbers[2]]);
+    EXPECT_EQ(numbers[0], jn[numbers[0]].get_string());
+    EXPECT_EQ(numbers[1], jn[numbers[1]].get_string());
+    EXPECT_EQ(numbers[2], jn[numbers[2]].get_string());
 
     for (auto& iter : jn)
     {
