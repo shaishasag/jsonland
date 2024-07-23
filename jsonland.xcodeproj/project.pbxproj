@@ -12,6 +12,7 @@
 		F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
+		F631F1C32C4FD591007C3C95 /* create_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F631F1C22C4FD591007C3C95 /* create_json.cpp */; };
 		F648C9B52B3AEE550061D302 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F648C9BC2B3AEE8C0061D302 /* behaviours_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */; };
 		F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */; };
@@ -121,6 +122,7 @@
 		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
+		F631F1C22C4FD591007C3C95 /* create_json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = create_json.cpp; path = test/code/create_json.cpp; sourceTree = "<group>"; };
 		F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonBenchmarker.h; path = code/JsonBenchmarker.h; sourceTree = "<group>"; };
 		F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonlandBenchMarker.h; path = code/JsonlandBenchMarker.h; sourceTree = "<group>"; };
 		F641F9A32B124C0400C6E7AF /* RapidjsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RapidjsonBenchmarker.h; path = code/RapidjsonBenchmarker.h; sourceTree = "<group>"; };
@@ -133,7 +135,7 @@
 		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6507AF72C2EF19A001A3B94 /* fstringstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fstringstream.h; path = ../fstring/fstringstream.h; sourceTree = "<group>"; };
 		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
-		F6625B7E2C2C607B00C66A2A /* json_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_creator.h; path = ../fstring/json_creator.h; sourceTree = SOURCE_ROOT; };
+		F6625B7E2C2C607B00C66A2A /* json_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_creator.h; path = jsonland/json_creator.h; sourceTree = SOURCE_ROOT; };
 		F66782582B39CFF2003C59F8 /* ArduinoJsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArduinoJsonBenchmarker.h; sourceTree = "<group>"; };
 		F667825A2B39D1CF003C59F8 /* ArduinoJson */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ArduinoJson; sourceTree = "<group>"; };
 		F674D58B2B27005300C47E9A /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = examples; sourceTree = "<group>"; };
@@ -143,7 +145,7 @@
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6A7062F2B99D1B70024E0B4 /* examples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = examples.cpp; path = examples/examples.cpp; sourceTree = "<group>"; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
-		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = ../fstring/json_creator.cpp; sourceTree = SOURCE_ROOT; };
+		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
 		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = parse_timing_main.cpp; path = ../benchmark/code/parse_timing_main.cpp; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 		F64C7EE426D7921C006E4F12 /* test */ = {
 			isa = PBXGroup;
 			children = (
+				F631F1C22C4FD591007C3C95 /* create_json.cpp */,
 				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
 				F611015926CD66F600A01C16 /* create_json_gtests.cpp */,
 				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
@@ -525,6 +528,7 @@
 				F6AA89A92C2CA11100D5ED6E /* json_creator.cpp in Sources */,
 				F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */,
 				F6FB299B2B28CC3D005D1D23 /* test_get_value.cpp in Sources */,
+				F631F1C32C4FD591007C3C95 /* create_json.cpp in Sources */,
 				F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -744,13 +748,13 @@
 				ONLY_ACTIVE_ARCH = YES;
 				RAPIDJSON_HAS_STDSTRING = 1;
 				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
 					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../fstring",
 				);
 			};
 			name = Debug;
@@ -814,13 +818,13 @@
 				ONLY_ACTIVE_ARCH = YES;
 				RAPIDJSON_HAS_STDSTRING = 1;
 				SDKROOT = macosx;
+				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
 					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../fstring",
 				);
 			};
 			name = Release;

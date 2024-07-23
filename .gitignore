@@ -1,8 +1,13 @@
 .DS_Store
+.vs
+*.out.json
+*.vcxproj.user
+Debug
+fmt
+googletest
+OptimizationProfiles
 project.xcworkspace
+Release
+x64
 xcshareddata
 xcuserdata
-googletest
-*.out.json
-xcshareddata
-OptimizationProfiles
