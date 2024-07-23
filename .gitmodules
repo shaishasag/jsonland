@@ -1,0 +1,3 @@
+[submodule "fstring"]
+	path = fstring
+	url = https://github.com/shaishasag/fstring.git
