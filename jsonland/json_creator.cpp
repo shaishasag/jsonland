@@ -1,4 +1,4 @@
-#include "json_creator.h"
+#include "jsonland/json_creator.h"
 
 
 namespace jsonland
@@ -43,7 +43,7 @@ void sub_object_json_creator<TStr>::prepare_for_additional_value(const std::stri
         this->m_json_str += ___object_whitespace_after_comma;
     }
     ++this->m_num_subs;
-    
+
     this->m_json_str += '"';
     internal::copy_and_escape(in_key, this->m_json_str);
     this->m_json_str += internal::_KEY_VAL_SEP;
@@ -56,7 +56,7 @@ sub_object_json_creator<TStr> sub_object_json_creator<TStr>::append_object(std::
     prepare_for_additional_value(in_key);
     sub_object_json_creator<TStr> retVal(this->m_json_str,
                                          (this->m_level)+1);
-    
+
     return retVal;
 }
 
@@ -67,7 +67,7 @@ sub_array_json_creator<TStr> sub_object_json_creator<TStr>::append_array(std::st
     prepare_for_additional_value(in_key);
     sub_array_json_creator<TStr> retVal(this->m_json_str,
                                         (this->m_level)+1);
-    
+
     return retVal;
 }
 
@@ -95,7 +95,7 @@ void sub_object_json_creator<TStr>::prepend_json_str(const std::string_view in_k
         num_additional_chars += ___object_whitespace_after_comma.size();
     }
     this->m_json_str.insert(1, num_additional_chars, '*');
-    
+
     size_t replacement_location{1};
     this->m_json_str[replacement_location] = '"';
     ++replacement_location;
@@ -103,17 +103,17 @@ void sub_object_json_creator<TStr>::prepend_json_str(const std::string_view in_k
                              in_key.size(),
                              in_key);
     replacement_location += in_key.size();
-    
+
     this->m_json_str.replace(replacement_location,
                              internal::_KEY_VAL_SEP.size(),
                              internal::_KEY_VAL_SEP);
     replacement_location += internal::_KEY_VAL_SEP.size();
-    
+
     this->m_json_str.replace(replacement_location,
                              in_value.size(),
                              in_value);
     replacement_location += in_value.size();
-    
+
     if (0 < this->m_num_subs) {  // not first, need to add ','
         this->m_json_str.replace(replacement_location,
                                  internal::_COMMA.size(),
@@ -156,7 +156,7 @@ void sub_object_json_creator<TStr>::prepend_values_from(const sub_object_json_cr
             num_additional_chars += ___object_whitespace_after_comma.size();
         }
         this->m_json_str.insert(1, num_additional_chars, '*');
-        
+
         size_t replacement_location{1};
         this->m_json_str.replace(replacement_location,
                                  values_to_merge.size(),
@@ -192,7 +192,7 @@ sub_array_json_creator<TStr> sub_array_json_creator<TStr>::append_array()
     prepare_for_additional_value();
     sub_array_json_creator retVal(this->m_json_str,
                                   base_json_creator<TStr>::m_level+1);
-    
+
     return retVal;
 }
 
@@ -203,7 +203,7 @@ sub_object_json_creator<TStr> sub_array_json_creator<TStr>::append_object()
     prepare_for_additional_value();
     sub_object_json_creator<TStr> retVal(this->m_json_str,
                                          (this->m_level)+1);
-    
+
     return retVal;
 }
 
@@ -226,14 +226,14 @@ void sub_array_json_creator<TStr>::prepend_json_str(const std::string_view in_va
         num_additional_chars += ___array_whitespace_after_comma.size();
     }
     this->m_json_str.insert(1, num_additional_chars, '*');
-    
+
     size_t replacement_location{1};
-    
+
     this->m_json_str.replace(replacement_location,
                              in_value.size(),
                              in_value);
     replacement_location += in_value.size();
-    
+
     if (0 < this->m_num_subs) {  // not first, need to add ','
         this->m_json_str.replace(replacement_location,
                                  internal::_COMMA.size(),
@@ -284,7 +284,7 @@ void sub_array_json_creator<TStr>::prepend_values_from(const sub_array_json_crea
             num_additional_chars += ___array_whitespace_after_comma.size();
         }
         this->m_json_str.insert(1, num_additional_chars, '*');
-        
+
         size_t replacement_location{1};
         this->m_json_str.replace(replacement_location,
                                  values_to_merge.size(),
@@ -304,12 +304,13 @@ void sub_array_json_creator<TStr>::prepend_values_from(const sub_array_json_crea
 }
 } //namespace internal
 
-template class DllExport internal::base_json_creator<fixed::fstring_ref>;
-template class DllExport internal::sub_object_json_creator<fixed::fstring_ref>;
-template class DllExport internal::sub_array_json_creator<fixed::fstring_ref>;
-
-template class DllExport internal::base_json_creator<std::string&>;
-template class DllExport internal::sub_object_json_creator<std::string&>;
-template class DllExport internal::sub_array_json_creator<std::string&>;
-
 }
+
+
+template class DllExport jsonland::internal::base_json_creator<fixed::fstring_ref>;
+template class DllExport jsonland::internal::sub_object_json_creator<fixed::fstring_ref>;
+template class DllExport jsonland::internal::sub_array_json_creator<fixed::fstring_ref>;
+
+template class DllExport jsonland::internal::base_json_creator<std::string&>;
+template class DllExport jsonland::internal::sub_object_json_creator<std::string&>;
+template class DllExport jsonland::internal::sub_array_json_creator<std::string&>;

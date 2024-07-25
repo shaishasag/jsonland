@@ -11,7 +11,7 @@
 #include "fstring/fstringstream.h"
 
 /* Copy to include
-#include "json_creator.h"
+#include "jsonland/json_creator.h"
 */
 
 
@@ -108,47 +108,47 @@ class DllExport base_json_creator
 {
     template<typename> // yes, a templated class has to be a friend of itself in order to access protected memebers
     friend class base_json_creator;
-    
+
 private:
     static const size_t t_max_levels{15};
-    
+
 protected:
-    
+
     // for use by sub-classes that provide their own fstring member
     class PreventAmbiguityOnConstructorCalls{}; // dummy class to help compiler to mark construction from inheriting classes object_json_creator, array_json_creator
-    
+
     base_json_creator(TStr& in_json_str, PreventAmbiguityOnConstructorCalls) noexcept
     : m_json_str(in_json_str)
     {}
-    
+
     base_json_creator(TStr& in_json_str, size_t start_level)  noexcept
     : m_json_str(in_json_str)
     , m_level(start_level)
     {}
-    
+
     TStr m_json_str;
-    
+
     size_t m_num_subs{0};
     size_t m_level{0};
-    
+
     std::string_view save_end();
     void restore_end(std::string_view in_end);
-    
+
     class DllExport save_restore_end
     {
     public:
         save_restore_end(base_json_creator<TStr>& to_save) noexcept;
         ~save_restore_end();
-        
+
     private:
         base_json_creator<TStr>& m_creator_to_save;
         std::string_view m_saved_end_chars;
-        
+
         char m_save_buf[t_max_levels+1];
     };
-    
+
 public:
-    
+
     void reserve( size_t new_cap )
     {
         if constexpr (std::is_same_v<std::string, std::decay_t<TStr>>)
@@ -160,8 +160,8 @@ public:
             //assert(new_cap <= m_json_str.capacity());
         }
     }
-    
-    
+
+
     [[nodiscard]] size_t size() const { return m_json_str.size(); }
     [[nodiscard]] size_t capacity() const { return m_json_str.capacity(); }
     [[nodiscard]] size_t max_size() const { return m_json_str.max_size(); }
@@ -177,24 +177,24 @@ class DllExport sub_object_json_creator : public base_json_creator<TStr>
 {
     using target_str_t = TStr;
     using base_creator_t = base_json_creator<TStr>;
-    
+
     template<typename>
     friend class sub_array_json_creator;
-    
+
 protected:
     using base_type = base_json_creator<TStr>;
-    
+
     constexpr static inline std::string_view empty_json_object{"{}"};
-    
+
     void prepare_for_additional_value(const std::string_view in_key);
-    
+
     // this constructor should only be called from object_json_creator::append_object or array_json_creator::append_object
     sub_object_json_creator(TStr& the_str, size_t start_level) noexcept
     : base_type(the_str, start_level)
     {
         this->m_json_str += empty_json_object;
     }
-    
+
     // this constructor should only be called from object_json_creator::object_json_creator
     // the purpose of this constructor is to avoid using m_json_fstring_ref before it was intialized
     // by object_json_creator
@@ -203,23 +203,23 @@ protected:
                             typename base_type::PreventAmbiguityOnConstructorCalls in_unambig) noexcept
     : base_type(in_fstr_to_refer_to, in_unambig)
     {}
-    
+
 public:
-    
+
     [[nodiscard]] sub_object_json_creator append_object(std::string_view in_key);
     [[nodiscard]] sub_array_json_creator<TStr> append_array(std::string_view in_key);
-    
+
     // add a value that is already formated as json to the end of the object
     // useful in case you have a string containing a number and you want to
     // append it as number (i.e. without quotes).
     void append_json_str(const std::string_view in_key, const std::string_view in_value);
-    
+
     // add a value that is already formated as json to the begening of the object
     // Warning: less efficient than append_json_str!
     void prepend_json_str(const std::string_view in_key, const std::string_view in_value);
-    
+
     void append_value() {}
-    
+
     template <typename TValue>
     void append_value(const std::string_view in_key, const TValue& in_value)
     {
@@ -227,20 +227,20 @@ public:
         prepare_for_additional_value(in_key);
         internal::write_value(in_value, this->m_json_str);
     }
-    
+
     void append_value(const std::string_view in_key, const char* in_value)
     {
         std::string_view as_sv(in_value);
         append_value<std::string_view>(in_key, as_sv);
     }
-    
+
     template<typename TValue, typename... Args>
     void append_value(std::string_view in_key, const TValue& in_value, Args&&... args)
     {
         append_value(in_key, in_value);
         append_value(std::forward<Args>(args)...);
     }
-    
+
     template<typename TContainer>
     void extend(const TContainer& in_val_key_container)
     {
@@ -249,12 +249,37 @@ public:
             append_value(std::string_view(name), value);
         }
     }
-    
+
     void append_values_from(const sub_object_json_creator& in_to_merge_from);
     void prepend_values_from(const sub_object_json_creator& in_to_merge_from);
-    
+
     [[nodiscard]] bool empty() const { return this->m_json_str[1] == empty_json_object[1]; }
     void clear() { this->m_json_str = empty_json_object; this->m_num_subs = 0; }
+
+
+    class DllExport operator_square_brackets_helper
+    {
+        friend class sub_object_json_creator;
+    private:
+        sub_object_json_creator& m_creator;
+        std::string_view m_key;
+    protected:
+        operator_square_brackets_helper(sub_object_json_creator& in_creator,
+                                        std::string_view in_key)
+        : m_creator(in_creator)
+        , m_key(in_key) {}
+    public:
+        template <typename TValue>
+        void operator=(const TValue& in_value)
+        {
+            m_creator.append_value(m_key, in_value);
+        }
+    };
+
+    operator_square_brackets_helper operator[](std::string_view in_key)
+    {
+        return operator_square_brackets_helper(*this, in_key);
+    }
 };
 
 
@@ -264,20 +289,20 @@ class DllExport sub_array_json_creator : public base_json_creator<TStr>
 {
     template<typename>
     friend class sub_object_json_creator;
-    
+
 protected:
     using base_type = base_json_creator<TStr>;
-    
+
     constexpr static inline std::string_view empty_json_array{"[]"};
-    
+
     void prepare_for_additional_value();
-    
+
     sub_array_json_creator(TStr& the_str, size_t start_level) noexcept
     : base_type(the_str, start_level)
     {
         this->m_json_str += empty_json_array;
     }
-    
+
     // this constructor should only be called from object_json_creator::object_json_creator
     // the purpose of this constructor is to avoid using m_json_fstring_ref before it was intialized
     // by object_json_creator
@@ -286,22 +311,22 @@ protected:
                            typename base_json_creator<TStr>::PreventAmbiguityOnConstructorCalls in_unambig) noexcept
     : base_type(in_fstr_to_refer_to, in_unambig)
     {}
-    
+
 public:
-    
+
     [[nodiscard]] sub_array_json_creator append_array();
     [[nodiscard]] sub_object_json_creator<TStr> append_object();
-    
+
     // add a value that is already formated as json
     void append_json_str(const std::string_view in_value);
-    
+
     // add a value that is already formated as json to the begening of the array
     // Warning: less efficient than append_json_str!
     void prepend_json_str(const std::string_view in_value);
-    
+
     void append_value() {}
     void append_value(const char* in_value);
-    
+
     template <typename TValue>
     void append_value(const TValue& in_value)
     {
@@ -309,14 +334,14 @@ public:
         prepare_for_additional_value();
         internal::write_value(in_value, this->m_json_str);
     }
-    
+
     template<typename TValue, typename... Args>
     void append_value(const TValue& in_value, Args&&... args)
     {
         append_value(in_value);
         append_value(std::forward<Args>(args)...);
     }
-    
+
     template<typename TContainer>
     void extend(const TContainer& in_values_container)
     {
@@ -325,10 +350,10 @@ public:
             append_value(value);
         }
     }
-    
+
     void append_values_from(const sub_array_json_creator& in_to_merge_from);
     void prepend_values_from(const sub_array_json_creator& in_to_merge_from);
-    
+
     [[nodiscard]] bool empty() const { return this->m_json_str[1] == empty_json_array[1]; }
     void clear()
     {
@@ -351,7 +376,7 @@ public:
     : sub_object_json_creator_t(m_fstr,
                                 base_json_creator<fixed::fstring_ref>::PreventAmbiguityOnConstructorCalls())
     {}
-    
+
 protected:
     fixed::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_object};
 };
@@ -364,7 +389,7 @@ public:
     : sub_array_json_creator_t(fixed::fstring_ref(m_fstr),
                                base_json_creator<fixed::fstring_ref>::PreventAmbiguityOnConstructorCalls())
     {}
-    
+
 protected:
     fixed::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_array};
 };
@@ -393,7 +418,7 @@ public:
     : sub_object_json_creator_t(m_fstr,
                                 base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
     {}
-    
+
 protected:
     std::string m_fstr{empty_json_object};
 };
@@ -405,7 +430,7 @@ public:
     : sub_array_json_creator_t(m_fstr,
                                base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
     {}
-    
+
 protected:
     std::string m_fstr{empty_json_array};
 };

@@ -399,3 +399,20 @@ TYPED_TEST(CreateJsonTemplatedTest, escape_from_object)
     EXPECT_EQ(nj[a_newline].get<std::string_view>(), "newline");
     EXPECT_EQ(nj[a_bell].get<std::string_view>(), "bell");
 }
+
+TYPED_TEST(CreateJsonTemplatedTest, square_brackets)
+{
+    using obj_creator_t = typename TypeParam::first_type;
+    using arr_creator_t = typename TypeParam::second_type;
+    
+    
+    obj_creator_t joc1;
+    joc1["Amii"] = "Stewart";
+    joc1["year"] = 1956;
+    joc1["mark"] = 10.0;
+    joc1["good"] = true;
+    joc1["bad"] = false;
+    joc1["where"] = nullptr;
+    
+    EXPECT_STREQ(joc1.c_str(), R"({"Amii": "Stewart", "year": 1956, "mark": 10.0, "good": true, "bad": false, "where": null})");
+}
