@@ -13,29 +13,29 @@ size_t string_or_view::num_allocations{0};
 
 inline bool is_white_space_not_new_line(const char in_c)
 {
-    return ' ' == in_c  or '\r' == in_c or '\t' == in_c;
+    return ' ' == in_c  || '\r' == in_c || '\t' == in_c;
 }
 
 inline bool is_whitespace(const char in_c)
 {
-    return is_white_space_not_new_line(in_c) or '\n' == in_c;
+    return is_white_space_not_new_line(in_c) || '\n' == in_c;
 }
 
 inline bool is_digit(const char in_c)
 {
-    const bool retVal = ('0' <= in_c and '9' >= in_c);
+    const bool retVal = ('0' <= in_c && '9' >= in_c);
     return retVal;
 }
 
 inline bool is_hex_digit(const char in_c)
 {
-    const bool retVal = is_digit(in_c) or ('a' <= in_c and 'f' >= in_c) or ('A' <= in_c and 'F' >= in_c);
+    const bool retVal = is_digit(in_c) || ('a' <= in_c && 'f' >= in_c) || ('A' <= in_c && 'F' >= in_c);
     return retVal;
 }
 
 inline bool is_num_char(const char in_c)
 {
-    const bool retVal = ('0' <= in_c and '9' >= in_c) or '.' == in_c or '-' == in_c or '+' == in_c or 'e' == in_c or 'E' == in_c;
+    const bool retVal = ('0' <= in_c && '9' >= in_c) || '.' == in_c || '-' == in_c || '+' == in_c || 'e' == in_c || 'E' == in_c;
     return retVal;
 }
 
@@ -47,24 +47,24 @@ inline bool is_illegal_string_char(const char in_c)
 
 inline bool is_escapable_char(const char in_c)
 {
-    const bool retVal = '\\' == in_c or
-                        '/' == in_c or
-                        '"' == in_c or
-                        'b' == in_c or
-                        'f' == in_c or
-                        'n' == in_c or
-                        'r' == in_c or
-                        't' == in_c or
+    const bool retVal = '\\' == in_c ||
+                        '/' == in_c ||
+                        '"' == in_c ||
+                        'b' == in_c ||
+                        'f' == in_c ||
+                        'n' == in_c ||
+                        'r' == in_c ||
+                        't' == in_c ||
                         'u' == in_c;
     return retVal;
 }
 
 inline bool is_a_char_that_must_be_escaped(const char in_c)
 {
-    const bool retVal = '\b' == in_c or
-                        '\f' == in_c or
-                        '\n' == in_c or
-                        '\r' == in_c or
+    const bool retVal = '\b' == in_c ||
+                        '\f' == in_c ||
+                        '\n' == in_c ||
+                        '\r' == in_c ||
                         '\t' == in_c;
     return retVal;
 }
@@ -155,7 +155,7 @@ void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noex
 {
     m_num_escapes = 0;
     std::string temp_str;
-    temp_str.reserve(in_str.size()*1.1);
+    temp_str.reserve(static_cast<size_t>(static_cast<double>(in_str.size())*1.1));
 
     for (char curr : in_str)
     {
@@ -488,7 +488,7 @@ namespace parser_impl
             return *++m_curr_char;
         }
 
-        inline char next_chars(const ssize_t in_num_chars_to_skip)
+        inline char next_chars(const size_t in_num_chars_to_skip)
         {
             m_curr_char += in_num_chars_to_skip;
             return *m_curr_char;
@@ -504,7 +504,7 @@ namespace parser_impl
             return m_curr_char < m_end;
         }
 
-        inline ssize_t num_remaining_chars()
+        inline size_t num_remaining_chars()
         {
            return m_end - m_curr_char;
         }
@@ -669,7 +669,7 @@ namespace parser_impl
                 curr_char = next_char();
                 if ('.' == curr_char)
                     goto after_decimal_point;
-                else if ('e' == curr_char or 'E' == curr_char)
+                else if ('e' == curr_char || 'E' == curr_char)
                     goto after_exponent;
                 else if (isdigit(curr_char))
                 {
@@ -684,7 +684,7 @@ namespace parser_impl
 
                 if ('.' == curr_char)
                     goto after_decimal_point;
-                else if ('e' == curr_char or 'E' == curr_char)
+                else if ('e' == curr_char || 'E' == curr_char)
                     goto after_exponent;
                 else
                     goto scan_number_done;
@@ -707,7 +707,7 @@ after_decimal_point:
                 throw parsing_exception(message.c_str(), curr_offset());
             }
             while (isdigit(curr_char = next_char())) ;
-            if ('e' == curr_char or 'E' == curr_char)
+            if ('e' == curr_char || 'E' == curr_char)
                 goto after_exponent;
             else
                 goto scan_number_done;
@@ -716,7 +716,7 @@ after_exponent:
             num_is_int = false;
             // after 'e' or 'E'
             curr_char = next_char();
-            if ('-' == curr_char or '+' == curr_char)
+            if ('-' == curr_char || '+' == curr_char)
                 curr_char = next_char();
 
             if (isdigit(curr_char)) {
@@ -771,7 +771,7 @@ scan_number_done:
                 break;
             }
 
-            if (JSONLAND_UNLIKELY(num_remaining_chars() < static_cast<ssize_t>(out_node.as_string_view().size())))
+            if (JSONLAND_UNLIKELY(num_remaining_chars() < static_cast<size_t>(out_node.as_string_view().size())))
             {
                 std::string message = "not enough characters to form '";
                 message += out_node.as_string_view();
@@ -806,7 +806,7 @@ scan_number_done:
         bool skip_one_char(json_node&)
         {
             throw parsing_exception("json syntax error: unexpected character", curr_offset());
-            return false;
+           // return false;
         }
 
         bool skip_new_line(json_node&)
@@ -1114,37 +1114,37 @@ void json_doc::clear()
     m_parse_error_message.clear();
 }
 
-bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_node& rhs)
+bool json_node::operator==(const jsonland::json_node& other) const
 {
     bool retVal = false;
 
-    if (lhs.m_value_type == rhs.m_value_type)
+    if (other.m_value_type == m_value_type)
     {
-        switch(lhs.m_value_type)
+        switch(other.m_value_type)
         {
             case jsonland::value_type::object_t:
-                retVal = lhs.m_values == rhs.m_values;
+                retVal = other.m_values == m_values;
             break;
             case jsonland::value_type::array_t:
-                retVal = lhs.m_values == rhs.m_values;
+                retVal = other.m_values == m_values;
             break;
             case jsonland::value_type::number_t:
                 // comparing two number in text representation creates a dilema:
                 // what if the text representation is different but the actual number are the same?
                 // e.g. "1.000000000000000011", "1.000000000000000012"
                 // Answer: if both numbers are text - compare the text, otherwise compare m_num
-                if (lhs.is_num_in_string() && rhs.is_num_in_string())
-                    retVal = lhs.m_value == rhs.m_value;
+                if (other.is_num_in_string() && is_num_in_string())
+                    retVal = other.m_value == m_value;
                 else
                 {
-                    double my_num = lhs.get_float<double>();
-                    double other_num = rhs.get_float<double>();
+                    double my_num = other.get_float<double>();
+                    double other_num = get_float<double>();
                     retVal = my_num == other_num;
                 }
             break;
             case jsonland::value_type::string_t:
             case jsonland::value_type::bool_t:
-                retVal = lhs.m_value == rhs.m_value;
+                retVal = other.m_value == m_value;
             break;
             case jsonland::value_type::null_t:
             default:
@@ -1156,9 +1156,9 @@ bool jsonland::operator==(const jsonland::json_node& lhs, const jsonland::json_n
     return retVal;
 }
 
-bool jsonland::operator!=(const jsonland::json_node& lhs, const jsonland::json_node& rhs)
+bool json_node::operator!=(const jsonland::json_node& other) const
 {
-    return !(lhs == rhs);
+    return !(other == *this);
 }
 
 std::ostream& jsonland::operator<<(std::ostream& os, const jsonland::json_node& jn)

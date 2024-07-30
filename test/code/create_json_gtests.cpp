@@ -119,40 +119,40 @@ TEST(TestGetValue, bool_value)
     
     EXPECT_FALSE(json_node().get_bool())
                 << "json_node().get_bool() should return " << "false";
-    EXPECT_FALSE(json_node().get_as<bool>())
+    EXPECT_FALSE(json_node().get<bool>())
                 << "json_node().get_bool() should return " << "false";
     EXPECT_TRUE(json_node().get_bool(true))
                 << "json_node().get_bool(true) should return " << "true";
-    EXPECT_TRUE(json_node().get_as<bool>(true))
+    EXPECT_TRUE(json_node().get<bool>(true))
                 << "json_node().get_bool(true) should return " << "true";
 
     EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_bool())
                 << "json_node(jsonland::value_type::_bool).get_bool() should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_as<bool>())
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get<bool>())
                 << "json_node(jsonland::value_type::_bool).get_bool() should return " << "false";
     EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_bool(true))
                 << "json_node(jsonland::value_type::_bool).get_bool(true) should return " << "false";
-    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get_as<bool>(true))
+    EXPECT_FALSE(json_node(jsonland::value_type::bool_t).get<bool>(true))
                 << "json_node(jsonland::value_type::_bool).get_bool(true) should return " << "false";
 
     EXPECT_FALSE(json_node(false).get_bool())
                 << "json_node(" << "false" << ").get_bool() should return " << "false";
-    EXPECT_FALSE(json_node(false).get_as<bool>())
+    EXPECT_FALSE(json_node(false).get<bool>())
                 << "json_node(" << "false" << ").get_bool() should return " << "false";
     
     EXPECT_TRUE(json_node(true).get_bool())
                 << "json_node(" << "true" << ").get_bool() should return " << "true";
-    EXPECT_TRUE(json_node(true).get_as<bool>())
+    EXPECT_TRUE(json_node(true).get<bool>())
                 << "json_node(" << "true" << ").get_bool() should return " << "true";
     
     EXPECT_FALSE(json_node(false).get_bool(true))
                 << "json_node(" << "false" << ").get_bool(true) should return " << "false";
-    EXPECT_FALSE(json_node(false).get_as<bool>(true))
+    EXPECT_FALSE(json_node(false).get<bool>(true))
                 << "json_node(" << "false" << ").get_bool(true) should return " << "false";
     
     EXPECT_TRUE(json_node(true).get_bool(false))
                 << "json_node(" << "true" << ").get_bool(false) should return " << "true";
-    EXPECT_TRUE(json_node(true).get_as<bool>(false))
+    EXPECT_TRUE(json_node(true).get<bool>(false))
                 << "json_node(" << "true" << ").get_bool(false) should return " << "true";
 }
 
@@ -172,14 +172,14 @@ TEST(TestGetValue, integer_value)
     
     EXPECT_EQ(json_node(int_num).get_string("babushka"), "babushka")
                 << "json_node(" << int_num << R"(.get_string("babushka"))" << " should return " << R"("babushka")";
-    EXPECT_EQ(json_node(int_num).get_as<std::string_view>("babushka"), "babushka")
+    EXPECT_EQ(json_node(int_num).get<std::string_view>("babushka"), "babushka")
                 << "json_node(" << int_num << R"(.get_string("babushka"))" << " should return " << R"("babushka")";
 
     EXPECT_EQ(json_node("babushka").get_int<int>(), 0);
-    EXPECT_EQ(json_node("babushka").get_as<int>(), 0);
+    EXPECT_EQ(json_node("babushka").get<int>(), 0);
 
     EXPECT_EQ(json_node("babushka").get_int(190888), 190888);
-    EXPECT_EQ(json_node("babushka").get_as<int>(190888), 190888);
+    EXPECT_EQ(json_node("babushka").get<int>(190888), 190888);
 
 }
 

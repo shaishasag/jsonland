@@ -1,6 +1,7 @@
 #ifndef __jsonland_json_node_h__
 #define __jsonland_json_node_h__
 
+#include <cassert>
 #include <vector>
 #include <unordered_map>
 #include <string_view>
@@ -13,6 +14,10 @@
 /* Copy to #include
 #include "jsonland/json_node.h"
 */
+
+#ifndef DllExport
+    #define DllExport
+#endif
 
 #ifndef JSONLAND_LIKELY
 #if defined(__GNUC__) || defined(__clang__)
@@ -63,7 +68,7 @@ enum value_type : uint32_t
 
 namespace parser_impl { class Parser; }
 
-class json_node
+class DllExport json_node
 {
 public:
 
@@ -77,13 +82,14 @@ public:
     /// @param[in] lhs the first #json_node to compare.
     /// @param[in] rhs the second #json_node to compare.
     /// @return true if the two given #json_node's values are identical, i.e. both have same JSON value type and same value. <br> return false otherwise.
-    friend bool operator==(const json_node& lhs, const json_node& rhs);
+    /// Note: converted to member function because VisualStudio C++20 does not recognize friend operator==
+    bool operator==(const json_node& other) const;
 
     /// Decide if two #json_node object are not equal.
     /// @param[in] lhs the first #json_node to compare.
     /// @param[in] rhs the second #json_node to compare.
     /// @return false if the two given #json_node's are identical, true otherwise
-    friend bool operator!=(const json_node& lhs, const json_node& rhs);
+    bool operator!=(const json_node& other) const;
 
     // class string_or_view is a helper class that stores a string as either
     // - a reference to external memory (in member of type std::string_view)
@@ -166,17 +172,17 @@ private:
 public:
     /// Default constructor.
     /// JSON value type (#m_value_type) is set to #null_t.
-    json_node() noexcept = default;
+    json_node() = default;
     /// Default destructor.
     ~json_node() = default;
 
     /// Copy constructor
     /// @param in_node the #json_node to copy
-    json_node(const json_node& in_node) noexcept = default;
+    json_node(const json_node& in_node) = default;
 
     /// Move constructor
     /// @param in_node the #json_node to move
-    json_node(json_node&& in_node) noexcept = default;
+    json_node(json_node&& in_node) = default;
 
     /// Copy assignment
     /// @param in_node the #json_node to copy
@@ -781,7 +787,7 @@ public:
     }
 
     template<typename TNode>
-    class iterator_template
+    class DllExport iterator_template
     {
     public:
         iterator_template(TNode& in_parent, const size_t in_index)
@@ -905,7 +911,7 @@ public:
     template<typename TFLOAT, IsFloat<TFLOAT>* = nullptr>
     TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
     {
-        double retVal = in_default_fp;
+        TFLOAT retVal = in_default_fp;
         if (JSONLAND_LIKELY(is_number()))
         {
             if (m_hints & json_node::_num_in_string)
@@ -1007,13 +1013,13 @@ public:
     /// <br>Example:
     /// @code
     /// jsonland::json_node number_node{123.456};
-    /// int f1 = number_node.get_as<int>();   // f1 == 123
-    /// float f2 = number_node.get_as<float>();   // f2 == 123.456
-    /// bool f3 = number_node.get_as<bool>();   // f3 == false
+    /// int f1 = number_node.get<int>();   // f1 == 123
+    /// float f2 = number_node.get<float>();   // f2 == 123.456
+    /// bool f3 = number_node.get<bool>();   // f3 == false
     /// @endcode
 
     template<typename TASTYPE>
-    TASTYPE get_as(const TASTYPE in_default={}) noexcept
+    TASTYPE get(const TASTYPE in_default={}) const noexcept
     {
         if constexpr (std::is_same<bool, TASTYPE>::value) {
             return get_bool(in_default);
@@ -1024,19 +1030,18 @@ public:
         else if constexpr (std::is_integral_v<TASTYPE>) {
             return get_int<TASTYPE>(in_default);
         }
-        else if (std::is_convertible_v<TASTYPE, std::string_view>) {
+        else if constexpr (std::is_convertible_v<TASTYPE, std::string_view>) {
 
             TASTYPE retVal = static_cast<TASTYPE>(get_string(in_default));
             return retVal;
         }
-//        else if (std::is_same<std::string_view, TASTYPE>::value) {
-//            return get_string(in_default);
-//        }
         else if constexpr (std::is_null_pointer_v<TASTYPE>) {
             return nullptr;
         }
-
-        return in_default;
+        else {
+            static_assert(!std::is_same_v<TASTYPE, TASTYPE>, "Unsupported type");
+            return in_default;
+        }
     }
 
     std::string_view key() const noexcept
@@ -1090,7 +1095,7 @@ private:
 
 const char* value_type_name(jsonland::value_type in_type);
 
-class json_doc : public json_node
+class DllExport json_doc : public json_node
 {
 public:
 

@@ -53,33 +53,33 @@ TEST(MemberValue, as_type)
     
     EXPECT_EQ(s1.dump(), "\"I am a string\"");
     EXPECT_EQ(s1.get_string(), "I am a string");
-    EXPECT_EQ(s1.get_as<std::string>(), "I am a string");
-    EXPECT_EQ(s1.get_as<std::string_view>(), "I am a string");
+    EXPECT_EQ(s1.get<std::string>(), "I am a string");
+    EXPECT_EQ(s1.get<std::string_view>(), "I am a string");
     EXPECT_EQ(s1.get_int<unsigned>(), 0);
     EXPECT_EQ(s1.get_int(17), 17);
     EXPECT_EQ(s1.get_int<int64_t>(), 0);
-    EXPECT_EQ(s1.get_as<int64_t>(), 0);
+    EXPECT_EQ(s1.get<int64_t>(), 0);
     EXPECT_EQ(s1.get_float<long double>(), 0.0);
     EXPECT_EQ(s1.get_float(17.0), 17.0);
     EXPECT_EQ(s1.get_float<float>(), 0);
-    EXPECT_EQ(s1.get_as<float>(), 0.0);
+    EXPECT_EQ(s1.get<float>(), 0.0);
     EXPECT_EQ(s1.get_bool(), false);
     EXPECT_EQ(s1.get_bool(true), (true));
-    EXPECT_EQ(s1.get_as<bool>(), false);
-    EXPECT_EQ(s1.get_as<bool>(true), true);
+    EXPECT_EQ(s1.get<bool>(), false);
+    EXPECT_EQ(s1.get<bool>(true), true);
 
     jsonland::json_node n1(1234567);
     EXPECT_EQ(n1.dump(), "1234567");
     EXPECT_EQ(n1.get_int<unsigned>(), 1234567);
     EXPECT_EQ(n1.get_int(17), 1234567);
     EXPECT_EQ(n1.get_int<int64_t>(), 1234567);
-    EXPECT_EQ(n1.get_as<int64_t>(), 1234567);
+    EXPECT_EQ(n1.get<int64_t>(), 1234567);
     EXPECT_EQ(n1.get_float<long double>(), 1234567.0);
     EXPECT_EQ(n1.get_float(17.0), 1234567.0);
     EXPECT_EQ(n1.get_float<float>(), 1234567.0f);
-    EXPECT_EQ(n1.get_as<float>(), 1234567.0f);
+    EXPECT_EQ(n1.get<float>(), 1234567.0f);
     EXPECT_EQ(n1.get_string(), "");
-    EXPECT_EQ(n1.get_as<std::string>(), "");
-    EXPECT_EQ(n1.get_as<std::string_view>(), "");
+    EXPECT_EQ(n1.get<std::string>(), "");
+    EXPECT_EQ(n1.get<std::string_view>(), "");
 
 }
