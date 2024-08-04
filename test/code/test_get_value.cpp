@@ -13,41 +13,41 @@ TEST(MemberValue, numbers)
     jObj[a_number] = 17;
     jObj[not_number] = "not a number";
     
-    int32_t i = jObj.member_value(a_number, 1990);
+    int32_t i = jObj.get_value(a_number, 1990);
     EXPECT_EQ(i, 17);
-    i = jObj.member_value<int32_t>(a_number);
+    i = jObj.get_value<int32_t>(a_number);
     EXPECT_EQ(i, 17);
-    i = jObj.member_value<int32_t>(not_member, 1234);
+    i = jObj.get_value<int32_t>(not_member, 1234);
     EXPECT_EQ(i, 1234);
 
-    int32_t j = jObj.member_value(not_number, 1990);
+    int32_t j = jObj.get_value(not_number, 1990);
     EXPECT_EQ(j, 1990);
-    j = jObj.member_value<int32_t>(not_number);
+    j = jObj.get_value<int32_t>(not_number);
     EXPECT_EQ(j, 0);
-    j = jObj.member_value<int32_t>(not_member);
+    j = jObj.get_value<int32_t>(not_member);
     EXPECT_EQ(j, 0);
 
-    double d = jObj.member_value(a_number, 1990);
+    double d = jObj.get_value(a_number, 1990);
     EXPECT_EQ(d, 17.0);
-    double e = jObj.member_value(not_number, 1990);
+    double e = jObj.get_value(not_number, 1990);
     EXPECT_EQ(e, 1990.0);
-    e = jObj.member_value(not_member, 1990);
+    e = jObj.get_value(not_member, 1990);
     EXPECT_EQ(e, 1990.0);
 
-    // member_value<bool> without default value for value assigned as number should return false
-    bool b1 = jObj.member_value<bool>(a_number);
+    // get_value<bool> without default value for value assigned as number should return false
+    bool b1 = jObj.get_value<bool>(a_number);
     EXPECT_EQ(b1, false);
-    // member_value<bool> with default value for value assigned as number should return the deafult value
-    b1 = jObj.member_value<bool>(a_number, true);
+    // get_value<bool> with default value for value assigned as number should return the deafult value
+    b1 = jObj.get_value<bool>(a_number, true);
     EXPECT_EQ(b1, true);
-    // member_value<bool> without default value for value assigned as string should return false
-    b1 = jObj.member_value<bool>(not_number);
+    // get_value<bool> without default value for value assigned as string should return false
+    b1 = jObj.get_value<bool>(not_number);
     EXPECT_EQ(b1, false);
 }
 
 TEST(MemberValue, as_type)
 {
-    jsonland::json_node s1("I am a string");
+    jsonland::json_node s1("I am a string", string_t);
     jsonland::json_node b1(true);
     jsonland::json_node p1(nullptr);
     

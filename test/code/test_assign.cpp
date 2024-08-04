@@ -16,7 +16,7 @@ TEST(TestAssign, repeated_rotating_assign)
     obj["two"] = true;
     obj["three"] = json_node("234.567", jsonland::value_type::number_t);
     
-    json_node a = obj["three"];
+    json_node a(obj["three"]);
     
     json_node array(jsonland::value_type::array_t);
     array.push_back(json_node(1.2));
@@ -25,7 +25,7 @@ TEST(TestAssign, repeated_rotating_assign)
     array.push_back(obj["two"]);
     array.push_back(obj["three"]);
 
-    json_node jn_targets[7]{};
+    json_node jn_targets[7];
     
     int i = 0;
     while (i < 36)

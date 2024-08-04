@@ -76,18 +76,20 @@ public:
     /// @param[out] os the stream to write to.
     /// @param[in] jn the JSON to dump.
     /// @return the stream #os
-    friend std::ostream& operator<<(std::ostream& os, const json_node& jn);
+    friend std::ostream& operator<<(std::ostream& os, const json_node& jn)
+    {
+        jn.dump(os);
+        return os;
+    }
 
     /// Decide if two #json_node object are equal.
-    /// @param[in] lhs the first #json_node to compare.
-    /// @param[in] rhs the second #json_node to compare.
+    /// @param[in] other the #json_node to compare.
     /// @return true if the two given #json_node's values are identical, i.e. both have same JSON value type and same value. <br> return false otherwise.
     /// Note: converted to member function because VisualStudio C++20 does not recognize friend operator==
     bool operator==(const json_node& other) const;
 
     /// Decide if two #json_node object are not equal.
-    /// @param[in] lhs the first #json_node to compare.
-    /// @param[in] rhs the second #json_node to compare.
+    /// @param[in] other the #json_node to compare.
     /// @return false if the two given #json_node's are identical, true otherwise
     bool operator!=(const json_node& other) const;
 
@@ -170,19 +172,21 @@ private:
     friend class parser_impl::Parser;
 
 public:
+
+
     /// Default constructor.
     /// JSON value type (#m_value_type) is set to #null_t.
-    json_node() = default;
+    explicit json_node() = default;
     /// Default destructor.
     ~json_node() = default;
 
     /// Copy constructor
     /// @param in_node the #json_node to copy
-    json_node(const json_node& in_node) = default;
+    explicit json_node(const json_node& in_node) = default;
 
     /// Move constructor
     /// @param in_node the #json_node to move
-    json_node(json_node&& in_node) = default;
+    explicit json_node(json_node&& in_node) = default;
 
     /// Copy assignment
     /// @param in_node the #json_node to copy
@@ -204,7 +208,7 @@ public:
     /// string_t    | ""
     /// array_t     | []
     /// object_t    | {}
-    inline explicit json_node(jsonland::value_type in_type, size_t in_reserve=0) noexcept
+    explicit json_node(jsonland::value_type in_type, size_t in_reserve=0) noexcept
     : m_value_type(in_type)
     {
         switch (m_value_type)
@@ -242,7 +246,7 @@ public:
     /// If in_type == #array_t, value will be set to empty array.<br>
     /// If in_type == #object_t, value will be set to empty object.<br>
     /// If in_type == #null_t, value will be set to null.<br>
-    inline json_node& operator=(jsonland::value_type in_type) noexcept
+    json_node& operator=(jsonland::value_type in_type) noexcept
     {
         if (in_type != m_value_type) {
             clear(in_type);
@@ -260,7 +264,6 @@ public:
         return *this;
     }
 
-
     /// Constructor with string value, but #value_type to set to #in_type not necessarily #string_t.
     /// @param in_str_value the new string value.
     /// @param in_type the #value_type.
@@ -268,7 +271,7 @@ public:
     /// @code
     /// jsonland::json_node n1("1234", jsonland::number_t);
     /// @codeend
-    inline json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
+    explicit json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
     , m_value(in_str_value)
     {
@@ -285,7 +288,7 @@ public:
     /// Construct with std::string_view, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
     /// Efficiency note: a copy of in_str_value will be created, requiring an allocation.
-    json_node(const std::string_view in_str_value) noexcept
+    explicit json_node(const std::string_view in_str_value) noexcept
     : m_value_type(string_t)
     {
         m_value.store_value_deal_with_escapes(in_str_value);
@@ -433,34 +436,34 @@ public:
 
 
     /// Returns the #value_type of this instance
-    inline jsonland::value_type value_type() const noexcept {return m_value_type;}
+    jsonland::value_type value_type() const noexcept {return m_value_type;}
 
     /// Returns true if and only if the JSON value type is #null_t.
-    inline bool is_null() const noexcept {return null_t == m_value_type;}
+    bool is_null() const noexcept {return null_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #object_t.
-    inline bool is_object() const noexcept {return object_t == m_value_type;}
+    bool is_object() const noexcept {return object_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #array_t.
-    inline bool is_array() const noexcept {return array_t == m_value_type;}
+    bool is_array() const noexcept {return array_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #string_t.
-    inline bool is_string() const noexcept {return string_t == m_value_type;}
+    bool is_string() const noexcept {return string_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t (float or integer).
-    inline bool is_number() const noexcept {return number_t == m_value_type;}
+    bool is_number() const noexcept {return number_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t, and the value is an integer (signed or unsigned).
-    inline bool is_int() const noexcept {return number_t == m_value_type && (m_hints & _num_is_int);}
+    bool is_int() const noexcept {return number_t == m_value_type && (m_hints & _num_is_int);}
     /// Returns true if and only if the JSON value type is #number_t, and the value is floating point (float, double).
-    inline bool is_float() const noexcept {return number_t == m_value_type && (0==(m_hints & _num_is_int));}
+    bool is_float() const noexcept {return number_t == m_value_type && (0==(m_hints & _num_is_int));}
     /// Returns true if and only if the JSON value type is #bool_t.
-    inline bool is_bool() const noexcept {return bool_t == m_value_type;}
+    bool is_bool() const noexcept {return bool_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #bool_t, #number_t or #string_t.
-    inline bool is_scalar() const noexcept {return is_string() || is_number() || is_bool();}
+    bool is_scalar() const noexcept {return is_string() || is_number() || is_bool();}
     /// Returns true if and only if the JSON value is set, i.e. not #uninitialized_t.
-    inline bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
+    bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
     /// Returns true if and only if the JSON type is structured (#array_t or #object_t).
-    inline bool is_structured() const noexcept { return is_array() || is_object(); }
+    bool is_structured() const noexcept { return is_array() || is_object(); }
 
     /// Returns true if and only if the JSON type is the same as given in param #in_type
     /// @param[in] check_for_type the type in question.
-    inline bool is_type(jsonland::value_type check_for_type) const noexcept {return check_for_type == m_value_type;}
+    bool is_type(jsonland::value_type check_for_type) const noexcept {return check_for_type == m_value_type;}
 
 #if 0
     template<typename TISTYPE>
@@ -539,7 +542,12 @@ public:
 
     /// @brief Return the value of an object's member.
     /// @param key the key to the member
-    /// @param in_default the value that will be returned in case the object does not contain #key or JSON value type is not #object_t.
+    /// @param in_default the value that will be returned in case:
+    ///     - JSON value type is not #object_t.
+    ///     or
+    ///     - the object does not contain #key
+    ///     or
+    ///     - the object does contain #key, but the value is not of type #TGETTYPE
     /// @return The value of the member:
     /// If called on an object with JSON value type #object_t,
     /// and the object contains a member by given name
@@ -550,17 +558,17 @@ public:
     /// @code
     /// jsonland::json_node an_object;
     /// an_object["one"] = 1;
-    /// int i1 = an_object.member_value("one")  // i1 == 1
-    /// std::string s1 = an_object.member_value("one", "not found")  // s1 == "not found" since object does contains "one" but it's type is int not string, and so default value is returned.
-    /// int i2 = an_object.member_value("one-by-one", 123)  // i2 == 123 since since object does contains "one", and so default value is returned.
+    /// int i1 = an_object.get_value("one")  // i1 == 1
+    /// std::string s1 = an_object.get_value("one", "not found")  // s1 == "not found" since object does contains "one" but it's type is int not string, and so default value is returned.
+    /// int i2 = an_object.get_value("one-by-one", 123)  // i2 == 123 since since object does contains "one", and so default value is returned.
     /// @endcode
     template<typename TGETTYPE>
-    TGETTYPE member_value(std::string_view key, const TGETTYPE in_default={}) noexcept
+    TGETTYPE get_value(std::string_view key, const TGETTYPE in_default={}) const noexcept
     {
         TGETTYPE retVal = in_default;
-        if (contains(key))
+        if (contains(key))  // contains return false if this is not an object_t
         {
-            json_node& theJ = m_values[m_obj_key_to_index.at(key)];
+            const json_node& theJ = m_values[m_obj_key_to_index.at(key)];
             if constexpr (std::is_same_v<bool, TGETTYPE>) {
                 retVal = theJ.get_bool(in_default);
             }
@@ -855,7 +863,7 @@ public:
     /// <br>If JSON value type is #string_t: the string, unquoted, with escaped characters if/where needed.
     /// <br>If JSON value type is #number_t: if the number was parsed as string, will return that string, otherwise empty string.
     /// <br>If JSON value type is #array_t or #object_t: empty string.
-    inline const std::string_view as_string_view() const noexcept
+    const std::string_view as_string_view() const noexcept
     {
         return m_value.as_string_view();
     }
@@ -1060,21 +1068,21 @@ private:
 protected:
 
     // for parser use, *this is assumed to be freshly constructed, so no need to call clear
-    inline void parser_direct_set(string_or_view&& in_str, jsonland::value_type in_type)
+    void parser_direct_set(string_or_view&& in_str, jsonland::value_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
         m_value = std::move(in_str);
     }
 
-    inline void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
+    void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
         m_value = in_str;
     }
 
-    inline void parser_direct_set(jsonland::value_type in_type)
+    void parser_direct_set(jsonland::value_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
@@ -1088,8 +1096,8 @@ private:
     // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
     // occur in the same json_node is repeatadly assigned number values. The compramise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
-    inline bool is_num_in_string() const {return m_hints & json_node::_num_in_string;}
-    inline bool is_string_assigned() const {return m_value.is_value_stored();}
+    bool is_num_in_string() const {return m_hints & json_node::_num_in_string;}
+    bool is_string_assigned() const {return m_value.is_value_stored();}
 
 };
 
@@ -1099,11 +1107,11 @@ class DllExport json_doc : public json_node
 {
 public:
 
-    inline explicit json_doc(jsonland::value_type in_type) noexcept :  json_node(in_type) {}
+    explicit json_doc(jsonland::value_type in_type) noexcept :  json_node(in_type) {}
     json_doc() = default;
     ~json_doc() = default;
 
-    inline json_doc& operator=(jsonland::value_type in_type)
+    json_doc& operator=(jsonland::value_type in_type)
     {
         json_node::operator=(in_type);
         return *this;

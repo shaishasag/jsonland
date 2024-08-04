@@ -256,6 +256,19 @@ public:
     [[nodiscard]] bool empty() const { return this->m_json_str[1] == empty_json_object[1]; }
     void clear() { this->m_json_str = empty_json_object; this->m_num_subs = 0; }
 
+    // reset with string containing json
+    void reset(std::string_view in_value)
+    {
+        if (!in_value.empty())
+        {
+            this->m_json_str = in_value;
+        }
+        else
+        {
+            clear();
+        }
+    }
+
 
     class DllExport operator_square_brackets_helper
     {
@@ -360,6 +373,20 @@ public:
         this->m_json_str = empty_json_array;
         this->m_num_subs = 0;
     }
+
+    // reset with string containing json
+    void reset(std::string_view in_value)
+    {
+        if (!in_value.empty())
+        {
+            this->m_json_str = in_value;
+        }
+        else
+        {
+            clear();
+        }
+    }
+
 };
 } // namespace internal
 

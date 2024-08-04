@@ -60,17 +60,15 @@ TEST(TestConstruction, str_ctor_with_value_type)
 TEST(TestConstruction, str_ctor_with_value)
 {
     // check that type is set correctly to value_type_str
-    EXPECT_TRUE(json_node("babushka").is_string()) << R"(json_node("babushka").is_string() should return true)";
+    EXPECT_TRUE(json_node("babushka", string_t).is_string()) << R"(json_node("babushka").is_string() should return true)";
 
-    json_node("babushka").get_string("????");
     // check that default value is initialized correctly
-    EXPECT_EQ(json_node("babushka").get_string("????"), "babushka"sv) << R"(json_node("babushka").get_string('????') should return  "babushka")";
-
-    EXPECT_FALSE(json_node("babushka").is_object()) << R"(json_node("babushka").is_object() should return false)";
-    EXPECT_FALSE(json_node("babushka").is_array()) << R"(json_node("babushka").is_array() should return false)";
-    EXPECT_FALSE(json_node("babushka").is_number()) << R"(json_node("babushka").is_number() should return false)";
-    EXPECT_FALSE(json_node("babushka").is_bool()) << R"(json_node("babushka").is_bool() should return false)";
-    EXPECT_FALSE(json_node("babushka").is_null()) << R"(json_node("babushka").is_null() should return false)";
+    EXPECT_EQ(json_node("babushka", string_t).get_string("????"), "babushka"sv) << R"(json_node("babushka", string_t
+    EXPECT_FALSE(json_node("babushka", string_t).is_object()) << R"(json_node("babushka", string_t).is_object() should return false)";
+    EXPECT_FALSE(json_node("babushka", string_t).is_array()) << R"(json_node("babushka", string_t).is_array() should return false)";
+    EXPECT_FALSE(json_node("babushka", string_t).is_number()) << R"(json_node("babushka", string_t).is_number() should return false)";
+    EXPECT_FALSE(json_node("babushka", string_t).is_bool()) << R"(json_node("babushka", string_t).is_bool() should return false)";
+    EXPECT_FALSE(json_node("babushka", string_t).is_null()) << R"(json_node("babushka", string_t).is_null() should return false)";
 }
 
 TEST(TestConstruction, num_ctor_with_value_type)

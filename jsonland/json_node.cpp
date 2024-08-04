@@ -399,7 +399,6 @@ namespace parser_impl
 
         struct location_in_string
         {
-            location_in_string() = default;
             size_t m_line = 0;
             size_t m_offset = 0;
         };
@@ -1159,9 +1158,4 @@ bool json_node::operator==(const jsonland::json_node& other) const
 bool json_node::operator!=(const jsonland::json_node& other) const
 {
     return !(other == *this);
-}
-
-std::ostream& jsonland::operator<<(std::ostream& os, const jsonland::json_node& jn)
-{
-    return jn.dump(os);
 }

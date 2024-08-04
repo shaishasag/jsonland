@@ -1,13 +1,17 @@
-
 #include "json_node.h"
 #include "json_creator.h"
 
-#include<array>
-#include<vector>
-#include<tuple>
+#include <numeric>
+#include <array>
+#include <vector>
+#include <tuple>
+#include <span>
+#include <fstream>
 #if JSONLAND_DEBUG==1
 #include "fstring.h"
 #endif
+
+#include <nlohmann/json.hpp>
 
 
 static void personhood()
@@ -47,7 +51,7 @@ static void personhood()
 
 static void create_array()
 {
-    fixed::array_json_creator array;
+    jl_fixed::array_json_creator array;
     array.append_value("Dancing Queen");
     array.append_value("Gimme", "Gimme", "Gimme");
     std::vector<float> f_vec{17.f, 18.f};
@@ -60,7 +64,7 @@ static void create_array()
 }
 static void create_object()
 {
-    fixed::object_json_creator object;
+    jl_fixed::object_json_creator object;
     object.append_value("People Need Love", 1972);
     object.append_value("Nina, Pretty Ballerina", 1973);
     object.append_value("Waterloo", 1974);
@@ -70,7 +74,7 @@ static void create_object()
 
 static void create_object_and_array()
 {
-    fixed::object_json_creator album;
+    jl_fixed::object_json_creator album;
     
     album.append_value("Artist", "ABBA");
     album.append_value("Name", "Arrival");
@@ -111,7 +115,7 @@ static void create()
 
 static void all_types()
 {
-    fixed::object_json_creator object;
+    jl_fixed::object_json_creator object;
     
     object.append_value("True", true);
     object.append_value("False", false);
@@ -143,10 +147,26 @@ static void all_types()
     std::cout << std::string_view(object) << std::endl;
 }
 
+class JassieJ
+{
+public:
+    explicit JassieJ() = default;
+    explicit JassieJ(JassieJ&&) = default;
+    explicit JassieJ(const JassieJ&) = default;
+    JassieJ& operator=(JassieJ&&) = default;
+    JassieJ& operator=(const JassieJ&) = default;
+    
+    JassieJ& operator[](std::string_view)
+    {
+        return *this;
+    }
+};
+
 int main()
 {
-    create();
-    all_types();
+    JassieJ a;
+    JassieJ b(a);
+    JassieJ c(a["banana"]);
     
     return 0;
 }

@@ -5,12 +5,16 @@
 
 using namespace std::string_view_literals;
 
+#ifndef DllExport
+    #define DllExport
+#endif
+
 namespace jsonland
 {
 template<class> constexpr bool always_false_v = false;
 
 
-class solve_escapes_iter
+class DllExport solve_escapes_iter
 {
 private:
     const std::string_view m_str;
@@ -19,7 +23,7 @@ private:
     char m_waiting_char = '\0';
 
     size_t m_num_escapes_found = 0;
-    
+
 public:
     solve_escapes_iter(std::string_view in_str)
     : m_str(in_str)
@@ -27,12 +31,12 @@ public:
         if (!m_str.empty())
             operator++();
     }
-    
+
     operator bool()
     {
         return m_str_i < static_cast<int>(m_str.size()) && '\0' != m_curr_char;
     }
-    
+
     size_t num_escapes_found()
     {
         return m_num_escapes_found;
@@ -45,7 +49,7 @@ public:
         return hi_t*16+lo_t;
     }
 
-    
+
     solve_escapes_iter& operator++()
     {
         if (m_str_i >= static_cast<int>(m_str.size()) && m_str_i != -1)
@@ -60,7 +64,7 @@ public:
         {
             ++m_str_i;
             m_curr_char = m_str[m_str_i];
-        
+
             if ('\\' == m_curr_char)
             {
                 ++m_num_escapes_found;
@@ -96,18 +100,18 @@ public:
                 }
             }
         }
-        
+
         return *this;
     }
-    
+
     char operator*()
     {
         return m_curr_char;
     }
-    
+
 };
 
-class string_or_view
+class DllExport string_or_view
 {
 public:
 #if JSONLAND_DEBUG==1
@@ -118,13 +122,13 @@ public:
     value_type m_value;
 
     int m_num_escapes{0};
-    
-    string_or_view() noexcept = default;
-    string_or_view(const string_or_view& in_sov) noexcept = default;
-    string_or_view(string_or_view&& in_sov) noexcept = default;
-    string_or_view& operator=(const string_or_view& in_sov) noexcept = default;
-    string_or_view& operator=(string_or_view&& in_sov) noexcept = default;
-    
+
+    string_or_view() = default;
+    string_or_view(const string_or_view& in_sov) = default;
+    string_or_view(string_or_view&& in_sov) = default;
+    string_or_view& operator=(const string_or_view& in_sov) = default;
+    string_or_view& operator=(string_or_view&& in_sov) = default;
+
     string_or_view(const std::string_view in_str, const int in_num_escapes=0) noexcept
     {
         reference_value(in_str);
@@ -158,19 +162,25 @@ public:
     }
 
     void store_value_deal_with_escapes(std::string_view in_str)  noexcept;
-    
-    
+
+
     void clear() noexcept
     {
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
+             {
                  arg = {};
+             }
              else if constexpr (std::is_same_v<T, std::string>)
+             {
                  arg.clear();
+             }
              else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
         m_num_escapes = 0;
     }
@@ -184,13 +194,19 @@ public:
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
+             {
                  retVal = arg.empty();
+             }
              else if constexpr (std::is_same_v<T, std::string>)
+             {
                  retVal = arg.empty();
+             }
              else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
-        
+
         return retVal;
     }
 
@@ -206,16 +222,22 @@ public:
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
+             {
                  retVal = arg;
+             }
              else if constexpr (std::is_same_v<T, std::string>)
+             {
                  retVal = arg;
+             }
              else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
-        
+
         return retVal;
     }
-    
+
     void dump_with_quotes(std::string& str) const noexcept
     {
         std::visit([&](auto&& arg)
@@ -234,11 +256,13 @@ public:
                  str += '"';
              }
              else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
-        
+
     }
-    
+
     void dump_no_quotes(std::string& str) const noexcept
     {
         std::visit([&](auto&& arg)
@@ -252,11 +276,12 @@ public:
              {
                  str.append(arg);
              }
-             else {
+             else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
              }
          }, m_value);
-        
+
     }
 
     size_t size() const noexcept
@@ -266,14 +291,19 @@ public:
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
+             {
                  retVal = arg.size();
+             }
              else if constexpr (std::is_same_v<T, std::string>)
+             {
                  retVal = arg.size();
-             else {
+             }
+             else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
              }
          }, m_value);
-        
+
         return retVal;
     }
 
@@ -282,7 +312,7 @@ public:
         bool retVal = lhs.as_string_view() == rhs.as_string_view();
         return retVal;
     }
-    
+
     /// @return Estimation of amount of heap memory allocated by this object, not including the object itself.
     /// <br>If holding std::string, will try to take into account "small string optimization",
     /// in which case 0 will be reported.
@@ -294,25 +324,30 @@ public:
         {
              using T = std::decay_t<decltype(arg)>;
              if constexpr (std::is_same_v<T, std::string_view>)
+             {
                  retVal = 0;
-             else if constexpr (std::is_same_v<T, std::string>) {
+             }
+             else if constexpr (std::is_same_v<T, std::string>)
+             {
                  if (arg.capacity() > sizeof(std::string)) {
                      retVal = arg.capacity()*sizeof(std::string::value_type);
                  }
              }
              else
+             {
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
+             }
          }, m_value);
-        
+
         return retVal;
     }
-    
+
     void unescape(std::string& out_unescaped) const  noexcept
     {
         out_unescaped.reserve(size());
 
         solve_escapes_iter iter(as_string_view());
-        
+
         while (iter)
         {
             out_unescaped += *iter;
