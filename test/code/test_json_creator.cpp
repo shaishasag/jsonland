@@ -4,9 +4,10 @@ using namespace std::literals;
 
 #include "fstring/fstring.h"
 #include "jsonland/json_creator.h"
+#include "jsonland/json_node.h"
 
 // tests are templated to check the two types of json creators:
-// - object_json_creator & array_json_creator based on fixed::fstring
+// - object_json_creator & array_json_creator based on fstr::fstr
 // - object_json_creator & array_json_creator based on std::string
 
 template <typename T>
@@ -276,14 +277,14 @@ TYPED_TEST(CreateJsonTemplatedTest, append_value_variadric)
                       "18",
                       std::string("19"),
                       std::string_view("20"),
-                      fixed::fstring31("21"));
+                      fstr::fstr31("21"));
     EXPECT_STREQ(jac1.c_str(), R"|([17, "18", "19", "20", "21"])|");
     
     obj_creator_t joc1;
     joc1.append_value("17", 17,
-                      fixed::fstring31("19"), std::string("19"),
+                      fstr::fstr31("19"), std::string("19"),
                       std::string("20"), std::string_view("20"),
-                      std::string_view("21"), fixed::fstring31("21"));
+                      std::string_view("21"), fstr::fstr31("21"));
     EXPECT_STREQ(joc1.c_str(), R"|({"17": 17, "19": "19", "20": "20", "21": "21"})|");
 }
 
@@ -328,7 +329,7 @@ TYPED_TEST(CreateJsonTemplatedTest, append_all_string_types)
     jac1.append_value("paprika A");
     jac1.append_value(std::string_view("paprika B"));
     jac1.append_value(std::string("paprika C"));
-    jac1.append_value(fixed::fstring15("paprika D"));
+    jac1.append_value(fstr::fstr15("paprika D"));
     EXPECT_STREQ(jac1.c_str(), R"|(["paprika A", "paprika B", "paprika C", "paprika D"])|");
 }
 
@@ -344,34 +345,31 @@ TYPED_TEST(CreateJsonTemplatedTest, append_all_misc_types)
     EXPECT_STREQ(jac1.c_str(), R"|([true, false, null])|");
 }
 
-#include <nlohmann/json.hpp>
-// using nlohmann for parsing to make sure creating json with escaped char works
 
 TYPED_TEST(CreateJsonTemplatedTest, escape_from_array)
 {
     using obj_creator_t = typename TypeParam::first_type;
     using arr_creator_t = typename TypeParam::second_type;
     
-    auto with_backslash = "it's a backward slash: \\"sv;
-    auto with_quoate = "it's a quote: \""sv;
-    auto with_tab = "it's a tab: \t"sv;
-    auto with_newline = "it's a newline: \n"sv;
-    auto with_bell = "it's a bell: \b"sv;
+    auto backslash = "\\"sv;
+    auto quote = "\""sv;
+    auto tab = "\t"sv;
+    auto newline = "\n"sv;
+    auto bell = "\b"sv;
+    auto carriage_return = "\r"sv;
 
     arr_creator_t jac1;
-    jac1.append_value(with_backslash);
-    jac1.append_value(with_quoate);
-    jac1.append_value(with_tab);
-    jac1.append_value(with_newline);
-    jac1.append_value(with_bell);
-    
-    nlohmann::json nj = nlohmann::json::parse(jac1.c_str());
-    EXPECT_EQ(nj[0].get<std::string_view>(), with_backslash);
-    EXPECT_EQ(nj[1].get<std::string_view>(), with_quoate);
-
-    EXPECT_EQ(nj[2].get<std::string_view>(), with_tab);
-    EXPECT_EQ(nj[3].get<std::string_view>(), with_newline);
-    EXPECT_EQ(nj[4].get<std::string_view>(), with_bell);
+    jac1.append_value(backslash);
+    jac1.append_value(quote);
+    jac1.append_value(tab);
+    jac1.append_value(newline);
+    jac1.append_value(bell);
+    jac1.append_value(carriage_return);
+    fstr::fstr63 sv1 = jac1;
+    fstr::fstr63 sv_expected = R"(["\\", "\"", "\t", "\n", "\b", "\r"])";
+//    std::cout << "sv_expected: " << sv1 << std::endl;
+//    std::cout << "sv1: " << sv_expected << std::endl;
+    EXPECT_EQ(sv1, sv_expected);
 }
 
 TYPED_TEST(CreateJsonTemplatedTest, escape_from_object)
@@ -379,25 +377,33 @@ TYPED_TEST(CreateJsonTemplatedTest, escape_from_object)
     using obj_creator_t = typename TypeParam::first_type;
     using arr_creator_t = typename TypeParam::second_type;
     
-    auto a_backslash = "\\"s;
-    auto a_quoate = "\""s;
-    auto a_tab = "\t"s;
-    auto a_newline = "\n"s;
-    auto a_bell = "\b"s;
-    
-    obj_creator_t joc1;
-    joc1.append_value(a_backslash, "backslash");
-    joc1.append_value(a_quoate, "quoate");
-    joc1.append_value(a_tab, "tab");
-    joc1.append_value(a_newline, "newline");
-    joc1.append_value(a_bell, "bell");
-    
-    nlohmann::json nj = nlohmann::json::parse(joc1.c_str());
-    EXPECT_EQ(nj[a_backslash].get<std::string_view>(), "backslash");
-    EXPECT_EQ(nj[a_quoate].get<std::string_view>(), "quoate");
-    EXPECT_EQ(nj[a_tab].get<std::string_view>(), "tab");
-    EXPECT_EQ(nj[a_newline].get<std::string_view>(), "newline");
-    EXPECT_EQ(nj[a_bell].get<std::string_view>(), "bell");
+    auto backslash = "\\"sv;
+    auto quote = "\""sv;
+    auto tab = "\t"sv;
+    auto newline = "\n"sv;
+    auto bell = "\b"sv;
+    auto carriage_return = "\r"sv;
+
+    obj_creator_t jac1;
+    jac1.append_value("backslash", backslash);
+    jac1.append_value("quote", quote);
+    jac1.append_value("tab", tab);
+    jac1.append_value("newline", newline);
+    jac1.append_value("bell", bell);
+    jac1.append_value("carriage_return", carriage_return);
+
+    jac1.append_value(backslash, "backslash");
+    jac1.append_value(quote, "quote");
+    jac1.append_value(tab, "tab");
+    jac1.append_value(newline, "newline");
+    jac1.append_value(bell, "bell");
+    jac1.append_value(carriage_return, "carriage_return");
+
+    std::string_view sv1 = jac1;
+    std::string_view sv_expected = R"({"backslash": "\\", "quote": "\"", "tab": "\t", "newline": "\n", "bell": "\b", "carriage_return": "\r", "\\": "backslash", "\"": "quote", "\t": "tab", "\n": "newline", "\b": "bell", "\r": "carriage_return"})";
+//    std::cout << "sv_expected: " << sv1 << std::endl;
+//    std::cout << "sv1: " << sv_expected << std::endl;
+    EXPECT_EQ(sv1, sv_expected);
 }
 
 TYPED_TEST(CreateJsonTemplatedTest, square_brackets)

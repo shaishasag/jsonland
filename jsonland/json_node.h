@@ -511,7 +511,57 @@ public:
         return retVal;
     }
 
-    /// @brief Returns the number of elements that the object or array has currently allocated space for, similiar to std::vector::capacity().
+    // Return the "size" according to the type, where size means:
+    // num_elements for object_t and array_t
+    // length of string for string_t
+    // @param in_expected_type the type to be checked
+    // @return size if this json_node is of expected type
+    // num_elements for object_t
+    // num_elements for array_t
+    // length of string for string_t
+    // 1 is always returned for number_t and bool_t
+    // 0 is always returned for null_t
+    // If the actual type does not match in_expected_type, 0 is returned
+    size_t size_as(const enum value_type in_expected_type) const noexcept
+    {
+        size_t retVal = 0;
+        if (in_expected_type == value_type())
+        {
+            switch (value_type())
+            {
+                case object_t:
+                    retVal = m_values.size(); break;
+                case array_t:
+                    retVal = m_values.size(); break;
+                case string_t:
+                    retVal = m_value.size(); break;
+                case number_t:
+                    retVal = 1; break;
+                case null_t:
+                    retVal = 0; break;
+                default:
+                    retVal = 0;
+                    break;
+
+            }
+        }
+        return retVal;
+    }
+    // Return "empty" according to the type, where empty means:
+    // num_elements == 0 for object_t and array_t
+    // length of string == 0  for string_t
+    // false is always returned for number_t and bool_t
+    // true is always returned for null_t
+    // @param in_expected_type the type to be checked
+    // If the actual type does not match in_expected_type, true is returned
+    bool empty_as(const enum value_type in_expected_type) const noexcept
+    {
+        bool retVal = 0 == size_as(in_expected_type);
+        return retVal;
+    }
+
+    /// @brief Returns the number of elements that the object or array has currently allocated space for,
+    /// similiar to std::vector::capacity().
     /// @return Capacity of the currently allocated storage.
     size_t capacity() noexcept
     {
@@ -1079,7 +1129,7 @@ protected:
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
-        m_value = in_str;
+        m_value.reference_value(in_str);
     }
 
     void parser_direct_set(jsonland::value_type in_type)

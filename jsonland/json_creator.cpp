@@ -307,9 +307,9 @@ void sub_array_json_creator<TStr>::prepend_values_from(const sub_array_json_crea
 }
 
 
-template class DllExport jsonland::internal::base_json_creator<fixed::fstring_ref>;
-template class DllExport jsonland::internal::sub_object_json_creator<fixed::fstring_ref>;
-template class DllExport jsonland::internal::sub_array_json_creator<fixed::fstring_ref>;
+template class DllExport jsonland::internal::base_json_creator<fstr::fstr_ref>;
+template class DllExport jsonland::internal::sub_object_json_creator<fstr::fstr_ref>;
+template class DllExport jsonland::internal::sub_array_json_creator<fstr::fstr_ref>;
 
 template class DllExport jsonland::internal::base_json_creator<std::string&>;
 template class DllExport jsonland::internal::sub_object_json_creator<std::string&>;

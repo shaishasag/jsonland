@@ -61,11 +61,13 @@ inline bool is_escapable_char(const char in_c)
 
 inline bool is_a_char_that_must_be_escaped(const char in_c)
 {
-    const bool retVal = '\b' == in_c ||
-                        '\f' == in_c ||
+    const bool retVal = '"' == in_c ||
+                        '\\' == in_c ||
                         '\n' == in_c ||
                         '\r' == in_c ||
-                        '\t' == in_c;
+                        '\t' == in_c ||
+                        '\b' == in_c ||
+                        '\f' == in_c ;
     return retVal;
 }
 
@@ -76,11 +78,13 @@ inline const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_c
 
     switch(*in_c)
     {
-        case '\b': retVal = "\\b"; break;
-        case '\f': retVal = "\\f"; break;
+        case '"':  retVal = R"(\\")";
+        case '\\':  retVal = R"(\\\\)";
         case '\n': retVal = "\\n"; break;
         case '\r': retVal = "\\r"; break;
         case '\t': retVal = "\\t"; break;
+        case '\b': retVal = "\\b"; break;
+        case '\f': retVal = "\\f"; break;
         default:
             out_chars_to_copy = 1;
             break;
@@ -464,8 +468,8 @@ namespace parser_impl
     private:
         json_doc& m_top_node;
 
-        const size_t m_str_size;
-        const char* m_start = nullptr;
+        [[maybe_unused]] const size_t m_str_size;
+        [[maybe_unused]] const char* m_start = nullptr;
         const char* m_end = nullptr;
 
         char* m_curr_char = nullptr;
@@ -520,35 +524,35 @@ namespace parser_impl
             for (int i = 0; i < 256; ++i)
                 m_char_to_token_table[i] = {&Parser::skip_one_char, parsing_value_type::_uninitialized};
 
-            m_char_to_token_table['['] = {&Parser::parse_array, parsing_value_type::_array};
-            m_char_to_token_table[']'] = {&Parser::parse_control_char, parsing_value_type::_array_close};
-            m_char_to_token_table[','] = {&Parser::parse_control_char, parsing_value_type::_comma};
-            m_char_to_token_table['{'] = {&Parser::parse_obj, parsing_value_type::_obj};
-            m_char_to_token_table['}'] = {&Parser::parse_control_char, parsing_value_type::_obj_close};
-            m_char_to_token_table[':'] = {&Parser::parse_control_char, parsing_value_type::_colon};
-            m_char_to_token_table['"'] = {&Parser::parse_string, parsing_value_type::_str};
-            m_char_to_token_table['0'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['1'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['2'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['3'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['4'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['5'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['6'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['7'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['8'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['9'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['-'] = {&Parser::parse_number, parsing_value_type::_num};
-            m_char_to_token_table['f'] = {&Parser::parse_constant, parsing_value_type::_bool};
-            m_char_to_token_table['n'] = {&Parser::parse_constant, parsing_value_type::_null};
-            m_char_to_token_table['t'] = {&Parser::parse_constant, parsing_value_type::_bool};
-            m_char_to_token_table['\n'] = {&Parser::skip_new_line, parsing_value_type::_uninitialized};
-            m_char_to_token_table['\r'] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
-            m_char_to_token_table['\t'] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
-            m_char_to_token_table[' '] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
+            m_char_to_token_table[(int)'['] = {&Parser::parse_array, parsing_value_type::_array};
+             m_char_to_token_table[(int)']'] = {&Parser::parse_control_char, parsing_value_type::_array_close};
+             m_char_to_token_table[(int)','] = {&Parser::parse_control_char, parsing_value_type::_comma};
+             m_char_to_token_table[(int)'{'] = {&Parser::parse_obj, parsing_value_type::_obj};
+             m_char_to_token_table[(int)'}'] = {&Parser::parse_control_char, parsing_value_type::_obj_close};
+             m_char_to_token_table[(int)':'] = {&Parser::parse_control_char, parsing_value_type::_colon};
+             m_char_to_token_table[(int)'"'] = {&Parser::parse_string, parsing_value_type::_str};
+             m_char_to_token_table[(int)'0'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'1'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'2'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'3'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'4'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'5'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'6'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'7'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'8'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'9'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'-'] = {&Parser::parse_number, parsing_value_type::_num};
+             m_char_to_token_table[(int)'f'] = {&Parser::parse_constant, parsing_value_type::_bool};
+             m_char_to_token_table[(int)'n'] = {&Parser::parse_constant, parsing_value_type::_null};
+             m_char_to_token_table[(int)'t'] = {&Parser::parse_constant, parsing_value_type::_bool};
+             m_char_to_token_table[(int)'\n'] = {&Parser::skip_new_line, parsing_value_type::_uninitialized};
+             m_char_to_token_table[(int)'\r'] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
+             m_char_to_token_table[(int)'\t'] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
+             m_char_to_token_table[(int)' '] = {&Parser::skip_whilespace, parsing_value_type::_uninitialized};
 #if 0 // case insensitive constants
-            //m_char_to_token_table['F'] = m_char_to_token_table['f'];
-            //m_char_to_token_table['N'] = m_char_to_token_table['n'];
-            //m_char_to_token_table['T'] = m_char_to_token_table['t'];
+            // m_char_to_token_table[(int)'F'] =  m_char_to_token_table[(int)'f'];
+            // m_char_to_token_table[(int)'N'] =  m_char_to_token_table[(int)'n'];
+            // m_char_to_token_table[(int)'T'] =  m_char_to_token_table[(int)'t'];
 #endif
         }
 
@@ -560,7 +564,7 @@ namespace parser_impl
                 char curr_char = *m_curr_char;
                 if (256 > (unsigned int)curr_char)
                 {
-                    func_type_pair& call_pair = m_char_to_token_table[curr_char];
+                    func_type_pair& call_pair = m_char_to_token_table[(int)curr_char];
                     out_type = call_pair.m_type;
                     retVal = (this->*call_pair.m_func)(out_node);
                 }
@@ -583,6 +587,7 @@ namespace parser_impl
             char* str_start = m_curr_char;
 
             out_node.m_value.m_num_escapes = 0;
+            out_node.m_value_type = jsonland::value_type::string_t;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
                 if (curr_char == '"') {
@@ -640,7 +645,8 @@ namespace parser_impl
             {
                 //*const_cast<char*>(m_curr_char) = '\0';
 
-                out_node.parser_direct_set(std::string_view(str_start, m_curr_char-str_start), jsonland::value_type::string_t);
+                size_t str_size = m_curr_char-str_start;
+                out_node.parser_direct_set(std::string_view(str_start, str_size), jsonland::value_type::string_t);
                 next_char();
                 retVal = true;
             }

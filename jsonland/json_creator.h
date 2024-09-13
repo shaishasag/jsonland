@@ -24,22 +24,22 @@ namespace jsonland
 
 
 #ifndef OBJECT_WHITESPACE_AFTER_COMMA
-#define OBJECT_WHITESPACE_AFTER_COMMA " "
+    #define OBJECT_WHITESPACE_AFTER_COMMA " "
 #endif
 constexpr std::string_view ___object_whitespace_after_comma{OBJECT_WHITESPACE_AFTER_COMMA};
 
 #ifndef ARRAY_WHITESPACE_AFTER_COMMA
-#define ARRAY_WHITESPACE_AFTER_COMMA " "
+    #define ARRAY_WHITESPACE_AFTER_COMMA " "
 #endif
 constexpr std::string_view ___array_whitespace_after_comma{ARRAY_WHITESPACE_AFTER_COMMA};
 
 namespace internal
 {
-constexpr fixed::fstring7 _TRUE{"true"};
-constexpr fixed::fstring7 _FALSE{"false"};
-constexpr fixed::fstring7 _NULL{"null"};
-constexpr fixed::fstring7 _COMMA{","};
-constexpr fixed::fstring7 _KEY_VAL_SEP{R"|(": )|"};
+constexpr fstr::fstr7 _TRUE{"true"};
+constexpr fstr::fstr7 _FALSE{"false"};
+constexpr fstr::fstr7 _NULL{"null"};
+constexpr fstr::fstr7 _COMMA{","};
+constexpr fstr::fstr7 _KEY_VAL_SEP{R"|(": )|"};
 
 template <typename TStr>
 void copy_and_escape(const std::string_view in_text, TStr& in_json_str)
@@ -78,7 +78,7 @@ inline void write_value(const TValue in_value, TStr& in_json_str)
                        std::is_integral_v<TValue> ||
                        std::is_floating_point_v<TValue>)
     {
-        ::fixed::fstring127 fs;
+        fstr::fstr127 fs;
         fs.printf(in_value);
         in_json_str += fs;
     }
@@ -155,7 +155,7 @@ public:
         {
             m_json_str.reserve(new_cap);
         }
-        else if constexpr (std::is_same_v<::fixed::fstring_ref, TStr>)
+        else if constexpr (std::is_same_v<fstr::fstr_ref, TStr>)
         {
             //assert(new_cap <= m_json_str.capacity());
         }
@@ -367,6 +367,12 @@ public:
     void append_values_from(const sub_array_json_creator& in_to_merge_from);
     void prepend_values_from(const sub_array_json_creator& in_to_merge_from);
 
+    template <typename TValue>
+    void push_back(const TValue& in_value)  // alias to append_value for compatibility with code converted from other json creators
+    {
+        append_value(in_value);
+    }
+
     [[nodiscard]] bool empty() const { return this->m_json_str[1] == empty_json_array[1]; }
     void clear()
     {
@@ -390,10 +396,10 @@ public:
 };
 } // namespace internal
 
-namespace f // creators based on fstring
+namespace fixed // creators based on fstring
 {
-using sub_object_json_creator_t = internal::sub_object_json_creator<fixed::fstring_ref>;
-using sub_array_json_creator_t = internal::sub_array_json_creator<fixed::fstring_ref>;
+using sub_object_json_creator_t = internal::sub_object_json_creator<fstr::fstr_ref>;
+using sub_array_json_creator_t = internal::sub_array_json_creator<fstr::fstr_ref>;
 
 template<size_t STRING_CAPACITY=511>
 class DllExport object_json_creator : public sub_object_json_creator_t
@@ -401,11 +407,11 @@ class DllExport object_json_creator : public sub_object_json_creator_t
 public:
     object_json_creator() noexcept
     : sub_object_json_creator_t(m_fstr,
-                                base_json_creator<fixed::fstring_ref>::PreventAmbiguityOnConstructorCalls())
+                              base_json_creator<fstr::fstr_ref>::PreventAmbiguityOnConstructorCalls())
     {}
 
 protected:
-    fixed::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_object};
+    fstr::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_object};
 };
 
 template<size_t STRING_CAPACITY=511>
@@ -413,15 +419,15 @@ class DllExport array_json_creator : public sub_array_json_creator_t
 {
 public:
     array_json_creator() noexcept
-    : sub_array_json_creator_t(fixed::fstring_ref(m_fstr),
-                               base_json_creator<fixed::fstring_ref>::PreventAmbiguityOnConstructorCalls())
+    : sub_array_json_creator_t(fstr::fstr_ref(m_fstr),
+                             base_json_creator<fstr::fstr_ref>::PreventAmbiguityOnConstructorCalls())
     {}
 
 protected:
-    fixed::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_array};
+    fstr::fstring_base<STRING_CAPACITY, char> m_fstr{empty_json_array};
 };
 
-} // namespace f
+} // namespace fixed
 
 template<typename TStr>
 inline std::ostream& operator<<(std::ostream& os,
@@ -432,7 +438,7 @@ inline std::ostream& operator<<(std::ostream& os,
     return os;
 }
 
-namespace d // creators based on std::string&
+namespace dyna
 {
 
 using sub_object_json_creator_t = internal::sub_object_json_creator<std::string&>;
@@ -443,7 +449,7 @@ class DllExport object_json_creator : public sub_object_json_creator_t
 public:
     object_json_creator() noexcept
     : sub_object_json_creator_t(m_fstr,
-                                base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
+                              base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
     {}
 
 protected:
@@ -466,7 +472,7 @@ protected:
 
 } // namespace jsonland
 
-namespace jl_fixed = jsonland::f;
-namespace jl_dyna = jsonland::d;
+namespace jl_fixed = jsonland::fixed;
+namespace jl_dyna = jsonland::dyna;
 
 #endif // __json_creator_h__

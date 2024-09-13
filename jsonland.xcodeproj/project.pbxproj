@@ -12,7 +12,11 @@
 		F617B2BB2971B6A9007A0D81 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
-		F631F1C32C4FD591007C3C95 /* create_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F631F1C22C4FD591007C3C95 /* create_json.cpp */; };
+		F638E7662C80C38B00DCF533 /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2B22971B1EC007A0D81 /* gtest-all.cc */; };
+		F638E76B2C80C38B00DCF533 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
+		F638E7722C80C38B00DCF533 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F638E7782C80C45C00DCF533 /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
+		F638E7792C80C45C00DCF533 /* test_json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */; };
 		F648C9B52B3AEE550061D302 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F648C9BC2B3AEE8C0061D302 /* behaviours_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */; };
 		F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */; };
@@ -39,6 +43,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F638E7602C80C38B00DCF533 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6963C6426D51C1700C71771;
+			remoteInfo = jsonland;
+		};
 		F648C9B12B3AEE550061D302 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
@@ -71,6 +82,15 @@
 
 /* Begin PBXCopyFilesBuildPhase section */
 		F60CC62D26D3F8930035D17F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		F638E7732C80C38B00DCF533 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -118,23 +138,22 @@
 		F611015926CD66F600A01C16 /* create_json_gtests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = create_json_gtests.cpp; path = test/code/create_json_gtests.cpp; sourceTree = "<group>"; };
 		F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_json_gtests.cpp; path = test/code/parse_json_gtests.cpp; sourceTree = "<group>"; };
 		F611016E26CFF47E00A01C16 /* docs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = docs; sourceTree = "<group>"; };
-		F617B2A82971B182007A0D81 /* gtest_main.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = googletest/googletest/src/gtest_main.cc; sourceTree = "<group>"; };
-		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
+		F617B2A82971B182007A0D81 /* gtest_main.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = ../googletest/googletest/src/gtest_main.cc; sourceTree = "<group>"; };
+		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "../googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
-		F631F1C22C4FD591007C3C95 /* create_json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = create_json.cpp; path = test/code/create_json.cpp; sourceTree = "<group>"; };
+		F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_json_creator.cpp; path = test/code/test_json_creator.cpp; sourceTree = "<group>"; };
+		F638E7772C80C38B00DCF533 /* test_json_creator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_json_creator; sourceTree = BUILT_PRODUCTS_DIR; };
 		F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonBenchmarker.h; path = code/JsonBenchmarker.h; sourceTree = "<group>"; };
 		F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonlandBenchMarker.h; path = code/JsonlandBenchMarker.h; sourceTree = "<group>"; };
 		F641F9A32B124C0400C6E7AF /* RapidjsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RapidjsonBenchmarker.h; path = code/RapidjsonBenchmarker.h; sourceTree = "<group>"; };
 		F641F9A42B124C3800C6E7AF /* NlohmannBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NlohmannBenchmarker.h; path = code/NlohmannBenchmarker.h; sourceTree = "<group>"; };
-		F641F9A52B12537400C6E7AF /* rapidjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rapidjson.h; sourceTree = "<group>"; };
-		F641F9A62B1258A900C6E7AF /* writer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = writer.h; sourceTree = "<group>"; };
 		F648C9BA2B3AEE550061D302 /* behaviours */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = behaviours; sourceTree = BUILT_PRODUCTS_DIR; };
 		F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = behaviours_main.cpp; path = behaviours/behaviours_main.cpp; sourceTree = "<group>"; };
 		F64C47292C3EDF0B001430EC /* test_erase.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_erase.cpp; path = test/code/test_erase.cpp; sourceTree = "<group>"; };
-		F64C7EE326D7921C006E4F12 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		F64C7EE326D7921C006E4F12 /* test_json_node */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_json_node; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6507AF72C2EF19A001A3B94 /* fstringstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fstringstream.h; path = ../fstring/fstringstream.h; sourceTree = "<group>"; };
-		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
+		F65C68CB26C9629100E4AA5F /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gtest.h; path = ../googletest/googletest/include/gtest/gtest.h; sourceTree = "<group>"; };
 		F6625B7E2C2C607B00C66A2A /* json_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_creator.h; path = jsonland/json_creator.h; sourceTree = SOURCE_ROOT; };
 		F66782582B39CFF2003C59F8 /* ArduinoJsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArduinoJsonBenchmarker.h; sourceTree = "<group>"; };
 		F667825A2B39D1CF003C59F8 /* ArduinoJson */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ArduinoJson; sourceTree = "<group>"; };
@@ -148,11 +167,8 @@
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
 		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = parse_timing_main.cpp; path = ../benchmark/code/parse_timing_main.cpp; sourceTree = "<group>"; };
 		F6ABDE342B07C175007ACD9A /* string_or_view.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string_or_view.h; sourceTree = "<group>"; };
 		F6C14DBB2B1A121900E0202D /* just_parse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = just_parse.cpp; sourceTree = "<group>"; };
-		F6C77A612B3D96F700A2952F /* document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.h; sourceTree = "<group>"; };
-		F6D0F7202B188CD5009EF661 /* jsonland.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = jsonland.profdata; sourceTree = "<group>"; };
 		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
 		F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_get_value.cpp; path = test/code/test_get_value.cpp; sourceTree = "<group>"; };
 		F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_string_or_view.cpp; path = test/code/test_string_or_view.cpp; sourceTree = "<group>"; };
@@ -164,6 +180,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F638E7712C80C38B00DCF533 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F638E7722C80C38B00DCF533 /* libjsonland.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +230,6 @@
 			children = (
 				F60CC63126D3F8930035D17F /* benchmark_main.cpp */,
 				F667825A2B39D1CF003C59F8 /* ArduinoJson */,
-				F6963C4426D4C6D700C71771 /* rapidjson */,
 				F60CC63826D3F8B10035D17F /* nlohmann */,
 				F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */,
 				F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */,
@@ -229,7 +252,7 @@
 		F64C7EE426D7921C006E4F12 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				F631F1C22C4FD591007C3C95 /* create_json.cpp */,
+				F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */,
 				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
 				F611015926CD66F600A01C16 /* create_json_gtests.cpp */,
 				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
@@ -261,10 +284,8 @@
 				F60CC63026D3F8930035D17F /* benchmark */,
 				F65C68CA26C9624F00E4AA5F /* gtest */,
 				F64C7EE426D7921C006E4F12 /* test */,
-				F6ABDE2B2B065AB3007ACD9A /* timing */,
 				F65C68BC26C95D1B00E4AA5F /* Products */,
 				F6963CA526D55F9B00C71771 /* Frameworks */,
-				F6D0F71F2B188CD5009EF661 /* OptimizationProfiles */,
 			);
 			sourceTree = "<group>";
 		};
@@ -273,9 +294,10 @@
 			children = (
 				F60CC62F26D3F8930035D17F /* benchmark */,
 				F6963C6526D51C1700C71771 /* libjsonland.a */,
-				F64C7EE326D7921C006E4F12 /* test */,
+				F64C7EE326D7921C006E4F12 /* test_json_node */,
 				F6ABDE2A2B065AB3007ACD9A /* examples */,
 				F648C9BA2B3AEE550061D302 /* behaviours */,
+				F638E7772C80C38B00DCF533 /* test_json_creator */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -302,17 +324,6 @@
 			name = gtest;
 			sourceTree = "<group>";
 		};
-		F6963C4426D4C6D700C71771 /* rapidjson */ = {
-			isa = PBXGroup;
-			children = (
-				F6C77A612B3D96F700A2952F /* document.h */,
-				F641F9A62B1258A900C6E7AF /* writer.h */,
-				F641F9A52B12537400C6E7AF /* rapidjson.h */,
-			);
-			name = rapidjson;
-			path = ../rapidjson/include/rapidjson;
-			sourceTree = SOURCE_ROOT;
-		};
 		F6963CA526D55F9B00C71771 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -326,22 +337,6 @@
 				F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */,
 			);
 			name = behaviours;
-			sourceTree = "<group>";
-		};
-		F6ABDE2B2B065AB3007ACD9A /* timing */ = {
-			isa = PBXGroup;
-			children = (
-				F6ABDE2C2B065AB3007ACD9A /* parse_timing_main.cpp */,
-			);
-			path = timing;
-			sourceTree = "<group>";
-		};
-		F6D0F71F2B188CD5009EF661 /* OptimizationProfiles */ = {
-			isa = PBXGroup;
-			children = (
-				F6D0F7202B188CD5009EF661 /* jsonland.profdata */,
-			);
-			path = OptimizationProfiles;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -377,6 +372,24 @@
 			productReference = F60CC62F26D3F8930035D17F /* benchmark */;
 			productType = "com.apple.product-type.tool";
 		};
+		F638E75E2C80C38B00DCF533 /* test_json_creator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F638E7742C80C38B00DCF533 /* Build configuration list for PBXNativeTarget "test_json_creator" */;
+			buildPhases = (
+				F638E7612C80C38B00DCF533 /* Sources */,
+				F638E7712C80C38B00DCF533 /* Frameworks */,
+				F638E7732C80C38B00DCF533 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F638E75F2C80C38B00DCF533 /* PBXTargetDependency */,
+			);
+			name = test_json_creator;
+			productName = test;
+			productReference = F638E7772C80C38B00DCF533 /* test_json_creator */;
+			productType = "com.apple.product-type.tool";
+		};
 		F648C9AF2B3AEE550061D302 /* behaviours */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F648C9B72B3AEE550061D302 /* Build configuration list for PBXNativeTarget "behaviours" */;
@@ -395,9 +408,9 @@
 			productReference = F648C9BA2B3AEE550061D302 /* behaviours */;
 			productType = "com.apple.product-type.tool";
 		};
-		F64C7EE226D7921C006E4F12 /* test */ = {
+		F64C7EE226D7921C006E4F12 /* test_json_node */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test" */;
+			buildConfigurationList = F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test_json_node" */;
 			buildPhases = (
 				F64C7EDF26D7921C006E4F12 /* Sources */,
 				F64C7EE026D7921C006E4F12 /* Frameworks */,
@@ -408,9 +421,9 @@
 			dependencies = (
 				F64C7F0D26D79718006E4F12 /* PBXTargetDependency */,
 			);
-			name = test;
+			name = test_json_node;
 			productName = test;
-			productReference = F64C7EE326D7921C006E4F12 /* test */;
+			productReference = F64C7EE326D7921C006E4F12 /* test_json_node */;
 			productType = "com.apple.product-type.tool";
 		};
 		F6963C6426D51C1700C71771 /* jsonland */ = {
@@ -485,9 +498,10 @@
 			targets = (
 				F60CC62E26D3F8930035D17F /* benchmark */,
 				F6963C6426D51C1700C71771 /* jsonland */,
-				F64C7EE226D7921C006E4F12 /* test */,
+				F64C7EE226D7921C006E4F12 /* test_json_node */,
 				F6ABDE292B065AB3007ACD9A /* examples */,
 				F648C9AF2B3AEE550061D302 /* behaviours */,
+				F638E75E2C80C38B00DCF533 /* test_json_creator */,
 			);
 		};
 /* End PBXProject section */
@@ -499,6 +513,17 @@
 			files = (
 				F6AA89A72C2CA11100D5ED6E /* json_creator.cpp in Sources */,
 				F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F638E7612C80C38B00DCF533 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F638E7782C80C45C00DCF533 /* json_creator.cpp in Sources */,
+				F638E7792C80C45C00DCF533 /* test_json_creator.cpp in Sources */,
+				F638E7662C80C38B00DCF533 /* gtest-all.cc in Sources */,
+				F638E76B2C80C38B00DCF533 /* gtest_main.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -528,7 +553,6 @@
 				F6AA89A92C2CA11100D5ED6E /* json_creator.cpp in Sources */,
 				F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */,
 				F6FB299B2B28CC3D005D1D23 /* test_get_value.cpp in Sources */,
-				F631F1C32C4FD591007C3C95 /* create_json.cpp in Sources */,
 				F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -554,6 +578,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F638E75F2C80C38B00DCF533 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6963C6426D51C1700C71771 /* jsonland */;
+			targetProxy = F638E7602C80C38B00DCF533 /* PBXContainerItemProxy */;
+		};
 		F648C9B02B3AEE550061D302 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F6963C6426D51C1700C71771 /* jsonland */;
@@ -615,10 +644,35 @@
 			};
 			name = Release;
 		};
+		F638E7752C80C38B00DCF533 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				JSONLAND_DEBUG = 1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/googletest/build/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F638E7762C80C38B00DCF533 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				JSONLAND_DEBUG = 0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/googletest/build/lib",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		F648C9B82B3AEE550061D302 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
@@ -641,7 +695,6 @@
 		F648C9B92B3AEE550061D302 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_USE_OPTIMIZATION_PROFILE = NO;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
@@ -750,11 +803,12 @@
 				SDKROOT = macosx;
 				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
 				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../googletest/**",
 					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
-					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/..",
 				);
 			};
 			name = Debug;
@@ -820,11 +874,12 @@
 				SDKROOT = macosx;
 				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
 				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../googletest/**",
 					googletest/googletest,
 					rapidjson/include,
 					nlohmann/single_include,
-					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/..",
 				);
 			};
 			name = Release;
@@ -832,7 +887,6 @@
 		F6963C6726D51C1700C71771 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -843,7 +897,6 @@
 		F6963C6826D51C1700C71771 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_STYLE = Automatic;
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -887,6 +940,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F638E7742C80C38B00DCF533 /* Build configuration list for PBXNativeTarget "test_json_creator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F638E7752C80C38B00DCF533 /* Debug */,
+				F638E7762C80C38B00DCF533 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F648C9B72B3AEE550061D302 /* Build configuration list for PBXNativeTarget "behaviours" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -896,7 +958,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test" */ = {
+		F64C7EE926D7921C006E4F12 /* Build configuration list for PBXNativeTarget "test_json_node" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F64C7EE726D7921C006E4F12 /* Debug */,
