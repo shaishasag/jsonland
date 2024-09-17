@@ -167,6 +167,8 @@ public:
     [[nodiscard]] size_t max_size() const { return m_json_str.max_size(); }
     [[nodiscard]] const char* c_str() const { return m_json_str.c_str(); }
     [[nodiscard]] operator std::string_view() const { return m_json_str;}
+
+    explicit operator bool() const { return true; }  // to enable: if (object_json_creator jobj; jobj) {...}
 };
 
 template<typename>

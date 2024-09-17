@@ -422,3 +422,62 @@ TYPED_TEST(CreateJsonTemplatedTest, square_brackets)
     
     EXPECT_STREQ(joc1.c_str(), R"({"Amii": "Stewart", "year": 1956, "mark": 10.0, "good": true, "bad": false, "where": null})");
 }
+
+
+TYPED_TEST(CreateJsonTemplatedTest, if_array_if_object)
+{
+    using obj_creator_t = typename TypeParam::first_type;
+    using arr_creator_t = typename TypeParam::second_type;
+
+    if (arr_creator_t j_array;
+        j_array)
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            if (auto j_sub_obj = j_array.append_object();
+                j_sub_obj)
+            {
+                j_sub_obj["i"] = i;
+            }
+            else
+            {
+                EXPECT_TRUE(false);
+            }
+        }
+        std::string_view expected = R"([{"i": 0}, {"i": 1}, {"i": 2}])";
+        EXPECT_EQ(expected, std::string_view(j_array));
+    }
+    else
+    {
+        EXPECT_TRUE(false);
+    }
+}
+
+TYPED_TEST(CreateJsonTemplatedTest, if_object_if_array)
+{
+    using obj_creator_t = typename TypeParam::first_type;
+    using arr_creator_t = typename TypeParam::second_type;
+
+    if (obj_creator_t j_object;
+        j_object)
+    {
+        if (auto j_sub_array = j_object.append_array("arrrrr");
+            j_sub_array)
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                j_sub_array.push_back(i);
+            }
+        }
+        else
+        {
+            EXPECT_TRUE(false);
+        }
+        std::string_view expected = R"({"arrrrr": [0, 1, 2]})";
+        EXPECT_EQ(expected, std::string_view(j_object));
+    }
+    else
+    {
+        EXPECT_TRUE(false);
+    }
+}
