@@ -92,6 +92,12 @@ inline void write_value(const TValue in_value, TStr& in_json_str)
         copy_and_escape(std::string_view(in_value), in_json_str);
         in_json_str += '"';
     }
+    else if constexpr (std::is_enum_v<TValue>)
+    {
+        fstr::fstr127 fs;
+        fs.printf(static_cast<int>(in_value));
+        in_json_str += fs;
+    }
     else
     {
         // if you got a compilation error here, it means
@@ -210,6 +216,12 @@ public:
 
     [[nodiscard]] sub_object_json_creator append_object(std::string_view in_key);
     [[nodiscard]] sub_array_json_creator<TStr> append_array(std::string_view in_key);
+
+    // extend the object from a string already formated as an object
+    // the values in in_object_str will become part of this object
+    // in_object_str is assumed to be a string beginning with '{' and ending with '}'
+    // if in_object_str is not formated properly as json object, resutls are undefined
+    void extend_json_str(const std::string_view in_object_str);
 
     // add a value that is already formated as json to the end of the object
     // useful in case you have a string containing a number and you want to
@@ -332,6 +344,13 @@ public:
     [[nodiscard]] sub_array_json_creator append_array();
     [[nodiscard]] sub_object_json_creator<TStr> append_object();
 
+
+    // extend the array from a string already formated as an array
+    // the values in in_array_str will extend this array
+    // in_array_str is assumed to be a string beginning with '[' and ending with ']'
+    // if in_array_str is not formated properly as json array, resutls are undefined
+    void extend_json_str(const std::string_view in_array_str);
+
     // add a value that is already formated as json
     void append_json_str(const std::string_view in_value);
 
@@ -440,7 +459,7 @@ inline std::ostream& operator<<(std::ostream& os,
     return os;
 }
 
-namespace dyna
+namespace dyna // creators based on std::string&
 {
 
 using sub_object_json_creator_t = internal::sub_object_json_creator<std::string&>;

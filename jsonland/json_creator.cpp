@@ -71,6 +71,33 @@ sub_array_json_creator<TStr> sub_object_json_creator<TStr>::append_array(std::st
     return retVal;
 }
 
+// extend from a string that is already formated as json object
+template<typename TStr>
+void sub_object_json_creator<TStr>::extend_json_str(const std::string_view in_object_str)
+{
+    auto start = in_object_str.find_first_of('{');
+    start = start < in_object_str.size() ? start + 1 : in_object_str.size();
+
+    auto end = in_object_str.find_last_of('}');
+    end = end < in_object_str.size() ? end - 1 : 0;
+
+    if (end > start)
+    {
+
+        typename base_json_creator<TStr>::save_restore_end sv(*this);
+        if (0 < this->m_num_subs) {  // not first, need to add ','
+            this->m_json_str += internal::_COMMA;
+            this->m_json_str += ___object_whitespace_after_comma;
+        }
+        ++this->m_num_subs;
+
+        std::string_view object_str_without_braces = in_object_str.substr(start, end - start + 1);
+        this->m_json_str += object_str_without_braces;
+    }
+
+}
+
+
 // add a value that is already formated as json
 template<typename TStr>
 void sub_object_json_creator<TStr>::append_json_str(const std::string_view in_key, const std::string_view in_value)
@@ -205,6 +232,30 @@ sub_object_json_creator<TStr> sub_array_json_creator<TStr>::append_object()
                                          (this->m_level)+1);
 
     return retVal;
+}
+
+template<typename TStr>
+void sub_array_json_creator<TStr>::extend_json_str(const std::string_view in_array_str)
+{
+    auto start = in_array_str.find_first_of('[');
+    start = start < in_array_str.size() ? start + 1 : in_array_str.size();
+
+    auto end = in_array_str.find_last_of(']');
+    end = end < in_array_str.size() ? end - 1 : 0;
+
+    if (end > start)
+    {
+        typename base_json_creator<TStr>::save_restore_end sv(*this);
+        if (0 < this->m_num_subs) {  // not first, need to add ','
+            this->m_json_str += internal::_COMMA;
+            this->m_json_str += ___object_whitespace_after_comma;
+        }
+        ++this->m_num_subs;
+
+        std::string_view array_str_without_brackets = in_array_str.substr(start, end - start + 1);
+        this->m_json_str += array_str_without_brackets;
+    }
+
 }
 
 // add a value that is already formated as json to the end of the array

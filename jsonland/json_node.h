@@ -172,8 +172,6 @@ private:
     friend class parser_impl::Parser;
 
 public:
-
-
     /// Default constructor.
     /// JSON value type (#m_value_type) is set to #null_t.
     explicit json_node() = default;
@@ -263,6 +261,7 @@ public:
         m_value.reference_value(in_str_value);
         return *this;
     }
+
 
     /// Constructor with string value, but #value_type to set to #in_type not necessarily #string_t.
     /// @param in_str_value the new string value.
@@ -514,6 +513,7 @@ public:
     // Return the "size" according to the type, where size means:
     // num_elements for object_t and array_t
     // length of string for string_t
+    // 1 for number_t and bool_t, since they always hold some (possibly default) value 
     // @param in_expected_type the type to be checked
     // @return size if this json_node is of expected type
     // num_elements for object_t
@@ -535,6 +535,7 @@ public:
                     retVal = m_values.size(); break;
                 case string_t:
                     retVal = m_value.size(); break;
+                case bool_t:
                 case number_t:
                     retVal = 1; break;
                 case null_t:
@@ -550,7 +551,7 @@ public:
     // Return "empty" according to the type, where empty means:
     // num_elements == 0 for object_t and array_t
     // length of string == 0  for string_t
-    // false is always returned for number_t and bool_t
+    // false is always returned for number_t and bool_t, since they always hold some value
     // true is always returned for null_t
     // @param in_expected_type the type to be checked
     // If the actual type does not match in_expected_type, true is returned
@@ -563,6 +564,7 @@ public:
     /// @brief Returns the number of elements that the object or array has currently allocated space for,
     /// similiar to std::vector::capacity().
     /// @return Capacity of the currently allocated storage.
+
     size_t capacity() noexcept
     {
         size_t capa = 0;
@@ -660,6 +662,23 @@ public:
     bool contains(std::string_view in_key) const noexcept
     {
         bool retVal = 1 == count(in_key);
+        return retVal;
+    }
+
+    /// Checks if there is a child element with given key and given type.
+    /// @return <b>true</b> if JSON value type of this object is #object_t AND the object contains
+    /// child element with the given key, and the child element is of the given type.
+    /// <br> <b>false</b> otherwise
+    bool contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
+    {
+        bool retVal{false};
+
+        if (contains(in_key))
+        {
+            const json_node& theJ = m_values[m_obj_key_to_index.at(in_key)];
+            retVal = in_expected_type == theJ.m_value_type;
+        }
+
         return retVal;
     }
 
@@ -1144,7 +1163,7 @@ private:
     // programatically (i.e. not when read from a string).
     // One solution could be to convert the number to text upon assignment, but this could be inefficiant if get_float()
     // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
-    // occur in the same json_node is repeatadly assigned number values. The compramise is to store the number as it was
+    // occur in the same json_node is repeatadly assigned number values. The compromise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
     bool is_num_in_string() const {return m_hints & json_node::_num_in_string;}
     bool is_string_assigned() const {return m_value.is_value_stored();}

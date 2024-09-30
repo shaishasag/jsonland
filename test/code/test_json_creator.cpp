@@ -453,7 +453,7 @@ TYPED_TEST(CreateJsonTemplatedTest, if_array_if_object)
     }
 }
 
-TYPED_TEST(CreateJsonTemplatedTest, if_object_if_array)
+TYPED_TEST(CreateJsonTemplatedTest, uncodify)
 {
     using obj_creator_t = typename TypeParam::first_type;
     using arr_creator_t = typename TypeParam::second_type;
@@ -461,23 +461,75 @@ TYPED_TEST(CreateJsonTemplatedTest, if_object_if_array)
     if (obj_creator_t j_object;
         j_object)
     {
-        if (auto j_sub_array = j_object.append_array("arrrrr");
+        if (auto j_sub_array = j_object.append_array("˝˝");
             j_sub_array)
         {
-            for (int i = 0; i < 3; ++i)
-            {
-                j_sub_array.push_back(i);
-            }
+            j_sub_array.push_back("Å");
+            j_sub_array.push_back("©");
+            j_sub_array.push_back("土肥金山");
         }
         else
         {
             EXPECT_TRUE(false);
         }
-        std::string_view expected = R"({"arrrrr": [0, 1, 2]})";
+        std::string_view expected = R"({"˝˝": ["Å", "©", "土肥金山"]})";
         EXPECT_EQ(expected, std::string_view(j_object));
     }
     else
     {
         EXPECT_TRUE(false);
     }
+}
+
+TYPED_TEST(CreateJsonTemplatedTest, extend_object)
+{
+    using obj_creator_t = typename TypeParam::first_type;
+    using arr_creator_t = typename TypeParam::second_type;
+
+    obj_creator_t joc1;
+    joc1["Agnetha Fältskog"] = "Vocals";
+    joc1["Anni-Frid Lyngstad"] = "Vocals";
+
+    joc1.extend_json_str(R"( {"Björn Ulvaeus": "Guitars", "Benny Andersson": "Keyboards"} )");
+
+    std::string_view expected = R"({"Agnetha Fältskog": "Vocals", "Anni-Frid Lyngstad": "Vocals", "Björn Ulvaeus": "Guitars", "Benny Andersson": "Keyboards"})";
+    EXPECT_EQ(expected, std::string_view(joc1));
+
+    joc1.extend_json_str("{}"); // empty object, should not extend
+    EXPECT_EQ(expected, std::string_view(joc1));
+
+    joc1.extend_json_str(""); // empty string, should not extend
+    EXPECT_EQ(expected, std::string_view(joc1));
+
+    joc1.extend_json_str(R"("Rutger Gunnarsson": "Bass}")"); // no {, should not extend
+    EXPECT_EQ(expected, std::string_view(joc1));
+    joc1.extend_json_str(R"("{Rutger Gunnarsson": "Bass")"); // no }, should not extend
+    EXPECT_EQ(expected, std::string_view(joc1));
+}
+
+
+TYPED_TEST(CreateJsonTemplatedTest, extend_array)
+{
+    using obj_creator_t = typename TypeParam::first_type;
+    using arr_creator_t = typename TypeParam::second_type;
+
+    arr_creator_t arr1;
+    arr1.append_value("Agnetha Fältskog");
+    arr1.append_value("Anni-Frid Lyngstad");
+
+    arr1.extend_json_str(R"( ["Björn Ulvaeus", "Benny Andersson"] )");
+
+    std::string_view expected = R"(["Agnetha Fältskog", "Anni-Frid Lyngstad", "Björn Ulvaeus", "Benny Andersson"])";
+    EXPECT_EQ(expected, std::string_view(arr1));
+
+    arr1.extend_json_str("[]"); // empty array, should not extend
+    EXPECT_EQ(expected, std::string_view(arr1));
+
+    arr1.extend_json_str(""); // empty string, should not extend
+    EXPECT_EQ(expected, std::string_view(arr1));
+
+    arr1.extend_json_str(R"("Rutger Gunnarsson"])"); // no [, should not extend
+    EXPECT_EQ(expected, std::string_view(arr1));
+    arr1.extend_json_str(R"(["Rutger Gunnarsson")"); // no ], should not extend
+    EXPECT_EQ(expected, std::string_view(arr1));
 }
