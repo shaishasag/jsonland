@@ -333,6 +333,55 @@ size_t json_node::memory_consumption() const noexcept
     return retVal;
 }
 
+bool json_node::is_full_owner() const noexcept
+{
+    bool retVal{false};
+
+    switch (m_value_type)
+    {
+        case jsonland::value_type::uninitialized_t:
+        case jsonland::value_type::null_t:
+        case jsonland::value_type::bool_t:
+            retVal = true;
+        break;
+        case jsonland::value_type::number_t:
+        case jsonland::value_type::string_t:
+            retVal = (m_value.empty() || m_value.is_value_stored()) && (m_key.empty() || m_key.is_value_stored());
+        break;
+        case jsonland::value_type::array_t:
+        case jsonland::value_type::object_t:
+            retVal = std::all_of(m_values.begin(),
+                                 m_values.end(),
+                                 [](const auto& sub_val)
+                                    {return sub_val.is_full_owner();} );
+        break;
+    }
+
+    return retVal;
+}
+
+void json_node::take_ownership() noexcept
+{
+    m_key.convert_referenced_value_to_stored();
+    m_value.convert_referenced_value_to_stored();
+    switch (m_value_type)
+    {
+        case jsonland::value_type::uninitialized_t:
+        case jsonland::value_type::null_t:
+        case jsonland::value_type::bool_t:
+        case jsonland::value_type::number_t:
+        case jsonland::value_type::string_t:
+        break;
+        case jsonland::value_type::array_t:
+        case jsonland::value_type::object_t:
+            for (auto& val : m_values)
+            {
+                val.take_ownership();
+            }
+        break;
+    }
+}
+
 namespace jsonland
 {
 

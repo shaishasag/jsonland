@@ -83,3 +83,26 @@ TEST(MemberValue, as_type)
     EXPECT_EQ(n1.get<std::string_view>(), "");
 
 }
+
+TEST(MemberValue, get_as)
+{
+    {
+        jsonland::json_node j_num(17);
+
+        EXPECT_EQ(j_num.get<int>(), 17);
+        EXPECT_EQ(j_num.get_as<int>(), 17);
+        EXPECT_EQ(j_num.get_string(), std::string_view(""));
+
+        // cannot get number as string as it would cause allocation
+        EXPECT_NE(j_num.get_as<std::string_view>(), std::string_view("17"));
+    }
+
+    {
+        jsonland::json_node j_str_num("19");
+
+        EXPECT_EQ(j_str_num.get<int>(), 0);
+        EXPECT_EQ(j_str_num.get_as<int>(), 19);
+        EXPECT_EQ(j_str_num.get_string(), std::string_view("19"));
+        EXPECT_EQ(j_str_num.get_as<std::string_view>(), std::string_view("19"));
+    }
+}

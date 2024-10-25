@@ -513,7 +513,7 @@ public:
     // Return the "size" according to the type, where size means:
     // num_elements for object_t and array_t
     // length of string for string_t
-    // 1 for number_t and bool_t, since they always hold some (possibly default) value 
+    // 1 for number_t and bool_t, since they always hold some (possibly default) value
     // @param in_expected_type the type to be checked
     // @return size if this json_node is of expected type
     // num_elements for object_t
@@ -765,6 +765,20 @@ public:
         return retVal;
     }
 
+    json_node& append_object(std::string_view in_key, size_t in_reserve=0)
+    {
+        if (JSONLAND_LIKELY(is_object()))
+        {
+            json_node& retVal = this->operator[](in_key);
+            retVal = object_t;
+            retVal.reserve(in_reserve);
+
+            return retVal;
+        }
+        else
+            return *this;  // what to return here?
+    }
+
     json_node& append_array(std::string_view in_key, size_t in_reserve=0)
     {
         if (JSONLAND_LIKELY(is_object()))
@@ -926,7 +940,7 @@ public:
     std::ostream& dump(std::ostream& os) const noexcept;
 
     /// Get the string value as std::string_view
-    /// @return the string value with .
+    /// @return the string value
     /// <br>If JSON value type is #null_t: null
     /// <br>If JSON value type is #bool_t: true or false
     /// <br>If JSON value type is #string_t: the string, unquoted, with escaped characters if/where needed.
@@ -985,7 +999,7 @@ public:
     /// double f3 = string_node.get_float<double>();    // f3 == 0.0, since string_node does not hold a number value, and implicit default value (0.0) is used.
     /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
     /// @endcode
-    template<typename TFLOAT, IsFloat<TFLOAT>* = nullptr>
+    template<typename TFLOAT=double, IsFloat<TFLOAT>* = nullptr>
     TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
     {
         TFLOAT retVal = in_default_fp;
@@ -998,6 +1012,12 @@ public:
         }
 
         return retVal;
+    }
+
+    // shortcut for get_float<double>
+    double get_double(const double in_default_dbl=0.0) const noexcept
+    {
+        return get_float<double>(in_default_dbl);
     }
 
     /// @brief If JSON value type is number, returns the number as an integer. Otherwise returns the given default value.
@@ -1121,11 +1141,137 @@ public:
         }
     }
 
+    /// @brief Get the value according the the type of #TASTYPE or try to convert the value to #TASTYPE
+    ///
+    /// Useful, for example, when a json_node might hold a number as a string
+    /// If there is a mismatch between the JSON value type and the type of #TASTYPE,
+    /// try to convert the string_t to the required type. If no conversion can be made
+    ///
+    /// <br>Example:
+    /// @code
+    /// jsonland::json_node number_in_str_node{"123.456"};
+    /// int f1 = number_node.get_as<int>();         // f1 == 123
+    /// float f2 = number_node.get_as<float>();     // f2 == 123.456
+    /// bool f3 = number_node.get_as<bool>();       // f3 == false
+    /// @endcode
+    template<typename TASTYPE>
+    TASTYPE get_as() const noexcept
+    {
+        TASTYPE retVal{};
+        if constexpr (std::is_null_pointer_v<TASTYPE>) {
+            retVal = nullptr;
+        }
+        else if constexpr (std::is_same<bool, TASTYPE>::value)
+        {
+            if (is_null())
+            {
+                retVal = false;
+            }
+            else if (is_bool())
+            {
+                retVal = get_bool();
+            }
+            else if (is_number())
+            {
+                retVal = get_int<int>() == 0 ? false : true;
+            }
+            else if (is_string())
+            {
+                std::string_view str_val = get_string();
+                if (str_val == "true") {
+                    retVal = true;
+                }
+            }
+            else
+            {
+                retVal = false;
+            }
+        }
+        else if constexpr (std::is_floating_point_v<TASTYPE>)
+        {
+            if (is_null())
+            {
+                retVal = 0.0;
+            }
+            else if (is_bool())
+            {
+                retVal = get_bool() ? 1.0 : 0.0;
+            }
+            else if (is_number())
+            {
+                retVal = get_float<TASTYPE>();
+            }
+            else if (is_string())
+            {
+                std::string_view str_val = get_string();
+                retVal = static_cast<TASTYPE>(std::atof(str_val.data()));
+            }
+            else
+            {
+                retVal = 0.0;
+            }
+        }
+        else if constexpr (std::is_integral_v<TASTYPE>)
+        {
+            if (is_null())
+            {
+                retVal = 0;
+            }
+            else if (is_bool())
+            {
+                retVal = get_bool() ? 1 : 0;
+            }
+            else if (is_number())
+            {
+                retVal = get_int<TASTYPE>();
+            }
+            else if (is_string())
+            {
+                std::string_view str_val = get_string();
+                retVal = static_cast<TASTYPE>(std::atoll(str_val.data()));
+            }
+            else
+            {
+                retVal = 0;
+            }
+        }
+        else if constexpr (std::is_convertible_v<TASTYPE, std::string_view>)
+        {
+            if (is_null())
+            {
+                retVal = the_null_string_view;
+            }
+            else if (is_bool())
+            {
+                retVal = get_bool() ? the_true_string_view : the_false_string_view;
+            }
+            else if (is_number())
+            {
+            }
+            else if (is_string())
+            {
+                retVal = static_cast<TASTYPE>(get_string());
+            }
+            else
+            {
+                retVal = the_empty_string_view;
+            }
+        }
+        else {
+            static_assert(!std::is_same_v<TASTYPE, TASTYPE>, "Unsupported type");
+        }
+
+        return retVal;
+    }
+
     std::string_view key() const noexcept
     {
         m_key.unescape_internal();
         return m_key.as_string_view();
     }
+
+    bool is_full_owner() const noexcept;
+    void take_ownership() noexcept;
 
 private:
 

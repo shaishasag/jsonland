@@ -40,3 +40,71 @@ TEST(TestCompare, numbers)
     json_node jn_num3(num2_binary);
     EXPECT_EQ(jn_num1, jn_num3); // equal because the binary representation is the same
 }
+
+TEST(TestCompare, copy_object)
+{
+    json_node jn_copy_1;
+    json_node jn_copy_2;
+
+    {
+        json_node jn_original(jsonland::value_type::object_t);
+        jn_original["one"] = 1;
+        jn_original["two"] = 2.0;
+        auto& arrr = jn_original.append_array("three");
+        arrr.push_back(1);
+        arrr.push_back(2);
+        arrr.push_back(3);
+
+        EXPECT_EQ(jn_original, jn_original); // should be equal to itself
+
+        json_node copy_the_arrr_1{arrr};
+        json_node copy_the_arrr_2{jn_original["three"]};
+        EXPECT_EQ(copy_the_arrr_1, copy_the_arrr_2);
+
+        jn_copy_1 = jn_original;
+        jn_copy_2 = jn_original;
+        jn_original.clear();
+    } // here jn_original goes out of scope making sure jn_copy_1 & jn_copy_2 are independant
+    EXPECT_EQ(jn_copy_1, jn_copy_2);
+
+    jn_copy_1["three"].push_back(4);
+    jn_copy_1["four"] = "rock";
+    jn_copy_2["three"].push_back(4);
+    jn_copy_2["four"] = "rock";
+    EXPECT_EQ(jn_copy_1, jn_copy_2); // should still be equal
+
+    jn_copy_1["five"] = "O";
+    jn_copy_2["five"] = "0";
+    EXPECT_NE(jn_copy_1, jn_copy_2); // now they are different
+}
+
+TEST(TestCompare, move_object)
+{
+    json_node jn_copy_1;
+    json_node jn_copy_2;
+
+    {
+        json_node jn_original(jsonland::value_type::object_t);
+        jn_original["one"] = 1;
+        jn_original["two"] = 2.0;
+        auto& arrr = jn_original.append_array("three");
+        arrr.push_back(1);
+        arrr.push_back(2);
+        arrr.push_back(3);
+
+        jn_copy_1 = jn_original;
+        jn_copy_2 = std::move(jn_original);
+        jn_original.clear();
+    } // here jn_original goes out of scope making sure jn_copy_1 & jn_copy_2 are independant
+    EXPECT_EQ(jn_copy_1, jn_copy_2);
+
+    jn_copy_1["three"].push_back(4);
+    jn_copy_1["four"] = "rock";
+    jn_copy_2["three"].push_back(4);
+    jn_copy_2["four"] = "rock";
+    EXPECT_EQ(jn_copy_1, jn_copy_2); // should still be equal
+
+    jn_copy_1["five"] = "O";
+    jn_copy_2["five"] = "0";
+    EXPECT_NE(jn_copy_1, jn_copy_2); // now they are different
+}
