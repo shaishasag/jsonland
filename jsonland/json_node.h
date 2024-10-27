@@ -68,7 +68,6 @@ enum value_type : uint32_t
 
 namespace parser_impl { class Parser; }
 
-
 class DllExport json_node
 {
 public:
@@ -111,7 +110,7 @@ public:
     using ArrayVec = std::vector<json_node>;
 
 private:
-    static const json_node const_uninitialized_json_node;
+    const json_node& const_uninitialized_json_node() const;
 
     /// JSON value type of this instance, can be any of the values in enum #value_type.
     /// Initilay it is set to #null_t
@@ -745,11 +744,11 @@ public:
                 return m_values[m_obj_key_to_index.at(key)];
             }
             else {
-                return const_uninitialized_json_node;
+                return const_uninitialized_json_node();
             }
         }
         else
-            return const_uninitialized_json_node;  // what to return here?
+            return const_uninitialized_json_node();  // what to return here?
     }
 
     /// Erase from object by key and return the number of items erased (0 or 1)
@@ -872,7 +871,7 @@ public:
     /// Provides read-only access to a json_node based on the given integer index. If the current
     /// json_node is an array and the specified index is within bounds, this function returns a
     /// reference to the node at that index. Otherwise, it returns a reference to an uninitialized
-    /// Jjson_node.
+    /// json_node.
     ///
     /// @tparam INT An integer type, constrained by `IsInteger`.
     /// @param in_dex The index to access, represented as an integer of type `INT`.
@@ -892,12 +891,12 @@ public:
     template <typename INT, IsInteger<INT>* = nullptr >
     const json_node& operator[](INT in_dex) const noexcept
     {
-        if (size_as(array_t) > in_dex)
+        if (size_as(array_t) > static_cast<size_t>(in_dex))
         {
             return m_values.at(in_dex);
         }
         else
-            return const_uninitialized_json_node;
+            return const_uninitialized_json_node();
     }
 
     json_node& append_object(size_t in_reserve=0)

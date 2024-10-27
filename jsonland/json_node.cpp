@@ -129,7 +129,11 @@ static const char* name_of_control_char(const char in_c)
 
 // dummy uninitialized json_node to be returned from operator[] const; where the
 // object/array doe snot contain the key/index
-const json_node json_node::const_uninitialized_json_node(jsonland::uninitialized_t);
+const json_node& json_node::const_uninitialized_json_node() const
+{
+    static const json_node the_const_uninitialized_json_node(jsonland::uninitialized_t);
+    return the_const_uninitialized_json_node;
+}
 
 
 json_node& json_node::operator=(const json_node& in_node) noexcept
