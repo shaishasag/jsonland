@@ -106,3 +106,53 @@ TEST(MemberValue, get_as)
         EXPECT_EQ(j_str_num.get_as<std::string_view>(), std::string_view("19"));
     }
 }
+
+TEST(MemberValue, non_existing_in_const)
+{
+    {
+        jsonland::json_node jo;
+        jo["one"] = 1.0;
+
+        const jsonland::json_node jo_copy(jo);
+
+        EXPECT_EQ(jo_copy["one"].get_double(), 1.0);
+
+        // getting a value from non existing member of an object should return the default value
+        EXPECT_EQ(jo_copy["two"].get_double(17.19), 17.19);
+        EXPECT_EQ(jo_copy["two"].get_int<int32_t>(17), 17);
+        EXPECT_EQ(jo_copy["two"].get_string("17"), "17");
+        EXPECT_EQ(jo_copy["two"].get_bool(), false);
+        EXPECT_EQ(jo_copy["two"].get_bool(true), true);
+        EXPECT_EQ(jo_copy["two"].get_null(), nullptr);
+
+        // getting a value from non existing object member should be recursive:
+        // getting a value from non existing member of an object accessed as an object should return the default value
+        EXPECT_EQ(jo_copy["two"]["three"].get_double(23.29), 23.29);
+
+        // getting a value from non existing member of an object accessed as an array should return the default value
+        EXPECT_EQ(jo_copy["two"][0].get_double(23.29), 23.29);
+    }
+    {
+        jsonland::json_node ja;
+        ja.push_back(1.0);
+
+        const jsonland::json_node ja_copy(ja);
+
+        EXPECT_EQ(ja_copy[0].get_double(), 1.0);
+
+        // getting a value from non existing member of an array should return the default value
+        EXPECT_EQ(ja_copy[1].get_double(17.19), 17.19);
+        EXPECT_EQ(ja_copy[1].get_int<int32_t>(17), 17);
+        EXPECT_EQ(ja_copy[1].get_string("17"), "17");
+        EXPECT_EQ(ja_copy[1].get_bool(), false);
+        EXPECT_EQ(ja_copy[1].get_bool(true), true);
+        EXPECT_EQ(ja_copy[1].get_null(), nullptr);
+
+        // getting a value from non existing array member should be recursive:
+        // getting a value from non existing member of an array accessed as an object should return the default value
+        EXPECT_EQ(ja_copy[2]["three"].get_double(23.29), 23.29);
+
+        // getting a value from non existing member of an array accessed as an array should return the default value
+        EXPECT_EQ(ja_copy[2][0].get_double(23.29), 23.29);
+    }
+}

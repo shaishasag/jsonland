@@ -68,6 +68,7 @@ enum value_type : uint32_t
 
 namespace parser_impl { class Parser; }
 
+
 class DllExport json_node
 {
 public:
@@ -110,6 +111,7 @@ public:
     using ArrayVec = std::vector<json_node>;
 
 private:
+    static const json_node const_uninitialized_json_node;
 
     /// JSON value type of this instance, can be any of the values in enum #value_type.
     /// Initilay it is set to #null_t
@@ -713,16 +715,41 @@ public:
             return *this;  // what to return here?
     }
 
+    /// @brief Accesses the JSON node corresponding to the specified key.
+    ///
+    /// Provides read-only access to a JSON node based on the given key. If the current json_node
+    /// is an object and contains the specified key, this function returns a reference to the node
+    /// associated with that key. Otherwise, it returns a reference to an uninitialized json_node.
+    ///
+    /// @param in_str The key to look up, represented as a `std::string_view`.
+    ///
+    /// @return A reference to the `json_node` associated with the specified key if found;
+    ///         otherwise, returns a reference to `const_uninitialized_json_node`.
+    ///
+    /// @note This function assumes the current `json_node` is an object. If it is not, or if the
+    ///       specified key does not exist within the object, the function returns a reference
+    ///       to `const_uninitialized_json_node`.
+    ///
+    /// @exception None This function is marked `noexcept` and will not throw.
+    ///
+    /// @warning Accessing a non-existent key returns `const_uninitialized_json_node`, which may
+    ///          represent an invalid or empty state. The caller should verify the presence of the key
+    ///          beforehand or check the returned node's validity before use.
     const json_node& operator[](std::string_view in_str) const noexcept
     {
         if (JSONLAND_LIKELY(is_object()))
         {
             string_or_view key;
             key.reference_value(in_str);
-            return m_values[m_obj_key_to_index.at(key)];
+            if (contains(key.as_string_view())) {
+                return m_values[m_obj_key_to_index.at(key)];
+            }
+            else {
+                return const_uninitialized_json_node;
+            }
         }
         else
-            return *this;  // what to return here?
+            return const_uninitialized_json_node;  // what to return here?
     }
 
     /// Erase from object by key and return the number of items erased (0 or 1)
@@ -840,15 +867,37 @@ public:
             return *this;  // what to return here?
     }
 
+    /// @brief Accesses the JSON node at the specified index for array-type json_node.
+    ///
+    /// Provides read-only access to a json_node based on the given integer index. If the current
+    /// json_node is an array and the specified index is within bounds, this function returns a
+    /// reference to the node at that index. Otherwise, it returns a reference to an uninitialized
+    /// Jjson_node.
+    ///
+    /// @tparam INT An integer type, constrained by `IsInteger`.
+    /// @param in_dex The index to access, represented as an integer of type `INT`.
+    ///
+    /// @return A reference to the `json_node` at the specified index if it is within bounds;
+    ///         otherwise, returns a reference to `const_uninitialized_json_node`.
+    ///
+    /// @note This function assumes the current `json_node` is an array. If it is not, or if the
+    ///       specified index is out of bounds, the function returns a reference to
+    ///       `const_uninitialized_json_node`.
+    ///
+    /// @exception None This function is marked `noexcept` and will not throw.
+    ///
+    /// @warning Accessing an out-of-bounds index returns `const_uninitialized_json_node`, which
+    ///          may represent an invalid or empty state. The caller should verify that the index is
+    ///          within bounds or check the returned node's validity before use.
     template <typename INT, IsInteger<INT>* = nullptr >
     const json_node& operator[](INT in_dex) const noexcept
     {
-        if (JSONLAND_LIKELY(is_array()))
+        if (size_as(array_t) > in_dex)
         {
             return m_values.at(in_dex);
         }
         else
-            return *this;  // what to return here?
+            return const_uninitialized_json_node;
     }
 
     json_node& append_object(size_t in_reserve=0)

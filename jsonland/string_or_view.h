@@ -135,9 +135,10 @@ public:
         m_num_escapes = in_num_escapes;
     }
 
-    void store_value(const std::string& in_str) noexcept
+    void store_value(const std::string& in_str, const int in_num_escapes=0) noexcept
     {
         m_value = in_str;
+        m_num_escapes = in_num_escapes;
 #if JSONLAND_DEBUG==1
     ++num_allocations;
 #endif
