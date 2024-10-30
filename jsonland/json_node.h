@@ -549,6 +549,7 @@ public:
         }
         return retVal;
     }
+
     // Return "empty" according to the type, where empty means:
     // num_elements == 0 for object_t and array_t
     // length of string == 0  for string_t
@@ -562,10 +563,20 @@ public:
         return retVal;
     }
 
+    // Return "empty" for the current json type, where empty means:
+    // num_elements == 0 for object_t and array_t
+    // length of string == 0  for string_t
+    // false is always returned for number_t and bool_t, since they always hold some value
+    // true is always returned for null_t, and for uninitialized_t
+    bool empty() const noexcept
+    {
+        bool retVal = empty_as(value_type());
+        return retVal;
+    }
+
     /// @brief Returns the number of elements that the object or array has currently allocated space for,
     /// similiar to std::vector::capacity().
     /// @return Capacity of the currently allocated storage.
-
     size_t capacity() noexcept
     {
         size_t capa = 0;

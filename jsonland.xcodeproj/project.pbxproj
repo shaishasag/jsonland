@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F6020A9A2CCEA397004A630B /* test_copy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6020A992CCEA397004A630B /* test_copy.cpp */; };
 		F60CC63226D3F8930035D17F /* benchmark_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC63126D3F8930035D17F /* benchmark_main.cpp */; };
 		F6139BBE2CC91C0A0006F0AB /* test_deduce_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */; };
 		F6139BBF2CC91C8F0006F0AB /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
@@ -132,6 +133,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F6020A992CCEA397004A630B /* test_copy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_copy.cpp; path = test/code/test_copy.cpp; sourceTree = "<group>"; };
 		F60CC61726D23F920035D17F /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = ../../../../Volumes/p4client/ProAudio/SDKs/JSON/nlohmann/3.10.5/single_include/nlohmann/json.hpp; sourceTree = SOURCE_ROOT; };
 		F60CC61C26D2723A0035D17F /* test_ctors.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ctors.cpp; path = test/code/test_ctors.cpp; sourceTree = "<group>"; };
 		F60CC61F26D272C40035D17F /* test_assign.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_assign.cpp; path = test/code/test_assign.cpp; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				F676E46C2CAAFF240067F654 /* test_as.cpp */,
 				F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */,
 				F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */,
+				F6020A992CCEA397004A630B /* test_copy.cpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -551,6 +554,7 @@
 				F6139BBF2CC91C8F0006F0AB /* gtest_main.cc in Sources */,
 				F64C7EF926D79256006E4F12 /* test_compare.cpp in Sources */,
 				F687C5D92CAC73EE0044F4D0 /* test_ownership.cpp in Sources */,
+				F6020A9A2CCEA397004A630B /* test_copy.cpp in Sources */,
 				F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */,
 				F64C7EFB26D79256006E4F12 /* test_escapse.cpp in Sources */,
 				F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */,

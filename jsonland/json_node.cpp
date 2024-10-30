@@ -78,8 +78,8 @@ inline const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_c
 
     switch(*in_c)
     {
-        case '"':  retVal = R"(\\")"; break;
-        case '\\':  retVal = R"(\\\\)"; break;
+        case '"':  retVal = "\\\""; break;
+        case '\\':  retVal = "\\\\"; break;
         case '\n': retVal = "\\n"; break;
         case '\r': retVal = "\\r"; break;
         case '\t': retVal = "\\t"; break;
