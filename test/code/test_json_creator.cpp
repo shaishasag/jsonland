@@ -22,7 +22,7 @@ typedef ::testing::Types<std::pair<jl_fixed::object_json_creator<511>,
                          std::pair<jl_dyna::object_json_creator,
                                     jl_dyna::array_json_creator>> ObjArrPair;
 
-TYPED_TEST_SUITE(CreateJsonTemplatedTest, ObjArrPair);
+TYPED_TEST_SUITE(CreateJsonTemplatedTest(), ObjArrPair);
 
 TYPED_TEST(CreateJsonTemplatedTest, SOMETHING_TYPED) {
     using obj_creator_t = typename TypeParam::first_type;

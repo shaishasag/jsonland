@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "string_or_view.h"
+#include "jsonland/string_or_view.h"
+#include "jsonland/json_node.h"
 
 #define TEST_REMOVED_FUNCTION 0 // set to 1 to test some reduncdant string_or_view functions
 

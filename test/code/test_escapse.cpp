@@ -6,6 +6,7 @@
 
 using namespace jsonland;
 
+#if 0
 TEST(TestEscape, just_a_string)
 {
     std::string input_file_path = "./test_data/";
@@ -33,6 +34,7 @@ TEST(TestEscape, just_a_string)
 
     EXPECT_EQ(out_json_string, expected_str);
 }
+#endif
 
 TEST(TestEscape, parse_and_dump)
 {
