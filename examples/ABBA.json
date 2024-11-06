@@ -1,0 +1,9 @@
+{
+    "name": "ABBA",
+    "members": [
+        {"1st name": "Agnetha", "last name": "Fältskog"},
+        {"1st name": "Anni-Frid", "last name": "Lyngstad"},
+        {"1st name": "Benny", "last name": "Andersson"},
+        {"1st name": "Björn", "last name": "Ulvaeus"}
+    ]
+}

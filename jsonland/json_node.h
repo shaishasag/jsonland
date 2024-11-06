@@ -259,7 +259,7 @@ public:
     json_node& operator=(const std::string_view in_str_value) noexcept
     {
         clear(string_t);
-        m_value.reference_value(in_str_value);
+        m_value.store_value_deal_with_escapes(in_str_value);
         return *this;
     }
 
