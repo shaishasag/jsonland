@@ -5,7 +5,7 @@
 
 #define TEST_REMOVED_FUNCTION 0 // set to 1 to test some reduncdant string_or_view functions
 
-TEST(TestStringOrView, ctor)
+TEST(StringOrView, ctor)
 {
     {   // default construct
         jsonland::string_or_view sv;
@@ -62,7 +62,7 @@ TEST(TestStringOrView, ctor)
     }
 }
 
-TEST(TestStringOrView, store_value)
+TEST(StringOrView, store_value)
 {
     {   // store_value of std::string
         jsonland::string_or_view sv("lala land");
@@ -120,7 +120,7 @@ TEST(TestStringOrView, store_value)
 }
 
 
-TEST(TestStringOrView, reference_value)
+TEST(StringOrView, reference_value)
 {
     {   // reference_value of std::string
         jsonland::string_or_view sv("lala land");

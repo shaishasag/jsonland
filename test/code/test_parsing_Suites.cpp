@@ -47,7 +47,7 @@ bool is_allowed_file_name(const std::string& in_file_name)
 }
 #if 0
 
-TEST(TestSuite, JSON)
+TEST(Suite, JSON)
 {
     const std::filesystem::path test_parsing_folder{"./test_data/JSONTestSuite/test_parsing"};
    
@@ -75,7 +75,7 @@ TEST(TestSuite, JSON)
     std::cout << "tested " << num_files << " files in 'JSONTestSuite/test_parsing' folder" << "\n";;
 }
 
-TEST(TestSuite, ORG)
+TEST(Suite, ORG)
 {
     const std::filesystem::path test_parsing_folder{"./test_data/json.org"};
    

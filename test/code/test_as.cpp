@@ -8,7 +8,7 @@
 
 using namespace jsonland;
 
-TEST(TestAs, size_as)
+TEST(As, size_as)
 {
     {
         jsonland::json_node jn; // default ctor, type is null_t
@@ -97,7 +97,7 @@ TEST(TestAs, size_as)
     }
 }
 
-TEST(TestAs, empty_as)
+TEST(As, empty_as)
 {
     {
         jsonland::json_node jn; // default ctor, type is null_t
@@ -186,7 +186,7 @@ TEST(TestAs, empty_as)
     }
 }
 
-TEST(TestAs, contain_as)
+TEST(As, contain_as)
 {
     using type_and_name = std::pair<jsonland::value_type, fstr::fstr15>;
     std::array<type_and_name, 6> all_types

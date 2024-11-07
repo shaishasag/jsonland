@@ -3,7 +3,7 @@
 
 using namespace jsonland;
 
-TEST(TestOwnership, explicit_constructors)
+TEST(Ownership, explicit_constructors)
 {
     {
         jsonland::json_node jn;
@@ -49,7 +49,7 @@ TEST(TestOwnership, explicit_constructors)
     }
 }
 
-TEST(TestOwnership, take_ownership)
+TEST(Ownership, take_ownership)
 {
     jsonland::json_node jn_cp;
     {

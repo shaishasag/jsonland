@@ -50,7 +50,6 @@
     <ClCompile Include="..\test\code\test_deduce_type.cpp" />
     <ClCompile Include="..\test\code\test_erase.cpp" />
     <ClCompile Include="..\test\code\test_escape.cpp" />
-    <ClCompile Include="..\test\code\test_escapse.cpp" />
     <ClCompile Include="..\test\code\test_get_value.cpp" />
     <ClCompile Include="..\test\code\test_iter.cpp" />
     <ClCompile Include="..\test\code\test_numbers.cpp" />

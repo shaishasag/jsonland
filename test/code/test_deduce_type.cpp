@@ -3,7 +3,7 @@
 
 using namespace jsonland;
 
-TEST(TestDeduction, all_types_to_all_types)
+TEST(Deduction, all_types_to_all_types)
 {
     {
         json_node j_null{nullptr};
@@ -87,7 +87,7 @@ TEST(TestDeduction, all_types_to_all_types)
 
 }
 
-TEST(TestDeduction, deduce_array)
+TEST(Deduction, deduce_array)
 {
     json_node j; // create json_node without specifing type - should default to null_t
     EXPECT_TRUE(j.is_null());
@@ -113,7 +113,7 @@ TEST(TestDeduction, deduce_array)
     EXPECT_TRUE(j.is_object());
 }
 
-TEST(TestDeduction, deduce_object)
+TEST(Deduction, deduce_object)
 {
     json_node j;
 
@@ -137,7 +137,7 @@ TEST(TestDeduction, deduce_object)
     EXPECT_TRUE(j.is_object());
 }
 
-TEST(TestDeduction, read_mixed_types)
+TEST(Deduction, read_mixed_types)
 {
     json_node j;
     j.push_back(0);

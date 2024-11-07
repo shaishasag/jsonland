@@ -3,7 +3,7 @@
 
 using namespace jsonland;
 
-TEST(TestCompare, all)
+TEST(Compare, all)
 {
     json_node jn_sources[6]{json_node("Margot Robbie"), 19.19, json_node(false), json_node(nullptr), json_node(true), json_node("Jackson Pollock")};
     for (int i = 0; i < 6; ++i)
@@ -22,7 +22,7 @@ TEST(TestCompare, all)
     }
 }
 
-TEST(TestCompare, numbers)
+TEST(Compare, numbers)
 {
     auto num1_text = "1.000000000000000011";
     //double num1_binary = 1.000000000000000011;
@@ -41,7 +41,7 @@ TEST(TestCompare, numbers)
     EXPECT_EQ(jn_num1, jn_num3); // equal because the binary representation is the same
 }
 
-TEST(TestCompare, copy_object)
+TEST(Compare, copy_object)
 {
     json_node jn_copy_1;
     json_node jn_copy_2;
@@ -78,7 +78,7 @@ TEST(TestCompare, copy_object)
     EXPECT_NE(jn_copy_1, jn_copy_2); // now they are different
 }
 
-TEST(TestCompare, move_object)
+TEST(Compare, move_object)
 {
     json_node jn_copy_1;
     json_node jn_copy_2;

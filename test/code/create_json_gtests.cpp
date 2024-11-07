@@ -4,7 +4,7 @@
 
 using namespace jsonland;
 
-TEST(TestWrite, to_ostream)
+TEST(Write, to_ostream)
 {
     std::ostringstream oss;
     
@@ -76,7 +76,7 @@ TEST(Create, one)
     jn["four"].push_back(jn["three"]);
 }
 
-TEST(TestArray, set_and_get)
+TEST(Array, set_and_get)
 {
     json_node jn(jsonland::value_type::array_t);
     jn.push_back(9);
@@ -100,7 +100,7 @@ TEST(TestArray, set_and_get)
 
 }
 
-TEST(TestSetValue, set_str)
+TEST(SetValue, set_str)
 {
     const char* some_str = "babushka";
     const char* some_other_str = "pirushki";
@@ -114,7 +114,7 @@ TEST(TestSetValue, set_str)
                 << "json_node.operator=(" << some_other_str << ").get_string()" << " should return "  << '"' << some_other_str << '"';
 }
 
-TEST(TestGetValue, bool_value)
+TEST(GetValue, bool_value)
 {
     
     EXPECT_FALSE(json_node().get_bool())
@@ -156,7 +156,7 @@ TEST(TestGetValue, bool_value)
                 << "json_node(" << "true" << ").get_bool(false) should return " << "true";
 }
 
-TEST(TestGetValue, integer_value)
+TEST(GetValue, integer_value)
 {
     const int64_t int_num = 17.19;
     const int64_t another_int_number = 23.45;
@@ -183,7 +183,7 @@ TEST(TestGetValue, integer_value)
 
 }
 
-TEST(TestGetValue, floating_point_value)
+TEST(GetValue, floating_point_value)
 {
     const double fp_num = 17.19;
     const double another_fp_number = 23.45;
@@ -201,7 +201,7 @@ TEST(TestGetValue, floating_point_value)
     EXPECT_EQ(json_node("babushka").get_float<double>(908.88), 908.88);
 }
 
-TEST(TestGetValue, str_value)
+TEST(GetValue, str_value)
 {
     const char* some_str = "babushka";
     const char* some_other_str = "pirushki";

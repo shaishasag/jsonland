@@ -5,7 +5,7 @@
 using namespace jsonland;
 std::array<std::string, 3> numbers{"one", "two", "three"};
 
-TEST(TestIter, array)
+TEST(Iter, array)
 {
     json_node jn(jsonland::value_type::array_t);
     for (auto& s : numbers) {
@@ -17,7 +17,7 @@ TEST(TestIter, array)
     EXPECT_EQ(numbers[2], jn[2].get_string());
 }
 
-TEST(TestIter, obj)
+TEST(Iter, obj)
 {
     json_node jn(jsonland::value_type::object_t);
     for (auto& s : numbers) {

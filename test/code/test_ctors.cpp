@@ -3,12 +3,12 @@
 
 using namespace jsonland;
 
-TEST(TestConstruction, copy_ctor)
+TEST(Construction, copy_ctor)
 {
     
 }
 
-TEST(TestConstruction, obj_ctor_value_type)
+TEST(Construction, obj_ctor_value_type)
 {
     // check that type is set correctly to value_type_obj
     EXPECT_TRUE(json_node(jsonland::value_type::object_t).is_object()) << "json_node(value_type_obj).is_object() should return true";
@@ -25,7 +25,7 @@ TEST(TestConstruction, obj_ctor_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::object_t).is_null()) << "json_node(value_type_obj).is_null() should return false";
 }
 
-TEST(TestConstruction, array_ctor_value_type)
+TEST(Construction, array_ctor_value_type)
 {
     // check that type is set correctly to value_type_array
     EXPECT_TRUE(json_node(jsonland::value_type::array_t).is_array()) << "json_node(value_type_array).is_array() should return true";
@@ -41,7 +41,7 @@ TEST(TestConstruction, array_ctor_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::array_t).is_null()) << "json_node(value_type_array).is_null() should return false";
 }
 
-TEST(TestConstruction, str_ctor_with_value_type)
+TEST(Construction, str_ctor_with_value_type)
 {
     // check that type is set correctly to value_type_str
     EXPECT_TRUE(json_node(jsonland::value_type::string_t).is_string()) << "json_node(value_type_str).is_string() should return true";
@@ -57,7 +57,7 @@ TEST(TestConstruction, str_ctor_with_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::string_t).is_null()) << "json_node(value_type_str).is_null() should return false";
 }
 
-TEST(TestConstruction, str_ctor_with_value)
+TEST(Construction, str_ctor_with_value)
 {
     // check that type is set correctly to value_type_str
     EXPECT_TRUE(json_node("babushka", string_t).is_string()) << R"(json_node("babushka").is_string() should return true)";
@@ -71,7 +71,7 @@ TEST(TestConstruction, str_ctor_with_value)
     EXPECT_FALSE(json_node("babushka", string_t).is_null()) << R"(json_node("babushka", string_t).is_null() should return false)";
 }
 
-TEST(TestConstruction, num_ctor_with_value_type)
+TEST(Construction, num_ctor_with_value_type)
 {
     // check that type is set correctly to value_type_num
     EXPECT_TRUE(json_node(jsonland::value_type::number_t).is_number()) << "json_node(value_type_num).is_number() should return true";
@@ -88,7 +88,7 @@ TEST(TestConstruction, num_ctor_with_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::number_t).is_null()) << "json_node(value_type_num).is_null() should return false";
 }
 
-TEST(TestConstruction, num_ctor_with_value)
+TEST(Construction, num_ctor_with_value)
 {
     // check that type is set correctly to value_type_num
     EXPECT_TRUE(json_node(17).is_number()) << "json_node(value_type_num).is_number() should return true";
@@ -106,7 +106,7 @@ TEST(TestConstruction, num_ctor_with_value)
     EXPECT_FALSE(json_node(17.3).is_null()) << "json_node(17.3).is_bool() should return false";
 }
 
-TEST(TestConstruction, bool_ctor_with_value_type)
+TEST(Construction, bool_ctor_with_value_type)
 {
     // check that type is set correctly to value_type_bool
     EXPECT_TRUE(json_node(jsonland::value_type::bool_t).is_bool()) << "json_node(value_type_bool).is_bool() should return true";
@@ -120,7 +120,7 @@ TEST(TestConstruction, bool_ctor_with_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::bool_t).is_null()) << "json_node(value_type_bool).is_null() should return false";
 }
  
-TEST(TestConstruction, bool_ctor_with_value)
+TEST(Construction, bool_ctor_with_value)
 {
     json_node bool_json_false(false);
     json_node bool_json_true(true);
@@ -146,7 +146,7 @@ TEST(TestConstruction, bool_ctor_with_value)
     EXPECT_FALSE(bool_json_true.is_null()) << "json_node(true).is_null() should return false";
 }
 
-TEST(TestConstruction, null_ctor_with_value_type)
+TEST(Construction, null_ctor_with_value_type)
 {
     // check that type is set correctly to value_type_null
     EXPECT_TRUE(json_node(jsonland::value_type::null_t).is_null()) << "json_node(value_type_null).is_null() should return true";
@@ -159,7 +159,7 @@ TEST(TestConstruction, null_ctor_with_value_type)
     EXPECT_FALSE(json_node(jsonland::value_type::null_t).is_bool()) << "json_node(value_type_null).is_bool() should return true";
 }
  
-TEST(TestConstruction, null_ctor_with_value)
+TEST(Construction, null_ctor_with_value)
 {
     // check that type is set correctly to value_type_null
     EXPECT_TRUE(json_node(nullptr).is_null()) << "json_node(nullptr).is_null() should return true";
@@ -172,7 +172,7 @@ TEST(TestConstruction, null_ctor_with_value)
     EXPECT_FALSE(json_node(nullptr).is_bool()) << "json_node(nullptr).is_bool() should return false";
 }
 
-TEST(TestConstruction, default_ctor)
+TEST(Construction, default_ctor)
 {
     // check that type is set correctly to value_type_null
     EXPECT_TRUE(json_node().is_null()) << "json_node().is_null() should return true";
@@ -185,7 +185,7 @@ TEST(TestConstruction, default_ctor)
     EXPECT_FALSE(json_node().is_bool()) << "json_node().is_bool() should return false";
 }
 
-TEST(TestConstruction, ctor_with_string_and_type)
+TEST(Construction, ctor_with_string_and_type)
 {
     json_node n1("123", number_t);
     EXPECT_EQ(n1.get_int<int32_t>(), 123);

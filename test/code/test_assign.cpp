@@ -4,7 +4,7 @@
 
 using namespace jsonland;
 
-TEST(TestAssign, repeated_rotating_assign)
+TEST(Assign, repeated_rotating_assign)
 {
     std::string_view a_sv = "lu lu lin"sv;
     std::string a_str(a_sv);
@@ -57,7 +57,7 @@ TEST(TestAssign, repeated_rotating_assign)
     }
 }
 
-TEST(TestAssign, repeated_assign_constants)
+TEST(Assign, repeated_assign_constants)
 {
     json_node jn;
     
@@ -86,7 +86,7 @@ TEST(TestAssign, repeated_assign_constants)
 }
 
 
-TEST(TestAssign, str_value)
+TEST(Assign, str_value)
 {
     json_node jn_str(178);
     jn_str = "Shmulik";
@@ -104,7 +104,7 @@ TEST(TestAssign, str_value)
     EXPECT_FALSE(jn_str.is_null()) << R"(jn_str = "Shmulik", is_null() should return false)";
 }
 
-TEST(TestAssign, num_value)
+TEST(Assign, num_value)
 {
     json_node jn17("kombucha");
     jn17 = 17.3;
@@ -124,7 +124,7 @@ TEST(TestAssign, num_value)
     EXPECT_FALSE(jn17.is_null()) << "json_node = 17.3, is_bool() should return false";
 }
 
-TEST(TestAssign, bool_value)
+TEST(Assign, bool_value)
 {
     json_node bool_json_false("bonanza");
     bool_json_false = false;
@@ -152,7 +152,7 @@ TEST(TestAssign, bool_value)
     EXPECT_FALSE(bool_json_true.is_null()) << "json_node = true, is_null() should return false";
 }
 
-TEST(TestAssign, null_value)
+TEST(Assign, null_value)
 {
     json_node jn_null(12345);
     jn_null = nullptr;
@@ -168,7 +168,7 @@ TEST(TestAssign, null_value)
     EXPECT_FALSE(jn_null.is_bool()) << "json_node = nullptr, is_bool() should return false";
 }
 
-TEST(TestAssign, move_assign_array)
+TEST(Assign, move_assign_array)
 {
     // moving array should not allocate new memory
     
@@ -199,7 +199,7 @@ TEST(TestAssign, move_assign_array)
 }
 
 
-TEST(TestAssign, move_assign_object)
+TEST(Assign, move_assign_object)
 {
     // moving object should not allocate new memory
     
@@ -241,7 +241,7 @@ TEST(TestAssign, move_assign_object)
     EXPECT_TRUE(moved_j["5th"]["sub2"].is_number());
 }
 
-TEST(TestAssign, mixed_types)
+TEST(Assign, mixed_types)
 {
     jsonland::json_node obj(jsonland::object_t);
     obj["1"] = 1;
@@ -264,7 +264,7 @@ TEST(TestAssign, mixed_types)
     obj["3"] = std::move(arr2);
 }
 
-TEST(TestAssign, rvalue)
+TEST(Assign, rvalue)
 {
     jsonland::json_node arr1(jsonland::array_t);
     std::string_view sv("sv");
