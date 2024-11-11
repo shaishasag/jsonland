@@ -15,7 +15,6 @@
 		F6213DA92CDB869800AE863B /* test_escape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6213DA82CDB869800AE863B /* test_escape.cpp */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
-		F6355CDA2CD3E9B600BF6CC8 /* serialize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */; };
 		F638E7662C80C38B00DCF533 /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2B22971B1EC007A0D81 /* gtest-all.cc */; };
 		F638E76B2C80C38B00DCF533 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
 		F638E7722C80C38B00DCF533 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
@@ -34,6 +33,8 @@
 		F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = F6625B7E2C2C607B00C66A2A /* json_creator.h */; };
 		F676E46D2CAAFF240067F654 /* test_as.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F676E46C2CAAFF240067F654 /* test_as.cpp */; };
 		F687C5D92CAC73EE0044F4D0 /* test_ownership.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */; };
+		F6930AE62CDE4E2800D75684 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F6930AEC2CDE4E5A00D75684 /* serialize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6AA89A72C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89A82C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
@@ -61,6 +62,13 @@
 			remoteInfo = jsonland;
 		};
 		F64C7F0C26D79718006E4F12 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F6963C6426D51C1700C71771;
+			remoteInfo = jsonland;
+		};
+		F6930AE12CDE4E2800D75684 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F65C68B326C95D1A00E4AA5F /* Project object */;
 			proxyType = 1;
@@ -120,6 +128,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		F6930AE72CDE4E2800D75684 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		F6ABDE282B065AB3007ACD9A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -150,8 +167,8 @@
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
 		F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_json_creator.cpp; path = test/code/test_json_creator.cpp; sourceTree = "<group>"; };
 		F6355CD72CD3E9B600BF6CC8 /* examples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = examples.cpp; path = examples/examples.cpp; sourceTree = "<group>"; };
-		F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = serialize.cpp; path = examples/serialize.cpp; sourceTree = "<group>"; };
-		F6355CDD2CD3ECCA00BF6CC8 /* ABBA.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ABBA.json; path = examples/ABBA.json; sourceTree = "<group>"; };
+		F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = serialize.cpp; path = Serialize/serialize.cpp; sourceTree = "<group>"; };
+		F6355CDD2CD3ECCA00BF6CC8 /* ABBA.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ABBA.json; path = Serialize/ABBA.json; sourceTree = "<group>"; };
 		F638E7772C80C38B00DCF533 /* test_json_creator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test_json_creator; sourceTree = BUILT_PRODUCTS_DIR; };
 		F641F9A12B1244FB00C6E7AF /* JsonBenchmarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonBenchmarker.h; path = code/JsonBenchmarker.h; sourceTree = "<group>"; };
 		F641F9A22B1245E300C6E7AF /* JsonlandBenchMarker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JsonlandBenchMarker.h; path = code/JsonlandBenchMarker.h; sourceTree = "<group>"; };
@@ -170,6 +187,8 @@
 		F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_ownership.cpp; path = test/code/test_ownership.cpp; sourceTree = "<group>"; };
 		F68EC13E26E23A7600B8BA77 /* json_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json_node.h; path = jsonland/json_node.h; sourceTree = SOURCE_ROOT; };
 		F68EC13F26E23A7600B8BA77 /* json_node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_node.cpp; path = jsonland/json_node.cpp; sourceTree = SOURCE_ROOT; };
+		F6930AEB2CDE4E2800D75684 /* serialize */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = serialize; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6930AEE2CDE4EE600D75684 /* ABBA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ABBA.cpp; path = Serialize/ABBA.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
@@ -212,6 +231,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6930AE52CDE4E2800D75684 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6930AE62CDE4E2800D75684 /* libjsonland.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,8 +288,6 @@
 			isa = PBXGroup;
 			children = (
 				F6355CD72CD3E9B600BF6CC8 /* examples.cpp */,
-				F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */,
-				F6355CDD2CD3ECCA00BF6CC8 /* ABBA.json */,
 			);
 			name = Examples;
 			sourceTree = "<group>";
@@ -303,6 +328,7 @@
 				F6C14DBB2B1A121900E0202D /* just_parse.cpp */,
 				F611016E26CFF47E00A01C16 /* docs */,
 				F60CC63026D3F8930035D17F /* benchmark */,
+				F6930AED2CDE4E9D00D75684 /* Serialize */,
 				F65C68CA26C9624F00E4AA5F /* gtest */,
 				F64C7EE426D7921C006E4F12 /* test */,
 				F65C68BC26C95D1B00E4AA5F /* Products */,
@@ -319,6 +345,7 @@
 				F6ABDE2A2B065AB3007ACD9A /* examples */,
 				F648C9BA2B3AEE550061D302 /* behaviours */,
 				F638E7772C80C38B00DCF533 /* test_json_creator */,
+				F6930AEB2CDE4E2800D75684 /* serialize */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -343,6 +370,16 @@
 				F617B2A82971B182007A0D81 /* gtest_main.cc */,
 			);
 			name = gtest;
+			sourceTree = "<group>";
+		};
+		F6930AED2CDE4E9D00D75684 /* Serialize */ = {
+			isa = PBXGroup;
+			children = (
+				F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */,
+				F6355CDD2CD3ECCA00BF6CC8 /* ABBA.json */,
+				F6930AEE2CDE4EE600D75684 /* ABBA.cpp */,
+			);
+			name = Serialize;
 			sourceTree = "<group>";
 		};
 		F6963CA526D55F9B00C71771 /* Frameworks */ = {
@@ -447,6 +484,24 @@
 			productReference = F64C7EE326D7921C006E4F12 /* test_json_node */;
 			productType = "com.apple.product-type.tool";
 		};
+		F6930ADF2CDE4E2800D75684 /* serialize */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6930AE82CDE4E2800D75684 /* Build configuration list for PBXNativeTarget "serialize" */;
+			buildPhases = (
+				F6930AE22CDE4E2800D75684 /* Sources */,
+				F6930AE52CDE4E2800D75684 /* Frameworks */,
+				F6930AE72CDE4E2800D75684 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6930AE02CDE4E2800D75684 /* PBXTargetDependency */,
+			);
+			name = serialize;
+			productName = benchmark;
+			productReference = F6930AEB2CDE4E2800D75684 /* serialize */;
+			productType = "com.apple.product-type.tool";
+		};
 		F6963C6426D51C1700C71771 /* jsonland */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F6963C6626D51C1700C71771 /* Build configuration list for PBXNativeTarget "jsonland" */;
@@ -523,6 +578,7 @@
 				F6ABDE292B065AB3007ACD9A /* examples */,
 				F648C9AF2B3AEE550061D302 /* behaviours */,
 				F638E75E2C80C38B00DCF533 /* test_json_creator */,
+				F6930ADF2CDE4E2800D75684 /* serialize */,
 			);
 		};
 /* End PBXProject section */
@@ -582,6 +638,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F6930AE22CDE4E2800D75684 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F6930AEC2CDE4E5A00D75684 /* serialize.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F6963C6226D51C1700C71771 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -595,7 +659,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6355CDA2CD3E9B600BF6CC8 /* serialize.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -616,6 +679,11 @@
 			isa = PBXTargetDependency;
 			target = F6963C6426D51C1700C71771 /* jsonland */;
 			targetProxy = F64C7F0C26D79718006E4F12 /* PBXContainerItemProxy */;
+		};
+		F6930AE02CDE4E2800D75684 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F6963C6426D51C1700C71771 /* jsonland */;
+			targetProxy = F6930AE12CDE4E2800D75684 /* PBXContainerItemProxy */;
 		};
 		F6963CA426D55F9500C71771 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -902,6 +970,44 @@
 			};
 			name = Release;
 		};
+		F6930AE92CDE4E2800D75684 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_USE_OPTIMIZATION_PROFILE = NO;
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RAPIDJSON_HAS_STDSTRING = "";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					googletest/googletest,
+					"$(PROJECT_DIR)/../rapidjson/include",
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../ArduinoJson/src",
+				);
+			};
+			name = Debug;
+		};
+		F6930AEA2CDE4E2800D75684 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_USE_OPTIMIZATION_PROFILE = NO;
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RAPIDJSON_HAS_STDSTRING = "";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
+				USER_HEADER_SEARCH_PATHS = (
+					googletest/googletest/include,
+					googletest/googletest,
+					"$(PROJECT_DIR)/../rapidjson/include",
+					nlohmann/single_include,
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../ArduinoJson/src",
+				);
+			};
+			name = Release;
+		};
 		F6963C6726D51C1700C71771 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -988,6 +1094,15 @@
 			buildConfigurations = (
 				F65C68C026C95D1B00E4AA5F /* Debug */,
 				F65C68C126C95D1B00E4AA5F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F6930AE82CDE4E2800D75684 /* Build configuration list for PBXNativeTarget "serialize" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F6930AE92CDE4E2800D75684 /* Debug */,
+				F6930AEA2CDE4E2800D75684 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -88,9 +88,9 @@ static void string_as_array()
     
     try { // jsonland throws unless object is an array or null
         jsonland::json_node str_land_j("jsonland json string");
-        std::cout << "jsonland::json_node before: (" << jsonland::value_type_name(str_land_j.value_type()) << "): " << str_land_j.dump() << std::endl;
+        std::cout << "jsonland::json_node before: (" << jsonland::value_type_name(str_land_j.get_value_type()) << "): " << str_land_j.dump() << std::endl;
         str_land_j.push_back(123);
-        std::cout << "jsonland::json_node after: (" << jsonland::value_type_name(str_land_j.value_type()) << "): " << str_land_j.dump() << std::endl;
+        std::cout << "jsonland::json_node after: (" << jsonland::value_type_name(str_land_j.get_value_type()) << "): " << str_land_j.dump() << std::endl;
     } catch (std::exception& ex) {
         std::cout << "jsonland exception: " << ex.what() << std::endl;
     }
@@ -107,10 +107,10 @@ static void as_string()
         jsonland::json_node b1(true);
         jsonland::json_node p1(nullptr);
         
-        std::cout << "jsonland: " << jsonland::value_type_name(s1.value_type()) << " node: " << s1.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(n1.value_type()) << " node: " << n1.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(b1.value_type()) << " node: " << b1.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(p1.value_type()) << " node: " << p1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(s1.get_value_type()) << " node: " << s1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(n1.get_value_type()) << " node: " << n1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(b1.get_value_type()) << " node: " << b1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(p1.get_value_type()) << " node: " << p1.dump() << std::endl;
     }
     
     std::cout << std::endl;
@@ -154,10 +154,10 @@ static void operator_equal()
         jsonland::json_node n1(jsonland::null_t);
         auto n2 = n1["pilpel"];
 
-        std::cout << "jsonland: " << jsonland::value_type_name(s1.value_type()) << " node: " << s1.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(s2.value_type()) << " node: " << s2.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(n1.value_type()) << " node: " << n1.dump() << std::endl;
-        std::cout << "jsonland: " << jsonland::value_type_name(n2.value_type()) << " node: " << n2.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(s1.get_value_type()) << " node: " << s1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(s2.get_value_type()) << " node: " << s2.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(n1.get_value_type()) << " node: " << n1.dump() << std::endl;
+        std::cout << "jsonland: " << jsonland::value_type_name(n2.get_value_type()) << " node: " << n2.dump() << std::endl;
     }
     
     std::cout << std::endl;

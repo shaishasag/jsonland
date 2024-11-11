@@ -436,7 +436,7 @@ public:
 
 
     /// Returns the #value_type of this instance
-    jsonland::value_type value_type() const noexcept {return m_value_type;}
+    jsonland::value_type get_value_type() const noexcept {return m_value_type;}
 
     /// Returns true if and only if the JSON value type is #null_t.
     bool is_null() const noexcept {return null_t == m_value_type;}
@@ -500,7 +500,7 @@ public:
     size_t num_elements() const noexcept
     {
         size_t retVal = 0;
-        switch (value_type())
+        switch (get_value_type())
         {
             case object_t: retVal = m_values.size(); break;
             case array_t: retVal = m_values.size(); break;
@@ -526,9 +526,9 @@ public:
     size_t size_as(const enum value_type in_expected_type) const noexcept
     {
         size_t retVal = 0;
-        if (in_expected_type == value_type())
+        if (in_expected_type == get_value_type())
         {
-            switch (value_type())
+            switch (get_value_type())
             {
                 case object_t:
                     retVal = m_values.size(); break;
@@ -570,7 +570,7 @@ public:
     // true is always returned for null_t, and for uninitialized_t
     bool empty() const noexcept
     {
-        bool retVal = empty_as(value_type());
+        bool retVal = empty_as(get_value_type());
         return retVal;
     }
 
