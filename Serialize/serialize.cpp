@@ -4,6 +4,7 @@
 #include <string_view>
 #include <filesystem>
 #include <fstream>
+#include <map>
 
 #include "json_node.h"
 using namespace jsonland;
@@ -22,32 +23,101 @@ public:
     std::string name;
     std::string city;
     int age{0};
+    std::map<std::string, int> shopping;
     std::vector<Friend> friends;
+};
+
+class serializer_impl
+{
+    friend class serializer_base;
+protected:
+    virtual json_node& _object_item(json_node&, std::string_view) = 0;
+    virtual void _number(json_node&, int&) = 0;
+    virtual void _string(json_node& in_j, std::string& a_str) = 0;
+    virtual void _boolean(json_node& in_j, bool& a_bool) = 0;
+};
+
+class serializer_read_impl : public serializer_impl
+{
+public:
+
+    json_node& _object_item(json_node& in_j, std::string_view in_name) override
+    {
+        return in_j[in_name];
+    }
+
+    void _number(json_node& in_j, int& a_number) override
+    {
+        a_number = in_j.get_int<int>();
+    }
+    void _string(json_node& in_j, std::string& a_str) override
+    {
+        a_str = in_j.get_string();
+    }
+
+    void _boolean(json_node& in_j, bool& a_bool) override
+    {
+        a_bool = in_j.get_bool();
+    }
+
+
+};
+
+class serializer_write_impl : public serializer_impl
+{
+public:
+
+    json_node& _object_item(json_node& in_j, std::string_view in_name) override
+    {
+        return in_j[in_name];
+    }
+
+    void _number(json_node& in_j, int& a_number) override
+    {
+        in_j = a_number;
+    }
+    void _string(json_node& in_j, std::string& a_str) override
+    {
+        in_j = a_str;
+    }
+    void _boolean(json_node& in_j, bool& a_bool) override
+    {
+        in_j = a_bool;
+    }
 };
 
 class serializer_base
 {
 public:
-    serializer_base(jsonland::json_node& in_j, serializer_base*p)
-    : j(in_j)
-    , the_real_me(p)
-    {
-    }
     virtual ~serializer_base() = default;
 
-    serializer_base* self() { return the_real_me; }
-    jsonland::json_node& my_j() { return self()->j; }
 
     serializer_base object_item(std::string_view item_name)
     {
-        return self()->_object_item(item_name);
+        json_node& item_node = the_impl->_object_item(j, item_name);
+        return serializer_base(item_node, the_impl);
     }
     void number(int& i)
     {
-        serializer_base* me = self();
-        me->_number(i);
+        the_impl->_number(j, i);
     }
 
+    void string(std::string& in_str)
+    {
+        the_impl->_string(j, in_str);
+    }
+
+    void boolean(bool& in_bool)
+    {
+        the_impl->_boolean(j, in_bool);
+    }
+
+protected:
+    serializer_base(json_node& in_j, serializer_impl*p)
+    : j(in_j)
+    , the_impl(p)
+    {
+    }
 
 private:
     virtual serializer_base _object_item(std::string_view)
@@ -59,120 +129,83 @@ private:
 
     }
 
-    jsonland::json_node& j;
-    serializer_base* the_real_me{nullptr};
+    json_node& j;
+    serializer_impl* the_impl{nullptr};
 
 };
 
-class serializer_read : public serializer_base
+class serializer_reader : public serializer_base
 {
 public:
-    serializer_read(jsonland::json_node& in_j)
-    : serializer_base(in_j, this)
-    {
-    }
-
-    serializer_base _object_item(std::string_view item_name) override
-    {
-        serializer_read retVal(my_j()[item_name]);
-        return retVal;
-    }
-
-    void _number(int& a_number) override
-    {
-        a_number = my_j().get_int<int>();
-    }
-
+    serializer_reader(json_node& in_j)
+    : serializer_base(in_j, new serializer_read_impl) {}
 };
 
-class serializer_write : public serializer_base
+class serializer_writer : public serializer_base
 {
 public:
-    serializer_write(jsonland::json_node& in_j)
-    : serializer_base(in_j, this)
-    {
-    }
-
-
-    serializer_base _object_item(std::string_view item_name) override
-    {
-        jsonland::json_node& new_obj_item = my_j()[item_name];
-        serializer_write retVal(new_obj_item);
-        return retVal;
-    }
-
-    void _number(int& a_number) override
-    {
-        jsonland::json_node& my_real_j = my_j();
-        my_real_j = a_number;
-    }
+    serializer_writer(json_node& in_j)
+    : serializer_base(in_j, new serializer_write_impl) {}
 };
 
-static void read_a_user(serializer_read& rj, User& a_user)
+static void serialize_a_user(serializer_base& rj, User& a_user)
 {
     auto id_item = rj.object_item("id");
     id_item.number(a_user.id);
 
-    a_user.name = rj.my_j()["name"].get_string();
-    a_user.city = rj.my_j()["city"].get_string();
-    a_user.age = rj.my_j()["age"].get_int<int>();
+    rj.object_item("name").string(a_user.name);
+    rj.object_item("city").string(a_user.city);
+    rj.object_item("age").number(a_user.age);
 
-    auto& friends_j = rj.my_j()["friends"];
-    for (auto& friend_j : friends_j)
-    {
-        auto& a_friend = a_user.friends.emplace_back();
-        a_friend.name = friend_j["name"].get_string();
-        for (auto& hobby_j : friend_j["hobbies"])
-        {
-            a_friend.hobbies.emplace_back(hobby_j.get_string());
-        }
-    }
+//    auto& friends_j = rj.my_j()["friends"];
+//    for (auto& friend_j : friends_j)
+//    {
+//        auto& a_friend = a_user.friends.emplace_back();
+//        a_friend.name = friend_j["name"].get_string();
+//        for (auto& hobby_j : friend_j["hobbies"])
+//        {
+//            a_friend.hobbies.emplace_back(hobby_j.get_string());
+//        }
+//    }
 }
 
-static void read_users(serializer_read& rj, std::vector<User>& users_vec)
-{
-    for (auto& user_j : rj.my_j())
-    {
-        User& a_user = users_vec.emplace_back();
-        serializer_read urj(user_j);
-        read_a_user(urj, a_user);
-    }
-}
-
-static void write_a_user(User& a_user, serializer_write& wj)
-{
-    auto id_item = wj.object_item("id");
-    id_item.number(a_user.id);
-
-    wj.my_j()["name"] = a_user.name;
-    wj.my_j()["city"] = a_user.city;
-    wj.my_j()["age"] = a_user.age;
-
-    if (!a_user.friends.empty())
-    {
-        auto& friends_j = wj.my_j().append_array("friends");
-        for (auto& a_friend : a_user.friends)
-        {
-            auto& friend_j = friends_j.append_object();
-            friend_j["name"] = a_friend.name;
-
-            auto& hobbies_j = friend_j.append_array("hobbies");
-            for (auto& a_hobby : a_friend.hobbies)
-            {
-                hobbies_j.push_back(a_hobby);
-            }
-        }
-    }
-}
-
-static void write_users(std::vector<User>& users_vec, serializer_write& wj)
+static void write_users(std::vector<User>& users_vec, json_node& wj)
 {
     for (auto& a_user : users_vec)
     {
-        auto& user_j = wj.my_j().append_object();
-        serializer_write uwj(user_j);
-        write_a_user(a_user, uwj);
+        auto& user_j = wj.append_object();
+        serializer_writer uwj(user_j);
+        serialize_a_user(uwj, a_user);
      }
+}
+
+static void read_users(json_node& rj, std::vector<User>& users_vec)
+{
+    for (auto& user_j : rj)
+    {
+        User& a_user = users_vec.emplace_back();
+        serializer_reader urj(user_j);
+        serialize_a_user(urj, a_user);
+    }
+}
+
+static void lululin(User& a_user, serializer_writer& wj)
+{
+//    if (!a_user.friends.empty())
+//    {
+//        auto& friends_j = wj.my_j().append_array("friends");
+//        for (auto& a_friend : a_user.friends)
+//        {
+//            auto& friend_j = friends_j.append_object();
+//            friend_j["name"] = a_friend.name;
+//
+//            auto& hobbies_j = friend_j.append_array("hobbies");
+//            for (auto& a_hobby : a_friend.hobbies)
+//            {
+//                hobbies_j.push_back(a_hobby);
+//            }
+//        }
+//    }
 }
 
 static void statistics_users(std::vector<User>& users_vec)
@@ -248,13 +281,11 @@ int main(int argc, char* argv[])
     std::cout << "memory_consumption: "<< j.memory_consumption() << std::endl;
 
     std::vector<User> users_vec;
-    serializer_read reader(j);
-    read_users(reader,  users_vec);
+    read_users(j,  users_vec);
 
     statistics_users(users_vec);
 
-    jsonland::json_node out_users_j(jsonland::array_t);
-    serializer_write writer(out_users_j);
-    write_users(users_vec, writer);
+    json_node out_users_j(jsonland::array_t);
+    write_users(users_vec, out_users_j);
     std::cout << out_users_j.dump() << std::endl;
 }
