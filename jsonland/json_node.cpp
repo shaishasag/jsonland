@@ -940,7 +940,7 @@ scan_number_done:
                 }
             }
 
-            if (JSONLAND_UNLIKELY(0 == (next_node.m_value_type & parsing_value_type::_array_close)))
+            if (JSONLAND_UNLIKELY(0 == ((int)next_node.m_value_type & parsing_value_type::_array_close)))
             {
                 throw parsing_exception("unexpected end of tokens during array initializtion", curr_offset());
             }
@@ -970,7 +970,7 @@ scan_number_done:
             parsing_value_type new_value_type;
             while (JSONLAND_LIKELY(get_next_node(next_node, new_value_type)))
             {
-                if (JSONLAND_UNLIKELY(!(new_value_type & expecting)))
+                if (JSONLAND_UNLIKELY(!((int)new_value_type & expecting)))
                 {
                     throw parsing_exception("json syntax error: unexpected token during object creation", curr_offset());
                 }
@@ -1026,7 +1026,7 @@ scan_number_done:
                 }
             }
 
-            if (JSONLAND_UNLIKELY(0 == (next_node.m_value_type & parsing_value_type::_obj_close)))
+            if (JSONLAND_UNLIKELY(0 == ((int)next_node.m_value_type & parsing_value_type::_obj_close)))
             {
                 throw parsing_exception("unexpected end of tokens during object initializtion", curr_offset());
             }

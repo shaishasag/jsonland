@@ -1033,7 +1033,7 @@ public:
         if (is_string())
         {
             if (0 != m_value.m_num_escapes) {
-                m_value.unescape_internal();
+                m_value.unescape();
             }
             return as_string_view();
         }
@@ -1325,7 +1325,7 @@ public:
 
     std::string_view key() const noexcept
     {
-        m_key.unescape_internal();
+        m_key.unescape();
         return m_key.as_string_view();
     }
 
@@ -1353,7 +1353,7 @@ protected:
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
-        m_value.reference_value(in_str);
+        m_value.reference_value(in_str, m_value.m_num_escapes);
     }
 
     void parser_direct_set(jsonland::value_type in_type)

@@ -25,8 +25,8 @@ TEST(Escape, parse_and_get)
     jdoc.parse(parse_me);
 
     std::string_view sv = jdoc["quote"].get_string();
-    EXPECT_EQ(sv.size(), 2);
-    EXPECT_EQ(sv, "\\\""sv);
+    EXPECT_EQ(sv.size(), 1);
+    EXPECT_EQ(sv[0], '"');
 }
 
 

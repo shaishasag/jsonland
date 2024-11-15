@@ -295,24 +295,24 @@
 		F64C7EE426D7921C006E4F12 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */,
-				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
 				F611015926CD66F600A01C16 /* create_json_gtests.cpp */,
-				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
+				F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */,
+				F676E46C2CAAFF240067F654 /* test_as.cpp */,
 				F60CC61F26D272C40035D17F /* test_assign.cpp */,
 				F60CC62526D3D9AE0035D17F /* test_compare.cpp */,
-				F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */,
-				F62C079626E8AAAB004DDA5D /* test_numbers.cpp */,
-				F6F5A08626EB975E007E11BE /* test_iter.cpp */,
-				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
-				F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */,
-				F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */,
-				F64C47292C3EDF0B001430EC /* test_erase.cpp */,
-				F676E46C2CAAFF240067F654 /* test_as.cpp */,
-				F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */,
-				F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */,
 				F6020A992CCEA397004A630B /* test_copy.cpp */,
+				F60CC61C26D2723A0035D17F /* test_ctors.cpp */,
+				F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */,
+				F64C47292C3EDF0B001430EC /* test_erase.cpp */,
 				F6213DA82CDB869800AE863B /* test_escape.cpp */,
+				F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */,
+				F6F5A08626EB975E007E11BE /* test_iter.cpp */,
+				F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */,
+				F62C079626E8AAAB004DDA5D /* test_numbers.cpp */,
+				F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */,
+				F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */,
+				F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */,
+				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
 			);
 			name = test;
 			sourceTree = "<group>";
