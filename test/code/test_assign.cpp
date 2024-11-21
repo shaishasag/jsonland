@@ -270,3 +270,126 @@ TEST(Assign, rvalue)
     std::string_view sv("sv");
     arr1.push_back(sv);
 }
+
+TEST(Assign, enum_value)
+{
+    {
+        enum some_enum
+        {
+            nothing,
+            something,
+            everything
+        };
+
+        {
+            json_node nothing_j("nothing");  // started as string
+            nothing_j = nothing;             // assigned an enum
+            EXPECT_TRUE(nothing_j.is_int());
+            EXPECT_EQ(nothing_j.get_int(), static_cast<int>(nothing));
+        }
+
+        {
+            json_node something_j(false);       // started as bool
+            something_j = something;            // assigned an enum
+            EXPECT_TRUE(something_j.is_int());
+            EXPECT_EQ(something_j.get_int(), static_cast<int>(something));
+        }
+        {
+            json_node everything_j(123.4567);    // started as float
+            everything_j = everything;           // assigned an enum
+            EXPECT_TRUE(everything_j.is_int());
+            EXPECT_EQ(everything_j.get_int(), static_cast<int>(everything));
+        }
+        {
+            json_node array_j(jsonland::array_t);
+            array_j.push_back(everything);           // push_back an enum
+            EXPECT_TRUE(array_j[0].is_int());
+            EXPECT_EQ(array_j[0].get_int(), static_cast<int>(everything));
+        }
+        {
+            json_node obj_j(jsonland::object_t);
+            obj_j["something"] = everything;           // add an enum
+            EXPECT_TRUE(obj_j["something"].is_int());
+            EXPECT_EQ(obj_j["something"].get_int(), static_cast<int>(everything));
+        }
+    }
+    {
+        enum some_enum_typed : int64_t
+        {
+            nothing,
+            something = 3'147'483'647,  // too big for int32_t
+            everything = -3'147'483'648,// too small for int32_t
+        };
+
+        {
+            json_node nothing_j("nothing");  // started as string
+            nothing_j = nothing;             // assigned an enum
+            EXPECT_TRUE(nothing_j.is_int());
+            EXPECT_EQ(nothing_j.get_int<int64_t>(), static_cast<int64_t>(nothing));
+        }
+
+        {
+            json_node something_j(false);       // started as bool
+            something_j = something;
+            EXPECT_TRUE(something_j.is_int());
+            EXPECT_EQ(something_j.get_int<int64_t>(), static_cast<int64_t>(something));
+        }
+        {
+            json_node everything_j(123.4567);    // started as float
+            everything_j = everything;
+            EXPECT_TRUE(everything_j.is_int());
+            EXPECT_EQ(everything_j.get_int<int64_t>(), static_cast<int64_t>(everything));
+        }
+    }
+    {
+        enum class some_enum_class
+        {
+            nothing,
+            something,
+            everything
+        };
+
+        {
+            json_node nothing_j(jsonland::array_t);    // started as array
+            nothing_j = some_enum_class::nothing;      // assigned an enum
+            EXPECT_TRUE(nothing_j.is_int());
+            EXPECT_EQ(nothing_j.get_int(), static_cast<int>(some_enum_class::nothing));
+        }
+
+        {
+            json_node something_j(jsonland::object_t);    // started as object
+            something_j = some_enum_class::something;
+            EXPECT_TRUE(something_j.is_int());
+            EXPECT_EQ(something_j.get_int(), static_cast<int>(some_enum_class::something));
+        }
+        {
+            json_node everything_j(jsonland::null_t);    // started as null
+            everything_j = some_enum_class::everything;
+            EXPECT_TRUE(everything_j.is_int());
+            EXPECT_EQ(everything_j.get_int(), static_cast<int>(some_enum_class::everything));
+        }
+    }
+    {   // curious case of enum type bool
+        enum class bool_enum_class : bool
+        {
+            its_false,
+            its_true,
+        };
+
+        {
+            json_node false_j("moooo");
+            false_j = bool_enum_class::its_false;
+            EXPECT_TRUE(false_j.is_bool());
+            EXPECT_EQ(false_j.get_bool(), static_cast<bool>(bool_enum_class::its_false));
+            EXPECT_EQ(false_j.get_as<int>(), 0);
+        }
+
+        {
+            json_node true_j("baaaa");
+            true_j = bool_enum_class::its_true;
+            EXPECT_TRUE(true_j.is_bool());
+            EXPECT_EQ(true_j.get_bool(), static_cast<bool>(bool_enum_class::its_true));
+            EXPECT_EQ(true_j.get_as<int>(), 1);
+        }
+    }
+}

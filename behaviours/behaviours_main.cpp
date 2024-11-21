@@ -238,10 +238,10 @@ public:
     template <typename TValue>
     b(const TValue i)
     {
-        if constexpr (std::is_floating_point_v<TValue> || std::is_integral_v<TValue>) {
+        if constexpr (std::floating_point<TValue> || std::is_integral_v<TValue>) {
             m_value.printf(i);
         }
-        else if constexpr (std::is_convertible_v<TValue, std::string_view>) {
+        else if constexpr (std::convertible_to<TValue, std::string_view>) {
             m_value = i;
         }
     }

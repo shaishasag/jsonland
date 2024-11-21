@@ -198,14 +198,14 @@ static int __printf(char* in_buff, const size_t in_buff_size, const TToPrintf in
     bool remove_zeros{false};
     if (nullptr == printf_format)
     {
-        if constexpr (std::is_floating_point_v<TToPrintf>) {
+        if constexpr (IsFloat<TToPrintf>) {
             printf_format = "%llf";
             remove_zeros = true;
         }
-        else if constexpr (std::is_integral_v<TToPrintf> && std::is_signed_v<TToPrintf>) {
+        else if constexpr (IsInteger<TToPrintf> && std::signed_integral<TToPrintf>) {
             printf_format = "%lli";
         }
-        else if constexpr (std::is_integral_v<TToPrintf> && std::is_unsigned_v<TToPrintf>) {
+        else if constexpr (IsInteger<TToPrintf> && std::unsigned_integral<TToPrintf>) {
             printf_format = "%llu";
         }
     }

@@ -66,6 +66,13 @@ enum value_type : uint32_t
 };
 
 
+template <typename TBool> concept IsBool = std::same_as<TBool, bool>;
+template<typename TCHAR>  concept IsChar = std::same_as<TCHAR, char>;
+template<typename NUM>    concept IsInteger = std::integral<NUM> && !IsBool<NUM> && !IsChar<NUM>;
+template<typename FNUM>   concept IsFloat = std::floating_point<FNUM>;
+template<typename TNULLPTR> concept IsNullPtr = std::is_null_pointer_v<TNULLPTR>;
+template<typename TENUM>  concept IsEnum = std::is_enum_v<TENUM>;
+
 namespace parser_impl { class Parser; }
 
 class DllExport json_node
@@ -151,24 +158,6 @@ private:
     /// String representation of a null value.
     static constexpr std::string_view the_null_string_view{"null"};
 
-
-    /// template to decide if a type is a number (floating point or integer)
-    template<typename NUM> using IsNum = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) || std::is_floating_point<NUM>::value>;
-
-    /// template to decide if a type is an integer
-    template<typename NUM> using IsInteger = std::enable_if_t<(std::is_integral<NUM>::value && !std::is_same<bool, NUM>::value && !std::is_same<char, NUM>::value) && !std::is_floating_point<NUM>::value>;
-
-    /// template to decide if a type is a floating point
-    template<typename NUM> using IsFloat = std::enable_if_t<std::is_floating_point<NUM>::value>;
-
-    /// template to decide if a type is a boolean
-    template<typename TBOOL> using IsBool = std::enable_if_t<std::is_same<bool, TBOOL>::value>;
-
-    /// template to decide if a type is a char
-    template<typename TCHAR> using IsChar = std::enable_if_t<std::is_same<char, TCHAR>::value>;
-
-    /// template to decide if a type is null
-    template<typename TNULLPTR> using IsNullPtr = std::enable_if_t<std::is_same<nullptr_t, TNULLPTR>::value>;
 
     friend class parser_impl::Parser;
 
@@ -303,27 +292,6 @@ public:
         return *this;
     }
 
-    /// Assign a new value from std::string_view, but #value_type set to #in_type, not necessarily #string_t.
-    /// Note: Calling with the string value mismatched with the #value_type could lead to inconsitant state:
-    /// @code
-    /// json_node n1("abc", number_t); // n1 is a number, value is 0
-    /// @codeend
-   /// @param in_str the new value.<br>
-    /// Example:<br>
-    /// @code
-    /// json_node n1("123", number_t);
-    /// n1.is_number();  // true, it's a number intialized with a string
-    /// n1.get_int<int32_t>() == 123;  // true, value is now 123
-    /// @codeend
-    template <typename TCHAR, IsChar<TCHAR>* = nullptr >
-    explicit json_node(std::string in_str, jsonland::value_type in_type) noexcept
-    : m_value_type(in_type)
-    {
-        m_value.store_value_deal_with_escapes(in_str);
-        if (number_t == in_type) {
-            m_hints = _num_in_string;
-        }
-    }
 
     /// Assign a new value from a string, #value_type to set to #string_t.
     /// @param in_str the new value.<br>
@@ -333,7 +301,7 @@ public:
     /// n1.is_number();  // false, it's not a number it's a string
     /// n1.get_int<int32_t>() == 123;  // false, value is the string "123"
     /// @codeend
-    template <typename TCHAR, IsChar<TCHAR>* = nullptr >
+    template <IsChar TCHAR>
     json_node& operator=(const TCHAR in_str[]) noexcept
     {
         clear(string_t);
@@ -342,7 +310,7 @@ public:
     }
 
     //--- integer constructor
-    template <typename NUM, IsInteger<NUM>* = nullptr >
+    template <IsInteger NUM>
     json_node(const NUM in_num) noexcept
     : m_value_type(number_t)
     , m_value()
@@ -351,7 +319,7 @@ public:
     {}
 
     // assign number
-    template <typename NUM, IsInteger<NUM>* = nullptr >
+    template <IsInteger NUM>
     json_node& operator=(const NUM in_num) noexcept
     {
         clear(number_t);
@@ -361,15 +329,29 @@ public:
         return *this;
     }
 
+    //--- enum constructor, converts to undelying integral type
+    template <IsEnum ENUM>
+    json_node(const ENUM in_enum) noexcept
+    : json_node(static_cast<typename std::underlying_type_t<ENUM>>(in_enum))
+    {}
+
+    // assign number
+    template <IsEnum ENUM>
+    json_node& operator=(const ENUM in_enum) noexcept
+    {
+        operator=(static_cast<typename std::underlying_type_t<ENUM>>(in_enum));
+        return *this;
+    }
+
     //--- float constructor
-    template <typename NUM, IsFloat<NUM>* = nullptr >
+    template <IsFloat NUM>
     json_node(const NUM in_num) noexcept
     : m_value_type(number_t)
     , m_value()
     , m_num(static_cast<double>(in_num))
     {}
     // assign number
-    template <typename NUM, IsFloat<NUM>* = nullptr >
+    template <IsFloat NUM>
     json_node& operator=(const NUM in_num) noexcept
     {
         clear(number_t);
@@ -379,13 +361,13 @@ public:
     }
 
     //--- bool constructor
-    template <typename TBOOL, IsBool<TBOOL>* = nullptr >
+    template <IsBool TBOOL>
     explicit json_node(const TBOOL in_bool) noexcept
     : m_value_type(bool_t)
     , m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
-    template <typename TBOOL, IsBool<TBOOL>* = nullptr >
+    template <IsBool TBOOL>
     json_node& operator=(const TBOOL in_bool) noexcept
     {
         clear(bool_t);
@@ -394,11 +376,11 @@ public:
     }
 
     //--- null constructor
-    template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
+    template <IsNullPtr TNULLPTR>
     explicit json_node(TNULLPTR) noexcept : json_node()
     {}
     // assign null
-    template <typename TNULLPTR, IsNullPtr<TNULLPTR>* = nullptr >
+    template <IsNullPtr TNULLPTR>
     json_node& operator=(TNULLPTR)
     {
         clear(null_t);
@@ -469,13 +451,13 @@ public:
     template<typename TISTYPE>
     bool is_type() const noexcept
     {
-        if constexpr (std::is_same<bool, TISTYPE>::value) {
+        if constexpr (IsBool<TISTYPE>::value) {
             return is_bool();
         }
-        else if constexpr (std::is_floating_point_v<TISTYPE>) {
+        else if constexpr (IsFloat<TISTYPE>) {
             return is_float();
         }
-        else if constexpr (std::is_integral_v<TISTYPE>) {
+        else if constexpr (IsInteger<TISTYPE>) {
             return is_int();
         }
 //        else if (std::is_same<const char*, TISTYPE>::value) {
@@ -485,7 +467,7 @@ public:
         else if (std::is_same<std::string_view, TISTYPE>::value) {
             return is_string();
         }
-        else if constexpr (std::is_null_pointer_v<TISTYPE>) {
+        else if constexpr (IsNullPtr<TISTYPE>) {
             return is_null();
         }
 
@@ -633,19 +615,19 @@ public:
         if (contains(key))  // contains return false if this is not an object_t
         {
             const json_node& theJ = m_values[m_obj_key_to_index.at(key)];
-            if constexpr (std::is_same_v<bool, TGETTYPE>) {
+            if constexpr (std::same_as<bool, TGETTYPE>) {
                 retVal = theJ.get_bool(in_default);
             }
-            else if constexpr (std::is_floating_point_v<TGETTYPE>) {
+            else if constexpr (IsFloat<TGETTYPE>) {
                 retVal = theJ.get_float(in_default);
             }
-            else if constexpr (std::is_integral_v<TGETTYPE>) {
+            else if constexpr (IsInteger<TGETTYPE>) {
                 return theJ.get_int(in_default);
             }
-             else  if constexpr (std::is_convertible_v<TGETTYPE, std::string_view>) {
+             else  if constexpr (std::convertible_to<TGETTYPE, std::string_view>) {
                 return theJ.get_string(in_default);
             }
-            else if constexpr (std::is_null_pointer_v<TGETTYPE>) {
+            else if constexpr (IsNullPtr<TGETTYPE>) {
                 return nullptr;
             }
         }
@@ -866,7 +848,7 @@ public:
         return m_values.back();
     }
 
-    template <typename INT, IsInteger<INT>* = nullptr >
+    template <IsInteger INT>
     json_node& operator[](const INT in_dex) noexcept
     {
         if (JSONLAND_LIKELY(is_array() || is_object()))
@@ -899,7 +881,7 @@ public:
     /// @warning Accessing an out-of-bounds index returns `const_uninitialized_json_node`, which
     ///          may represent an invalid or empty state. The caller should verify that the index is
     ///          within bounds or check the returned node's validity before use.
-    template <typename INT, IsInteger<INT>* = nullptr >
+    template <IsInteger INT>
     const json_node& operator[](INT in_dex) const noexcept
     {
         if (size_as(array_t) > static_cast<size_t>(in_dex))
@@ -1058,7 +1040,7 @@ public:
     /// double f3 = string_node.get_float<double>();    // f3 == 0.0, since string_node does not hold a number value, and implicit default value (0.0) is used.
     /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
     /// @endcode
-    template<typename TFLOAT=double, IsFloat<TFLOAT>* = nullptr>
+    template<IsFloat TFLOAT=float>
     TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
     {
         TFLOAT retVal = in_default_fp;
@@ -1096,7 +1078,7 @@ public:
     /// int32_t i3 = string_node.get_int();    // i3 == int32_t(0), since string_node does not hold a number value, and implicit default value (0) is used.
     /// uint64_t i4 = string_node.get_int(23); // i4 == uint64_t(23), since string_node does not hold a number value, and explicit default value (23) is used.
     /// @endcode
-    template<typename TINT, IsInteger<TINT>* = nullptr>
+    template<IsInteger TINT=int>
     TINT get_int(const TINT in_default_int=0) const noexcept
     {
         TINT retVal = in_default_int;
@@ -1177,25 +1159,25 @@ public:
     template<typename TASTYPE>
     TASTYPE get(const TASTYPE in_default={}) const noexcept
     {
-        if constexpr (std::is_same<bool, TASTYPE>::value) {
+        if constexpr (IsBool<TASTYPE>) {
             return get_bool(in_default);
         }
-        else if constexpr (std::is_floating_point_v<TASTYPE>) {
+        else if constexpr (IsFloat<TASTYPE>) {
             return get_float<TASTYPE>(in_default);
         }
-        else if constexpr (std::is_integral_v<TASTYPE>) {
+        else if constexpr (IsInteger<TASTYPE>) {
             return get_int<TASTYPE>(in_default);
         }
-        else if constexpr (std::is_convertible_v<TASTYPE, std::string_view>) {
+        else if constexpr (std::convertible_to<TASTYPE, std::string_view>) {
 
             TASTYPE retVal = static_cast<TASTYPE>(get_string(in_default));
             return retVal;
         }
-        else if constexpr (std::is_null_pointer_v<TASTYPE>) {
+        else if constexpr (IsNullPtr<TASTYPE>) {
             return nullptr;
         }
         else {
-            static_assert(!std::is_same_v<TASTYPE, TASTYPE>, "Unsupported type");
+            static_assert(!std::same_as<TASTYPE, TASTYPE>, "Unsupported type");
             return in_default;
         }
     }
@@ -1217,10 +1199,10 @@ public:
     TASTYPE get_as() const noexcept
     {
         TASTYPE retVal{};
-        if constexpr (std::is_null_pointer_v<TASTYPE>) {
+        if constexpr (IsNullPtr<TASTYPE>) {
             retVal = nullptr;
         }
-        else if constexpr (std::is_same<bool, TASTYPE>::value)
+        else if constexpr (IsBool<TASTYPE>)
         {
             if (is_null())
             {
@@ -1246,7 +1228,7 @@ public:
                 retVal = false;
             }
         }
-        else if constexpr (std::is_floating_point_v<TASTYPE>)
+        else if constexpr (IsFloat<TASTYPE>)
         {
             if (is_null())
             {
@@ -1270,7 +1252,7 @@ public:
                 retVal = 0.0;
             }
         }
-        else if constexpr (std::is_integral_v<TASTYPE>)
+        else if constexpr (IsInteger<TASTYPE>)
         {
             if (is_null())
             {
@@ -1294,7 +1276,7 @@ public:
                 retVal = 0;
             }
         }
-        else if constexpr (std::is_convertible_v<TASTYPE, std::string_view>)
+        else if constexpr (std::convertible_to<TASTYPE, std::string_view>)
         {
             if (is_null())
             {
@@ -1317,7 +1299,7 @@ public:
             }
         }
         else {
-            static_assert(!std::is_same_v<TASTYPE, TASTYPE>, "Unsupported type");
+            static_assert(!std::same_as<TASTYPE, TASTYPE>, "Unsupported type");
         }
 
         return retVal;

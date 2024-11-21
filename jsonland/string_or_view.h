@@ -80,11 +80,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  arg = {};
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  arg.clear();
              }
@@ -104,11 +104,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  retVal = arg.empty();
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  retVal = arg.empty();
              }
@@ -132,11 +132,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  retVal = arg;
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  retVal = arg;
              }
@@ -154,13 +154,13 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  str += '"';
                  str.append(arg);
                  str += '"';
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  str += '"';
                  str.append(arg);
@@ -179,11 +179,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  str.append(arg);
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  str.append(arg);
              }
@@ -201,11 +201,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  retVal = arg.size();
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  retVal = arg.size();
              }
@@ -234,11 +234,11 @@ public:
         std::visit([&](auto&& arg)
         {
              using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::is_same_v<T, std::string_view>)
+             if constexpr (std::same_as<T, std::string_view>)
              {
                  retVal = 0;
              }
-             else if constexpr (std::is_same_v<T, std::string>)
+             else if constexpr (std::same_as<T, std::string>)
              {
                  if (arg.capacity() > sizeof(std::string)) {
                      retVal = arg.capacity()*sizeof(std::string::value_type);

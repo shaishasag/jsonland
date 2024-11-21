@@ -64,19 +64,19 @@ void copy_and_escape(const std::string_view in_text, TStr& in_json_str)
 template <typename TValue, typename TStr>
 inline void write_value(const TValue in_value, TStr& in_json_str)
 {
-    if constexpr (std::is_same_v<bool, TValue>)
+    if constexpr (std::same_as<bool, TValue>)
     {
         in_json_str += in_value ? _TRUE : _FALSE;
     }
-    else if constexpr (std::is_same_v<char, TValue>)
+    else if constexpr (std::same_as<char, TValue>)
     {
         in_json_str += '"';
         in_json_str += in_value;
         in_json_str += '"';
     }
-    else if constexpr (std::is_same_v<std::byte, TValue> ||
-                       std::is_integral_v<TValue> ||
-                       std::is_floating_point_v<TValue>)
+    else if constexpr (std::same_as<std::byte, TValue> ||
+                       std::integral<TValue> ||
+                       std::floating_point<TValue>)
     {
         fstr::fstr127 fs;
         fs.printf(in_value);
@@ -86,7 +86,7 @@ inline void write_value(const TValue in_value, TStr& in_json_str)
     {
         in_json_str += _NULL;
     }
-    else if constexpr (std::is_convertible_v<TValue, std::string_view>)
+    else if constexpr (std::convertible_to<TValue, std::string_view>)
     {
         in_json_str += '"';
         copy_and_escape(std::string_view(in_value), in_json_str);
@@ -157,11 +157,11 @@ public:
 
     void reserve( size_t new_cap )
     {
-        if constexpr (std::is_same_v<std::string, std::decay_t<TStr>>)
+        if constexpr (std::same_as<std::string, std::decay_t<TStr>>)
         {
             m_json_str.reserve(new_cap);
         }
-        else if constexpr (std::is_same_v<fstr::fstr_ref, TStr>)
+        else if constexpr (std::same_as<fstr::fstr_ref, TStr>)
         {
             //assert(new_cap <= m_json_str.capacity());
         }
