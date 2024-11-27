@@ -73,6 +73,13 @@ template<typename FNUM>   concept IsFloat = std::floating_point<FNUM>;
 template<typename TNULLPTR> concept IsNullPtr = std::is_null_pointer_v<TNULLPTR>;
 template<typename TENUM>  concept IsEnum = std::is_enum_v<TENUM>;
 
+template<typename TJSONABLE> concept IsJsonScalarType = IsBool<TJSONABLE>
+                                                        || IsInteger<TJSONABLE>
+                                                        || IsFloat<TJSONABLE>
+                                                        || IsNullPtr<TJSONABLE>
+                                                        || IsEnum<TJSONABLE>
+                                                        || std::convertible_to<TJSONABLE, std::string_view>;
+
 namespace parser_impl { class Parser; }
 
 class DllExport json_node
@@ -301,8 +308,8 @@ public:
     /// n1.is_number();  // false, it's not a number it's a string
     /// n1.get_int<int32_t>() == 123;  // false, value is the string "123"
     /// @codeend
-    template <IsChar TCHAR>
-    json_node& operator=(const TCHAR in_str[]) noexcept
+
+    json_node& operator=(const IsChar auto in_str[]) noexcept
     {
         clear(string_t);
         m_value.store_value_deal_with_escapes(in_str);
@@ -310,8 +317,7 @@ public:
     }
 
     //--- integer constructor
-    template <IsInteger NUM>
-    json_node(const NUM in_num) noexcept
+    json_node(const IsInteger auto in_num) noexcept
     : m_value_type(number_t)
     , m_value()
     , m_num(static_cast<double>(in_num))
@@ -319,8 +325,7 @@ public:
     {}
 
     // assign number
-    template <IsInteger NUM>
-    json_node& operator=(const NUM in_num) noexcept
+    json_node& operator=(const IsInteger auto in_num) noexcept
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
@@ -330,29 +335,25 @@ public:
     }
 
     //--- enum constructor, converts to undelying integral type
-    template <IsEnum ENUM>
-    json_node(const ENUM in_enum) noexcept
-    : json_node(static_cast<typename std::underlying_type_t<ENUM>>(in_enum))
+    json_node(const IsEnum auto in_enum) noexcept
+    : json_node(static_cast<typename std::underlying_type_t<decltype(in_enum)>>(in_enum))
     {}
 
-    // assign number
-    template <IsEnum ENUM>
-    json_node& operator=(const ENUM in_enum) noexcept
+    // assign enum
+    json_node& operator=(const IsEnum auto in_enum) noexcept
     {
-        operator=(static_cast<typename std::underlying_type_t<ENUM>>(in_enum));
+        operator=(static_cast<typename std::underlying_type_t<decltype(in_enum)>>(in_enum));
         return *this;
     }
 
     //--- float constructor
-    template <IsFloat NUM>
-    json_node(const NUM in_num) noexcept
+    json_node(const IsFloat auto in_num) noexcept
     : m_value_type(number_t)
     , m_value()
     , m_num(static_cast<double>(in_num))
     {}
     // assign number
-    template <IsFloat NUM>
-    json_node& operator=(const NUM in_num) noexcept
+    json_node& operator=(const IsFloat auto in_num) noexcept
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
@@ -361,14 +362,12 @@ public:
     }
 
     //--- bool constructor
-    template <IsBool TBOOL>
-    explicit json_node(const TBOOL in_bool) noexcept
+    explicit json_node(const IsBool auto in_bool) noexcept
     : m_value_type(bool_t)
     , m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
-    template <IsBool TBOOL>
-    json_node& operator=(const TBOOL in_bool) noexcept
+    json_node& operator=(const IsBool auto in_bool) noexcept
     {
         clear(bool_t);
         m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
@@ -376,12 +375,10 @@ public:
     }
 
     //--- null constructor
-    template <IsNullPtr TNULLPTR>
-    explicit json_node(TNULLPTR) noexcept : json_node()
+    explicit json_node(IsNullPtr auto) noexcept : json_node()
     {}
     // assign null
-    template <IsNullPtr TNULLPTR>
-    json_node& operator=(TNULLPTR)
+    json_node& operator=(IsNullPtr auto)
     {
         clear(null_t);
         return *this;
@@ -837,8 +834,7 @@ public:
         return m_values.back();
     }
 
-    template<typename TNODEVAL>
-    json_node& push_back(const TNODEVAL in_val) noexcept
+    json_node& push_back(const IsJsonScalarType auto in_val) noexcept
     {
 #if JSONLAND_ASSERT_TYPE_CONSISTENCY != 0
         assert(is_array() || is_null());
@@ -848,8 +844,7 @@ public:
         return m_values.back();
     }
 
-    template <IsInteger INT>
-    json_node& operator[](const INT in_dex) noexcept
+    json_node& operator[](const IsInteger auto in_dex) noexcept
     {
         if (JSONLAND_LIKELY(is_array() || is_object()))
         {
@@ -881,8 +876,8 @@ public:
     /// @warning Accessing an out-of-bounds index returns `const_uninitialized_json_node`, which
     ///          may represent an invalid or empty state. The caller should verify that the index is
     ///          within bounds or check the returned node's validity before use.
-    template <IsInteger INT>
-    const json_node& operator[](INT in_dex) const noexcept
+
+    const json_node& operator[](IsInteger auto in_dex) const noexcept
     {
         if (size_as(array_t) > static_cast<size_t>(in_dex))
         {
@@ -1041,7 +1036,7 @@ public:
     /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
     /// @endcode
     template<IsFloat TFLOAT=float>
-    TFLOAT get_float(const TFLOAT in_default_fp=0.0) const noexcept
+    TFLOAT get_float(const TFLOAT in_default_fp=0.0f) const noexcept
     {
         TFLOAT retVal = in_default_fp;
         if (JSONLAND_LIKELY(is_number()))
@@ -1156,7 +1151,7 @@ public:
     /// bool f3 = number_node.get<bool>();   // f3 == false
     /// @endcode
 
-    template<typename TASTYPE>
+    template<IsJsonScalarType TASTYPE>
     TASTYPE get(const TASTYPE in_default={}) const noexcept
     {
         if constexpr (IsBool<TASTYPE>) {
@@ -1195,7 +1190,7 @@ public:
     /// float f2 = number_node.get_as<float>();     // f2 == 123.456
     /// bool f3 = number_node.get_as<bool>();       // f3 == false
     /// @endcode
-    template<typename TASTYPE>
+    template<IsJsonScalarType TASTYPE>
     TASTYPE get_as() const noexcept
     {
         TASTYPE retVal{};

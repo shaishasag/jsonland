@@ -162,6 +162,7 @@
 		F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_deduce_type.cpp; path = test/code/test_deduce_type.cpp; sourceTree = "<group>"; };
 		F617B2A82971B182007A0D81 /* gtest_main.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = gtest_main.cc; path = ../googletest/googletest/src/gtest_main.cc; sourceTree = "<group>"; };
 		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "../googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
+		F61C30DA2CF79244006B6B9B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F6213DA82CDB869800AE863B /* test_escape.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escape.cpp; path = test/code/test_escape.cpp; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
@@ -320,6 +321,7 @@
 		F65C68B226C95D1A00E4AA5F = {
 			isa = PBXGroup;
 			children = (
+				F61C30DA2CF79244006B6B9B /* README.md */,
 				F6355CDB2CD3E9CA00BF6CC8 /* Examples */,
 				F6AA89B72C2D9CB500D5ED6E /* fstring.h */,
 				F6507AF72C2EF19A001A3B94 /* fstringstream.h */,
