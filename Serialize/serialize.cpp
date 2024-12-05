@@ -105,6 +105,7 @@ public:
         }
         else if (my_role == ser_write)
         {
+            my_j = jsonland::object_t; // make sure it's an object even if container is empty
             for (auto& [key, value] : container)
             {
                 my_j[key] = value;
@@ -127,6 +128,7 @@ public:
         }
         else if (my_role == ser_write)
         {
+            my_j = jsonland::array_t; // make sure it's an array even if container is empty
             for (auto& value : container)
             {
                 jsonland::json_node& new_j = my_j.emplace_back();
@@ -210,27 +212,6 @@ public:
 };
 
 
-
-static void read_users(serializer_read& rj, std::vector<User>& users_vec)
-{
-    for (auto& user_j : rj.my_j)
-    {
-        User& a_user = users_vec.emplace_back();
-        serializer_read urj(user_j);
-        urj.serialize(a_user);
-    }
-}
-
-static void write_users(std::vector<User>& users_vec, serializer_write& wj)
-{
-    for (auto& a_user : users_vec)
-    {
-        auto& user_j = wj.my_j.append_object();
-        serializer_write uwj(user_j);
-        uwj.serialize(a_user);
-     }
-}
-
 static void statistics_users(std::vector<User>& users_vec)
 {
     if (users_vec.empty())
@@ -305,19 +286,19 @@ int main(int argc, char* argv[])
 
     std::vector<User> users_vec;
     serializer_read reader(j);
-    read_users(reader,  users_vec);
+    reader.serialize(users_vec);
 
     statistics_users(users_vec);
 
     jsonland::json_node out_users_j(jsonland::array_t);
     serializer_write writer(out_users_j);
-    write_users(users_vec, writer);
+    writer.serialize(users_vec);
 
     std::filesystem::path output_path(input_path);
     output_path.replace_extension("out.json");
 
     std::ofstream output_file(output_path, std::ios::out | std::ios::binary);
 
-    output_file << out_users_j.dump(true) << std::endl;
+    output_file << out_users_j.dump(jsonland::dump_style::pretty) << std::endl;
     output_file.close();
 }

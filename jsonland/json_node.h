@@ -84,6 +84,12 @@ template<typename TJSONABLE> concept IsJsonScalarType = IsBool<TJSONABLE>
 
 namespace parser_impl { class Parser; }
 
+enum class dump_style : int32_t
+{
+    tight = 0,
+    pretty = 1,
+};
+
 class DllExport json_node
 {
 public:
@@ -984,16 +990,18 @@ public:
 
     /// Serialize json to text and appends the text to #out_str.
     /// @param out_str text will be appended to this string, previous content will not be erased.
-    void dump(std::string& out_str, bool pretty_print=false) const noexcept;
+    void dump(std::string& out_str,
+              dump_style in_style=dump_style::tight) const noexcept;
 
     /// Serialize json to text and return as std::string.
     /// @return Text represntation of this json object.
-    std::string dump(bool pretty_print=false) const noexcept;
+    std::string dump(dump_style in_style=dump_style::tight) const noexcept;
 
     /// Serilize json to text and append the text to a stream.
     /// @param os Text will be appended to this stream.
     /// @return os.
-    std::ostream& dump(std::ostream& os, bool pretty_print=false) const noexcept;
+    std::ostream& dump(std::ostream& os,
+                       dump_style in_style=dump_style::tight) const noexcept;
 
     /// Get the string value as std::string_view
     /// @return the string value

@@ -184,10 +184,11 @@ void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noex
 #endif
 }
 
-std::ostream& json_node::dump(std::ostream& os, bool pretty_print) const noexcept
+std::ostream& json_node::dump(std::ostream& os,
+                              dump_style in_style) const noexcept
 {
     std::string str;
-    dump(str, pretty_print);
+    dump(str, in_style);
     os.write(str.c_str(), str.size());
     return os;
 }
@@ -237,9 +238,10 @@ static int __printf(char* in_buff, const size_t in_buff_size, const TToPrintf in
 }
 
 
-void json_node::dump(std::string& out_str, bool pretty_print) const noexcept
+void json_node::dump(std::string& out_str,
+                     dump_style in_style) const noexcept
 {
-    if (pretty_print) {
+    if (in_style == dump_style::pretty) {
         dump_pretty(out_str);
     }
     else {
@@ -272,8 +274,12 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
             auto io = m_values.begin();
             io->m_key.dump_with_quotes(out_str);
             out_str += ':';
-            if (io->is_object() || io->is_array()) {
-                nl_indent(out_str, level);
+            if (!io->empty_as(object_t) || !io->empty_as(array_t)) {
+                out_str += '\n';
+                indent(out_str, level);
+            }
+            else {
+                out_str += ' ';
             }
             io->dump_pretty(out_str, level);
 
@@ -284,17 +290,19 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
 
                 io->m_key.dump_with_quotes(out_str);
                 out_str += ':';
-                if (io->is_object() || io->is_array()) {
+                if (!io->empty_as(object_t) || !io->empty_as(array_t)) {
                     out_str += '\n';
                     indent(out_str, level);
+                }
+                else {
+                    out_str += ' ';
                 }
                 io->dump_pretty(out_str, level);
             }
             --level;
+            nl_indent(out_str, level);
         }
-        nl_indent(out_str, level);
         out_str += '}';
-        indent(out_str, level);
     }
     else if (is_array())
     {
@@ -312,10 +320,10 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
                 nl_indent(out_str, level);
                 ai->dump_pretty(out_str, level);
             }
+            --level;
+            out_str += '\n';
+            indent(out_str, level);
         }
-        --level;
-        out_str += '\n';
-        indent(out_str, level);
         out_str += ']';
     }
     else if (is_number())
@@ -423,10 +431,10 @@ void json_node::dump_tight(std::string& out_str) const noexcept
     }
 }
 
-std::string json_node::dump(bool pretty_print) const noexcept
+std::string json_node::dump(dump_style in_style) const noexcept
 {
     std::string retVal;
-    dump(retVal, pretty_print);
+    dump(retVal, in_style);
     return retVal;
 }
 

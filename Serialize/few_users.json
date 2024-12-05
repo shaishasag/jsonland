@@ -4,7 +4,7 @@
         "name": "Elijah",
         "city": "Austin",
         "age": 78,
-        "shop": {"banana": 2, "orange": 3},
+        "shop": {},
         "friends": [
             {
                 "name": "Michelle",
@@ -76,11 +76,7 @@
             },
             {
                 "name": "Amelia",
-                "hobbies": [
-                    "Gardening",
-                    "Board Games",
-                    "Watching Sports"
-                ]
+                "hobbies": []
             },
             {
                 "name": "Leo",
