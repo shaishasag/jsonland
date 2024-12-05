@@ -66,19 +66,21 @@ enum value_type : uint32_t
 };
 
 
-template <typename TBool> concept IsBool = std::same_as<TBool, bool>;
-template<typename TCHAR>  concept IsChar = std::same_as<TCHAR, char>;
-template<typename NUM>    concept IsInteger = std::integral<NUM> && !IsBool<NUM> && !IsChar<NUM>;
-template<typename FNUM>   concept IsFloat = std::floating_point<FNUM>;
+template <typename TBool>   concept IsBool = std::same_as<std::decay_t<TBool>, bool>;
+template<typename TCHAR>    concept IsChar = std::same_as<std::decay_t<TCHAR>, char>;
+template<typename NUM>      concept IsInteger = std::integral<NUM> && !IsBool<NUM> && !IsChar<NUM>;
+template<typename FNUM>     concept IsFloat = std::floating_point<FNUM>;
+template<typename FNUM>     concept IsNumber = IsInteger<FNUM> || IsFloat<FNUM>;
+template<typename FSTR>     concept IsString = std::convertible_to<FSTR, std::string_view>;
 template<typename TNULLPTR> concept IsNullPtr = std::is_null_pointer_v<TNULLPTR>;
-template<typename TENUM>  concept IsEnum = std::is_enum_v<TENUM>;
+template<typename TENUM>    concept IsEnum = std::is_enum_v<TENUM>;
 
 template<typename TJSONABLE> concept IsJsonScalarType = IsBool<TJSONABLE>
                                                         || IsInteger<TJSONABLE>
                                                         || IsFloat<TJSONABLE>
                                                         || IsNullPtr<TJSONABLE>
                                                         || IsEnum<TJSONABLE>
-                                                        || std::convertible_to<TJSONABLE, std::string_view>;
+                                                        || IsString<TJSONABLE>;
 
 namespace parser_impl { class Parser; }
 
@@ -822,14 +824,32 @@ public:
 
     /// functions for JSON value type #array_t
 
+    json_node& emplace_back() noexcept
+    {
+        if (is_null())
+        {
+            clear(array_t);
+        }
+        m_values.emplace_back();
+        return m_values.back();
+    }
+
     json_node& push_back(const json_node& in_node) noexcept
     {
+        if (is_null())
+        {
+            clear(array_t);
+        }
         m_values.push_back(in_node);
         return m_values.back();
     }
 
     json_node& push_back(json_node&& in_node) noexcept
     {
+        if (is_null())
+        {
+            clear(array_t);
+        }
         m_values.emplace_back(std::move(in_node));
         return m_values.back();
     }
@@ -964,16 +984,16 @@ public:
 
     /// Serialize json to text and appends the text to #out_str.
     /// @param out_str text will be appended to this string, previous content will not be erased.
-    void dump(std::string& out_str) const noexcept;
+    void dump(std::string& out_str, bool pretty_print=false) const noexcept;
 
     /// Serialize json to text and return as std::string.
     /// @return Text represntation of this json object.
-    std::string dump() const noexcept;
+    std::string dump(bool pretty_print=false) const noexcept;
 
     /// Serilize json to text and append the text to a stream.
     /// @param os Text will be appended to this stream.
     /// @return os.
-    std::ostream& dump(std::ostream& os) const noexcept;
+    std::ostream& dump(std::ostream& os, bool pretty_print=false) const noexcept;
 
     /// Get the string value as std::string_view
     /// @return the string value
@@ -1338,6 +1358,9 @@ protected:
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
     }
+
+    void dump_pretty(std::string& out_str, size_t level=0) const noexcept;
+    void dump_tight(std::string& out_str) const noexcept;
 
 private:
     // null, bool, and string are all represented in m_str_view, even when new value is assigned programatically.

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 #include <string_view>
 #include <filesystem>
@@ -7,6 +8,167 @@
 
 #include "json_node.h"
 using namespace jsonland;
+class serializer_base;
+
+template<typename TSerialable> concept IsSerialable =
+            IsJsonScalarType<TSerialable>
+            || requires (TSerialable& mapped, serializer_base& sb){mapped.jsonland_serialize(sb);}
+            || requires (TSerialable& mapped, serializer_base& sb){jsonland_serialize(mapped, sb);};
+
+
+template <typename TAssociative>
+concept IsAssociative = IsString<typename TAssociative::key_type>
+                        && IsSerialable<typename TAssociative::mapped_type>
+                        && requires(TAssociative container, typename TAssociative::key_type key)
+                        {
+                            { container.find(key) } -> std::same_as<typename TAssociative::iterator>; // Must have find()
+                            { container.count(key) } -> std::convertible_to<std::size_t>;  // Must have count()
+                        };
+
+template <typename TIterable>
+concept IsIterable =
+    requires(TIterable container) {
+            typename TIterable::value_type;
+            { std::begin(container) } -> std::input_or_output_iterator; // Must have a begin() method
+            { std::end(container) } -> std::input_or_output_iterator;   // Must have an end() method
+    }
+    && IsSerialable<typename TIterable::value_type>;
+
+class serializer_base
+{
+protected:
+
+    enum role
+    {
+        ser_base,
+        ser_read,
+        ser_write,
+        ser_null
+    };
+
+    serializer_base(jsonland::json_node& in_j, role in_role)
+    : my_j(in_j)
+    , my_role(in_role)
+    {
+    }
+
+public:
+    template<typename TToSer>
+    void serialize(TToSer& to_ser)
+    {
+        if constexpr (requires { to_ser.jsonland_serialize(*this); })
+        {   // member function TToSer::jsonland_serialize exists
+            to_ser.jsonland_serialize(*this);
+        }
+        else if constexpr (requires { jsonland_serialize(to_ser, *this); })
+        {   // free function jsonland_serialize(TToSer&,serializer_base&) exists
+            jsonland_serialize(to_ser, *this);
+        }
+        else if constexpr (IsAssociative<TToSer>)
+        {
+            serialize_map(to_ser);
+        }
+        else if constexpr (IsIterable<TToSer>)
+        {
+            serialize_array(to_ser);
+        }
+        else if constexpr (IsJsonScalarType<TToSer>)
+        {
+            serialize_scalar(to_ser);
+        }
+    }
+
+    template<IsJsonScalarType TScalar>
+    void serialize_scalar(TScalar& to_ser)
+    {
+        if (my_role == ser_read)
+        {
+            to_ser = my_j.get_as<TScalar>();
+        }
+        else if (my_role == ser_write)
+        {
+            my_j = to_ser;
+        }
+    }
+
+    template<IsAssociative TMap>
+    void serialize_map(TMap& container)
+    {
+        if (my_role == ser_read)
+        {
+            for (auto& key_value : my_j)
+            {
+                using key_t = typename TMap::key_type;
+                using value_t = typename TMap::mapped_type;
+                container[key_t{key_value.key()}] = key_value.get<value_t>();
+            }
+        }
+        else if (my_role == ser_write)
+        {
+            for (auto& [key, value] : container)
+            {
+                my_j[key] = value;
+            }
+        }
+    }
+
+    template<IsIterable TArr>
+    void serialize_array(TArr& container)
+    {
+        if (my_role == ser_read)
+        {
+            using value_t = typename TArr::value_type;
+            for (auto& value_j : my_j)
+            {
+                value_t& new_value = container.emplace_back();
+                serializer_base new_ser(value_j, ser_read);
+                new_ser.serialize(new_value);
+            }
+        }
+        else if (my_role == ser_write)
+        {
+            for (auto& value : container)
+            {
+                jsonland::json_node& new_j = my_j.emplace_back();
+                serializer_base new_ser(new_j, ser_write);
+                new_ser.serialize(value);
+            }
+        }
+    }
+
+    serializer_base operator[](std::string_view in_key)
+    {
+        if ((my_role == ser_read && my_j.contains(in_key)) || my_role == ser_write)
+        {
+            return serializer_base(my_j[in_key], my_role);
+        }
+        else
+        {
+            return serializer_base(my_j, ser_null);
+        }
+    }
+
+    role my_role{ser_base};
+    jsonland::json_node& my_j;
+};
+
+class serializer_read : public serializer_base
+{
+public:
+    serializer_read(jsonland::json_node& in_j)
+    : serializer_base(in_j, ser_read)
+    {
+    }
+};
+
+class serializer_write : public serializer_base
+{
+public:
+    serializer_write(jsonland::json_node& in_j)
+    : serializer_base(in_j, ser_write)
+    {
+    }
+};
 
 class Friend
 {
@@ -15,6 +177,12 @@ public:
     std::vector<std::string> hobbies;
 };
 
+void jsonland_serialize(Friend& in_frnd, serializer_base& rj)
+{
+    rj["name"].serialize(in_frnd.name);
+    rj["hobbies"].serialize(in_frnd.hobbies);
+}
+
 class User
 {
 public:
@@ -22,146 +190,34 @@ public:
     std::string name;
     std::string city;
     int age{0};
+    std::map<std::string, int> shop;
     std::vector<Friend> friends;
-};
 
-class serializer_base
-{
-public:
-    serializer_base(jsonland::json_node& in_j, serializer_base*p)
-    : j(in_j)
-    , the_real_me(p)
+    void jsonland_serialize(serializer_base& rj)
     {
-    }
-    virtual ~serializer_base() = default;
+        rj["id"].serialize(id);
+        rj["name"].serialize(name);
+        rj["city"].serialize(city);
+        rj["age"].serialize(age);
 
-    serializer_base* self() { return the_real_me; }
-    jsonland::json_node& my_j() { return self()->j; }
+        auto shopping_ser = rj["shop"];
+        shopping_ser.serialize(shop);
 
-    serializer_base object_item(std::string_view item_name)
-    {
-        return self()->_object_item(item_name);
-    }
-    void number(int& i)
-    {
-        serializer_base* me = self();
-        me->_number(i);
-    }
-
-
-private:
-    virtual serializer_base _object_item(std::string_view)
-    {
-        return *this;
-    }
-    virtual void _number(int& i)
-    {
-
-    }
-
-    jsonland::json_node& j;
-    serializer_base* the_real_me{nullptr};
-
-};
-
-class serializer_read : public serializer_base
-{
-public:
-    serializer_read(jsonland::json_node& in_j)
-    : serializer_base(in_j, this)
-    {
-    }
-
-    serializer_base _object_item(std::string_view item_name) override
-    {
-        serializer_read retVal(my_j()[item_name]);
-        return retVal;
-    }
-
-    void _number(int& a_number) override
-    {
-        a_number = my_j().get_int<int>();
-    }
-
-};
-
-class serializer_write : public serializer_base
-{
-public:
-    serializer_write(jsonland::json_node& in_j)
-    : serializer_base(in_j, this)
-    {
-    }
-
-
-    serializer_base _object_item(std::string_view item_name) override
-    {
-        jsonland::json_node& new_obj_item = my_j()[item_name];
-        serializer_write retVal(new_obj_item);
-        return retVal;
-    }
-
-    void _number(int& a_number) override
-    {
-        jsonland::json_node& my_real_j = my_j();
-        my_real_j = a_number;
+        static_assert(IsIterable<decltype(friends)>, "??");
+        auto friends_ser = rj["friends"];
+        friends_ser.serialize(friends);
     }
 };
 
-static void read_a_user(serializer_read& rj, User& a_user)
-{
-    auto id_item = rj.object_item("id");
-    id_item.number(a_user.id);
 
-    a_user.name = rj.my_j()["name"].get_string();
-    a_user.city = rj.my_j()["city"].get_string();
-    a_user.age = rj.my_j()["age"].get_int<int>();
-
-    auto& friends_j = rj.my_j()["friends"];
-    for (auto& friend_j : friends_j)
-    {
-        auto& a_friend = a_user.friends.emplace_back();
-        a_friend.name = friend_j["name"].get_string();
-        for (auto& hobby_j : friend_j["hobbies"])
-        {
-            a_friend.hobbies.emplace_back(hobby_j.get_string());
-        }
-    }
-}
 
 static void read_users(serializer_read& rj, std::vector<User>& users_vec)
 {
-    for (auto& user_j : rj.my_j())
+    for (auto& user_j : rj.my_j)
     {
         User& a_user = users_vec.emplace_back();
         serializer_read urj(user_j);
-        read_a_user(urj, a_user);
-    }
-}
-
-static void write_a_user(User& a_user, serializer_write& wj)
-{
-    auto id_item = wj.object_item("id");
-    id_item.number(a_user.id);
-
-    wj.my_j()["name"] = a_user.name;
-    wj.my_j()["city"] = a_user.city;
-    wj.my_j()["age"] = a_user.age;
-
-    if (!a_user.friends.empty())
-    {
-        auto& friends_j = wj.my_j().append_array("friends");
-        for (auto& a_friend : a_user.friends)
-        {
-            auto& friend_j = friends_j.append_object();
-            friend_j["name"] = a_friend.name;
-
-            auto& hobbies_j = friend_j.append_array("hobbies");
-            for (auto& a_hobby : a_friend.hobbies)
-            {
-                hobbies_j.push_back(a_hobby);
-            }
-        }
+        urj.serialize(a_user);
     }
 }
 
@@ -169,9 +225,9 @@ static void write_users(std::vector<User>& users_vec, serializer_write& wj)
 {
     for (auto& a_user : users_vec)
     {
-        auto& user_j = wj.my_j().append_object();
+        auto& user_j = wj.my_j.append_object();
         serializer_write uwj(user_j);
-        write_a_user(a_user, uwj);
+        uwj.serialize(a_user);
      }
 }
 
@@ -225,16 +281,16 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    std::filesystem::path p(argv[1]);
-    std::ifstream file(p, std::ios::in | std::ios::binary);
-    if (!file.is_open())
+    std::filesystem::path input_path(argv[1]);
+    std::ifstream input_file(input_path, std::ios::in | std::ios::binary);
+    if (!input_file.is_open())
     {
         std::cout << "failed to open file" << std::endl;
         return 0;
     }
 
     // Read contents
-    std::string content{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
+    std::string content{std::istreambuf_iterator<char>(input_file), std::istreambuf_iterator<char>()};
 
     jsonland::json_doc j;
     j.parse_insitu(content);
@@ -256,5 +312,12 @@ int main(int argc, char* argv[])
     jsonland::json_node out_users_j(jsonland::array_t);
     serializer_write writer(out_users_j);
     write_users(users_vec, writer);
-    std::cout << out_users_j.dump() << std::endl;
+
+    std::filesystem::path output_path(input_path);
+    output_path.replace_extension("out.json");
+
+    std::ofstream output_file(output_path, std::ios::out | std::ios::binary);
+
+    output_file << out_users_j.dump(true) << std::endl;
+    output_file.close();
 }

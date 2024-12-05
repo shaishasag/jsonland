@@ -1,0 +1,33 @@
+[
+    {
+        "id":0,
+        "name":"Elijah",
+        "city":"Austin",
+        "age":78,
+        "shop":
+        {
+            "banana":2,
+            "orange":3
+        }        ,
+        "friends":
+        [
+            {
+                "name":"Michelle",
+                "hobbies":
+                [
+                    "Watching Sports",
+                    "Reading",
+                    "Skiing & Snowboarding"
+                ]
+            }            ,
+            {
+                "name":"Robert",
+                "hobbies":
+                [
+                    "Traveling",
+                    "Video Games"
+                ]
+            }
+        ]
+    }
+]

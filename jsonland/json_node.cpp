@@ -184,10 +184,10 @@ void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noex
 #endif
 }
 
-std::ostream& json_node::dump(std::ostream& os) const noexcept
+std::ostream& json_node::dump(std::ostream& os, bool pretty_print) const noexcept
 {
     std::string str;
-    dump(str);
+    dump(str, pretty_print);
     os.write(str.c_str(), str.size());
     return os;
 }
@@ -236,7 +236,123 @@ static int __printf(char* in_buff, const size_t in_buff_size, const TToPrintf in
     return num_chars;
 }
 
-void json_node::dump(std::string& out_str) const noexcept
+
+void json_node::dump(std::string& out_str, bool pretty_print) const noexcept
+{
+    if (pretty_print) {
+        dump_pretty(out_str);
+    }
+    else {
+        dump_tight(out_str);
+    }
+}
+
+const size_t indent_factor = 4;
+static void indent(std::string& out_str, size_t level)
+{
+    out_str.append(level*indent_factor, ' ');
+}
+static void nl_indent(std::string& out_str, size_t level)
+{
+    out_str += '\n';
+    out_str.append(level*indent_factor, ' ');
+}
+
+void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
+{
+    if (is_object())
+    {
+        out_str += '{';
+
+        if (!m_values.empty())
+        {
+            ++level;
+            nl_indent(out_str, level);
+
+            auto io = m_values.begin();
+            io->m_key.dump_with_quotes(out_str);
+            out_str += ':';
+            if (io->is_object() || io->is_array()) {
+                nl_indent(out_str, level);
+            }
+            io->dump_pretty(out_str, level);
+
+            for (++io; io != m_values.end(); ++io)
+            {
+                out_str += ',';
+                nl_indent(out_str, level);
+
+                io->m_key.dump_with_quotes(out_str);
+                out_str += ':';
+                if (io->is_object() || io->is_array()) {
+                    out_str += '\n';
+                    indent(out_str, level);
+                }
+                io->dump_pretty(out_str, level);
+            }
+            --level;
+        }
+        nl_indent(out_str, level);
+        out_str += '}';
+        indent(out_str, level);
+    }
+    else if (is_array())
+    {
+        out_str += '[';
+        if (!m_values.empty())
+        {
+            ++level;
+            nl_indent(out_str, level);
+
+            auto ai = m_values.begin();
+            ai->dump_pretty(out_str, level);
+
+            for (++ai; ai != m_values.end(); ++ai) {
+                out_str += ',';
+                nl_indent(out_str, level);
+                ai->dump_pretty(out_str, level);
+            }
+        }
+        --level;
+        out_str += '\n';
+        indent(out_str, level);
+        out_str += ']';
+    }
+    else if (is_number())
+    {  // where art thou Grisu2 ?
+        if (is_num_in_string())
+        {
+            m_value.dump_no_quotes(out_str);
+        }
+        else
+        {
+            char buff[128]{'\0'};
+            if (m_hints & _num_is_int) {
+                size_t num_chars = __printf(buff, 127, get_int<int64_t>());
+                out_str.append(buff, num_chars);
+            }
+            else
+            {
+                // no to_chars(... double) in clang
+                //auto res = std::to_chars(buff, buff+30, get_float(), std::chars_format::fixed);
+                //out_str.append(buff, res.ptr-buff);
+                // resort to printf...
+                size_t num_chars = __printf(buff, 127, get_float<long double>());
+                out_str.append(buff, num_chars);
+            }
+        }
+    }
+    else if (is_string())
+    {
+        m_value.dump_with_quotes(out_str);
+    }
+    else
+    {
+        m_value.dump_no_quotes(out_str);
+    }
+}
+
+void json_node::dump_tight(std::string& out_str) const noexcept
 {
     if (is_object())
     {
@@ -307,10 +423,10 @@ void json_node::dump(std::string& out_str) const noexcept
     }
 }
 
-std::string json_node::dump() const noexcept
+std::string json_node::dump(bool pretty_print) const noexcept
 {
     std::string retVal;
-    dump(retVal);
+    dump(retVal, pretty_print);
     return retVal;
 }
 
