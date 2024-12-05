@@ -58,6 +58,35 @@ int main() {
 }
 ```
 
+### Printing JSON
+jsonland::json_node can be printed to a string using the dump() function.
+By default dump() outputs the json as compact as possible, without any spaces and new lines.
+
+Printing can be done in "pretty" style where each value is in its own line and nested values are indented by passing the style parameter to dump():
+```cpp
+dump(jsonland::dump_style::pretty);
+```
+
+```cpp
+#include "jsonland/json_node.h"
+
+int main() {
+    // parse a json string
+    jsonland::json_doc myJson;
+    myJson.parse(R"({"name": "Jsonland", "version": 1.0})");
+    
+    std::string tight_dump = myJson.dump();
+    // tight_dump == {"name":"Jsonland","version":1.0}
+    
+    std::string pretty_dump = myJson.dump(jsonland::dump_style::pretty);
+    // pretty_dump ==
+    // {
+    //     "name": "Jsonland",
+    //     "version": 1.0
+    // }
+}
+```
+
 ### Creating JSON programmatically
 
 ```cpp

@@ -301,4 +301,13 @@ int main(int argc, char* argv[])
 
     output_file << out_users_j.dump(jsonland::dump_style::pretty) << std::endl;
     output_file.close();
+
+    jsonland::json_doc myJson;
+    myJson.parse(R"({"name": "Jsonland", "version": 1.0})");
+
+    std::string tight_dump = myJson.dump();
+    // tight_dump == {"name":"Jsonland","version": 1.0}
+    std::cout << tight_dump << std::endl;
+    std::string pretty_dump = myJson.dump(jsonland::dump_style::pretty);
+    std::cout << pretty_dump << std::endl;
 }
