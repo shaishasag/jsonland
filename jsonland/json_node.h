@@ -317,7 +317,11 @@ public:
     /// n1.get_int<int32_t>() == 123;  // false, value is the string "123"
     /// @codeend
 
-    json_node& operator=(const IsChar auto in_str[]) noexcept
+    // VisualStudio 2022 cannot understand "const IsChar auto in_str[]"
+    // so need explicit template decleration here
+    template <typename TCHAR>
+    requires IsChar<TCHAR>
+    json_node& operator=(const TCHAR in_str []) noexcept
     {
         clear(string_t);
         m_value.store_value_deal_with_escapes(in_str);
