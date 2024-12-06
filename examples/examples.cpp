@@ -11,12 +11,9 @@
 #include "fstring.h"
 #endif
 
-#include <nlohmann/json.hpp>
-
 
 static void personhood()
 {
-    // Create an instance of json_node
     jsonland::json_node person;
 
     // Add string value
@@ -25,14 +22,11 @@ static void personhood()
     // Add integer value
     person["age"] = 30;
 
-    // Create an array of hobbies
-    jsonland::json_node hobbies;
+    // Add array of hobbies to the person object
+    jsonland::json_node& hobbies = person.append_array("hobbies");
     hobbies.push_back("Reading");
     hobbies.push_back("Hiking");
     hobbies.push_back("Coding");
-    
-    // Add array to the person object
-    person["hobbies"] = hobbies;
 
     // access some values
     std::string some_values_str = "My name is ";
@@ -40,13 +34,14 @@ static void personhood()
     some_values_str += ", my first hobby is ";
     some_values_str += person["hobbies"][0].get_string();
     std::cout << some_values_str << std::endl;
+    // outputs: My name is Jane Doe, my first hobby is Reading
 
     // Serialize the whole JSON object to string
     std::string json_string = person.dump();
 
     // Output the JSON string
     std::cout << json_string << std::endl;
-
+    // outputs: {"name":"Jane Doe","age":30,"hobbies":["Reading","Hiking","Coding"]}
 }
 
 static void create_array()
@@ -167,6 +162,7 @@ int main()
     JassieJ a;
     JassieJ b(a);
     JassieJ c(a["banana"]);
+    personhood();
     
     return 0;
 }

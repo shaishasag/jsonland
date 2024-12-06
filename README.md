@@ -99,14 +99,11 @@ int main() {
     // Add integer value
     person["age"] = 30;
 
-    // Create an array of hobbies
-    jsonland::json_node hobbies;
+    // Add array of hobbies to the person object
+    jsonland::json_node& hobbies = person.append_array("hobbies");
     hobbies.push_back("Reading");
     hobbies.push_back("Hiking");
     hobbies.push_back("Coding");
-    
-    // Add array to the person object
-    person["hobbies"] = hobbies;
 
     // access some values
     std::string some_values_str = "My name is ";

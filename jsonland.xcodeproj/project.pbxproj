@@ -12,6 +12,7 @@
 		F6139BBE2CC91C0A0006F0AB /* test_deduce_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6139BBD2CC91C0A0006F0AB /* test_deduce_type.cpp */; };
 		F6139BBF2CC91C8F0006F0AB /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2A82971B182007A0D81 /* gtest_main.cc */; };
 		F6139BC02CC91CA60006F0AB /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = F617B2B22971B1EC007A0D81 /* gtest-all.cc */; };
+		F61EA2F92D03014600E1F6F8 /* examples.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6355CD72CD3E9B600BF6CC8 /* examples.cpp */; };
 		F6213DA92CDB869800AE863B /* test_escape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6213DA82CDB869800AE863B /* test_escape.cpp */; };
 		F62C079026E77696004DDA5D /* json_node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F68EC13F26E23A7600B8BA77 /* json_node.cpp */; };
 		F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F62C079626E8AAAB004DDA5D /* test_numbers.cpp */; };
@@ -661,6 +662,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F61EA2F92D03014600E1F6F8 /* examples.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
