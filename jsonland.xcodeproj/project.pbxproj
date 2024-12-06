@@ -37,6 +37,7 @@
 		F6930AE62CDE4E2800D75684 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6930AEC2CDE4E5A00D75684 /* serialize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6355CD82CD3E9B600BF6CC8 /* serialize.cpp */; };
 		F6963CA626D55F9B00C71771 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
+		F69BAEE32D0304020093E446 /* HOWTO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F69BAEE22D0303C10093E446 /* HOWTO.cpp */; };
 		F6AA89A72C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89A82C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89A92C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
@@ -192,6 +193,8 @@
 		F6930AEB2CDE4E2800D75684 /* serialize */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = serialize; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6930AEE2CDE4EE600D75684 /* ABBA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ABBA.cpp; path = Serialize/ABBA.cpp; sourceTree = "<group>"; };
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		F69BAEE22D0303C10093E446 /* HOWTO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HOWTO.cpp; path = examples/HOWTO.cpp; sourceTree = SOURCE_ROOT; };
+		F69BAEE42D0305120093E446 /* HOWTO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HOWTO.h; path = examples/HOWTO.h; sourceTree = "<group>"; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
 		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
@@ -289,6 +292,8 @@
 		F6355CDB2CD3E9CA00BF6CC8 /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				F69BAEE22D0303C10093E446 /* HOWTO.cpp */,
+				F69BAEE42D0305120093E446 /* HOWTO.h */,
 				F6355CD72CD3E9B600BF6CC8 /* examples.cpp */,
 			);
 			name = Examples;
@@ -663,6 +668,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F61EA2F92D03014600E1F6F8 /* examples.cpp in Sources */,
+				F69BAEE32D0304020093E446 /* HOWTO.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

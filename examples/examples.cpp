@@ -1,5 +1,6 @@
 #include "json_node.h"
 #include "json_creator.h"
+#include "HOWTO.h"
 
 #include <numeric>
 #include <array>
@@ -163,6 +164,13 @@ int main()
     JassieJ b(a);
     JassieJ c(a["banana"]);
     personhood();
-    
+
+    how_to_check_array_size_empty();
+    how_to_loop_an_array_1();
+    how_to_loop_an_array_2();
+
+    how_to_check_object_size_empty();
+    how_to_loop_an_object_1();
+
     return 0;
 }
