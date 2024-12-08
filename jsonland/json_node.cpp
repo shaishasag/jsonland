@@ -194,13 +194,24 @@ std::ostream& json_node::dump(std::ostream& os,
 }
 
 template<typename TToPrintf>
-static int __printf(char* in_buff, const size_t in_buff_size, const TToPrintf in_to_print, const char* printf_format=nullptr) noexcept
+static int __printf(char* in_buff,
+                    const size_t in_buff_size,
+                    const TToPrintf in_to_print,
+                    const char* printf_format=nullptr) noexcept
 {
     bool remove_zeros{false};
     if (nullptr == printf_format)
     {
         if constexpr (IsFloat<TToPrintf>) {
-            printf_format = "%llf";
+            if constexpr (std::is_same_v<TToPrintf, float>) {
+                printf_format = "%f";
+            }
+            else if constexpr (std::is_same_v<TToPrintf, double>) {
+                printf_format = "%lf";
+            }
+            else if constexpr (std::is_same_v<TToPrintf, long double>) {
+                printf_format = "%Lf";
+            }
             remove_zeros = true;
         }
         else if constexpr (IsInteger<TToPrintf> && std::signed_integral<TToPrintf>) {
