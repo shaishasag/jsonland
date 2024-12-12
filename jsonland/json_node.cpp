@@ -4,6 +4,7 @@
 #include <iterator>
 #include <cstdio>
 #include <charconv>
+#include <cstring>
 
 using namespace jsonland;
 
