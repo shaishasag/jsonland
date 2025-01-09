@@ -59,7 +59,7 @@ TEST(Write, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), R"({"Shmoti":"Neor"})");
     oss.str("");
 
-    ojn["array"] = ajn;
+    ojn["array"] = std::move(ajn);
     oss << ojn;
     EXPECT_STREQ(oss.str().c_str(), R"({"Shmoti":"Neor","array":[1,"Motish","Neor"]})");
     oss.str("");

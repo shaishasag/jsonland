@@ -715,15 +715,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
-				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
-					googletest/googletest,
-					"$(PROJECT_DIR)/../rapidjson/include",
-					nlohmann/single_include,
-					"$(PROJECT_DIR)",
+				SYSTEM_HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../ArduinoJson/src",
+					"$(inherited)",
 				);
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -734,15 +730,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
-				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
-					googletest/googletest,
-					"$(PROJECT_DIR)/../rapidjson/include",
-					nlohmann/single_include,
-					"$(PROJECT_DIR)",
+				SYSTEM_HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/../ArduinoJson/src",
+					"$(inherited)",
 				);
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -756,6 +748,7 @@
 					"$(PROJECT_DIR)/googletest/build/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -769,6 +762,7 @@
 					"$(PROJECT_DIR)/googletest/build/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -778,19 +772,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../ArduinoJson/src",
-					"$(PROJECT_DIR)/../nlohmann/include",
-				);
-				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
-					googletest/googletest,
-					"$(PROJECT_DIR)/../rapidjson/include",
-					nlohmann/single_include,
-					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../ArduinoJson/src",
-					"$(PROJECT_DIR)/../nlohmann/include",
-				);
+				SYSTEM_HEADER_SEARCH_PATHS = "$(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -800,19 +783,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/../ArduinoJson/src",
-					"$(PROJECT_DIR)/../nlohmann/include",
-				);
-				USER_HEADER_SEARCH_PATHS = (
-					googletest/googletest/include,
-					googletest/googletest,
-					"$(PROJECT_DIR)/../rapidjson/include",
-					nlohmann/single_include,
-					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../ArduinoJson/src",
-					"$(PROJECT_DIR)/../nlohmann/include",
-				);
+				SYSTEM_HEADER_SEARCH_PATHS = "$(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -823,6 +795,7 @@
 				JSONLAND_DEBUG = 1;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -833,6 +806,7 @@
 				JSONLAND_DEBUG = 0;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -897,14 +871,19 @@
 				ONLY_ACTIVE_ARCH = NO;
 				RAPIDJSON_HAS_STDSTRING = 1;
 				SDKROOT = macosx;
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../ArduinoJson/src",
+					"$(PROJECT_DIR)/../nlohmann/include",
+					"$(PROJECT_DIR)/../rapidjson/include",
+				);
 				USER_HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../googletest/**",
-					googletest/googletest,
-					rapidjson/include,
-					nlohmann/single_include,
 					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../googletest/**",
+					"$(PROJECT_DIR)/../nlohmann/include",
+					"$(PROJECT_DIR)/../googletest",
 				);
 			};
 			name = Debug;
@@ -968,14 +947,19 @@
 				ONLY_ACTIVE_ARCH = NO;
 				RAPIDJSON_HAS_STDSTRING = 1;
 				SDKROOT = macosx;
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../nlohmann/include";
+				SYSTEM_HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../ArduinoJson/src",
+					"$(PROJECT_DIR)/../nlohmann/include",
+					"$(PROJECT_DIR)/../rapidjson/include",
+				);
 				USER_HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../googletest/**",
-					googletest/googletest,
-					rapidjson/include,
-					nlohmann/single_include,
 					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../googletest/**",
+					"$(PROJECT_DIR)/../nlohmann/include",
+					"$(PROJECT_DIR)/../googletest",
 				);
 			};
 			name = Release;
@@ -987,7 +971,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(inherited)";
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
 					googletest/googletest,
@@ -1006,7 +990,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RAPIDJSON_HAS_STDSTRING = "";
-				SYSTEM_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../ArduinoJson/src";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(inherited)";
 				USER_HEADER_SEARCH_PATHS = (
 					googletest/googletest/include,
 					googletest/googletest,
@@ -1025,6 +1009,7 @@
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -1035,6 +1020,7 @@
 				EXECUTABLE_PREFIX = lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -1048,6 +1034,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -1057,6 +1044,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};

@@ -191,9 +191,12 @@ public:
     /// @param in_node the #json_node to move
     explicit json_node(json_node&& in_node) = default;
 
-    /// Copy assignment
-    /// @param in_node the #json_node to copy
-    json_node& operator=(const json_node& in_node) noexcept;
+    /// Copy assignment: deleted to avoid ownership confusion
+    /// To copy a json_node:
+    /// json_node j1 = j0.clone();
+    /// To move a json_node:
+    /// json_node j1 = std::move(j0);
+    json_node& operator=(const json_node& in_node) = delete;
 
     /// Move assignment
     /// @param in_node the #json_node to move
@@ -793,6 +796,11 @@ public:
         return retVal;
     }
 
+    json_node clone() const noexcept
+    {
+        return json_node(*this);
+    }
+
     json_node& append_object(std::string_view in_key, size_t in_reserve=0)
     {
         if (JSONLAND_LIKELY(is_object()))
@@ -1263,7 +1271,7 @@ public:
             }
             else if (is_bool())
             {
-                retVal = get_bool() ? 1.0 : 0.0;
+                retVal = get_bool() ? TASTYPE{ 1.0} : TASTYPE{0.0};
             }
             else if (is_number())
             {

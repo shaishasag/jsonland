@@ -58,7 +58,7 @@ TEST(Ownership, take_ownership)
         jd.parse_insitu(j_str);
         EXPECT_FALSE(jd.is_full_owner());
 
-        jn_cp = jd;
+        jn_cp = std::move(jd);
         EXPECT_FALSE(jn_cp.is_full_owner());
     }
     EXPECT_FALSE(jn_cp.is_full_owner());

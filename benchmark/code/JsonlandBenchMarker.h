@@ -118,7 +118,7 @@ public:
     }
     
     
-    void acumulate_object(const jsonland::json_node& in_obj_node, fixed::sub_object_json_creator& out_acum) const noexcept
+    void acumulate_object(const jsonland::json_node& in_obj_node, jl_fixed::sub_object_json_creator_t& out_acum) const noexcept
     {
         for (const auto& key_val : in_obj_node)
         {
@@ -155,7 +155,7 @@ public:
         }
     }
     
-    void acumulate_array(const jsonland::json_node& in_array_node, fixed::sub_array_json_creator& out_acum) const noexcept
+    void acumulate_array(const jsonland::json_node& in_array_node, jl_fixed::sub_array_json_creator_t& out_acum) const noexcept
     {
         for (auto& val : in_array_node)
         {
@@ -196,13 +196,13 @@ public:
     {
         if (in_doc.is_object())
         {
-            fixed::object_json_creator<100'000> obj_acum;
+            jl_fixed::object_json_creator<100'000> obj_acum;
             acumulate_object(in_doc, obj_acum);
             out_str = obj_acum;
         }
         else if (in_doc.is_array())
         {
-            fixed::array_json_creator<100'000> array_acum;
+            jl_fixed::array_json_creator<100'000> array_acum;
             acumulate_array(in_doc, array_acum);
             out_str = array_acum;
         }

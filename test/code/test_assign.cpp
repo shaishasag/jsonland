@@ -9,7 +9,12 @@ TEST(Assign, repeated_rotating_assign)
     std::string_view a_sv = "lu lu lin"sv;
     std::string a_str(a_sv);
 
-    json_node jn_sources[6]{json_node("Margot Robbie"), 19.19f, json_node(false), json_node(nullptr), json_node(true), json_node(jsonland::value_type::array_t)};
+    json_node jn_sources[6]{json_node("Margot Robbie"),
+                            19.19f,
+                            json_node(false),
+                            json_node(nullptr),
+                            json_node(true),
+                            json_node(jsonland::value_type::array_t)};
     
     json_node obj(jsonland::value_type::object_t);
     obj["one"] = 3.1415;
@@ -31,27 +36,27 @@ TEST(Assign, repeated_rotating_assign)
     while (i < 36)
     {
         int target = i++ % 7;
-        jn_targets[target] = jn_sources[0];
+        jn_targets[target] = jn_sources[0].clone();
         EXPECT_TRUE(jn_targets[target].is_string()) << R"(json_node = json_node("Margot Robbie"), is_string() should return true)";
         EXPECT_EQ(jn_targets[target].as_string_view(), "Margot Robbie"sv) <<  R"(json_node = json_node("Margot Robbie"),  get_string() should return "Margot Robbie")";
         
         target = i++ % 7;
-        jn_targets[target] = jn_sources[1];
+        jn_targets[target] = jn_sources[1].clone();
         EXPECT_TRUE(jn_targets[target].is_number()) << "json_node = json_node(19.19), is_number() should return true";
         EXPECT_EQ(jn_targets[target].get_float<float>(), 19.19f) << "json_node = json_node(19.19), get_float() should return 19.19";
         
         target = i++ % 7;
-        jn_targets[target] = jn_sources[2];
+        jn_targets[target] = jn_sources[2].clone();
         EXPECT_TRUE(jn_targets[target].is_bool()) << "json_node = json_node(false), is_bool() should return true";
         EXPECT_FALSE(jn_targets[target].get_bool()) << "json_node = json_node(false), get_bool() should return false";
         
         target = i++ % 7;
-       jn_targets[target] = jn_sources[3];
+       jn_targets[target] = jn_sources[3].clone();
         // check that type is set correctly to value_type_null
         EXPECT_TRUE(jn_targets[target].is_null()) << "json_node = json_node(nullptr), is_null() should return true";
         
         target = i++ % 7;
-        jn_targets[target] = jn_sources[4];
+        jn_targets[target] = jn_sources[4].clone();
         EXPECT_TRUE(jn_targets[target].is_bool()) << "json_node = json_node(true), is_bool() should return true";
         EXPECT_TRUE(jn_targets[target].get_bool()) << "json_node = json_node(true), get_bool() should return true";
     }
@@ -250,7 +255,7 @@ TEST(Assign, mixed_types)
     arr1.push_back(1);
     arr1.push_back(2);
     
-    obj["2"] = arr1;
+    obj["2"] = std::move(arr1);
     EXPECT_EQ(obj["1"], 1);
     EXPECT_TRUE(obj["2"].is_array());
     EXPECT_EQ(obj["2"].num_elements(), 2);

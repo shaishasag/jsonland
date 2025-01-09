@@ -242,7 +242,7 @@ public:
         internal::write_value(in_value, this->m_json_str);
     }
 
-    void append_value(const std::string_view in_key, const char* in_value)
+    void append_value(const std::string_view in_key, std::string_view in_value)
     {
         std::string_view as_sv(in_value);
         append_value<std::string_view>(in_key, as_sv);
@@ -359,7 +359,7 @@ public:
     void prepend_json_str(const std::string_view in_value);
 
     void append_value() {}
-    void append_value(const char* in_value);
+    void append_value(std::string_view in_value);
 
     template <typename TValue>
     void append_value(const TValue& in_value)
@@ -469,24 +469,24 @@ class DllExport object_json_creator : public sub_object_json_creator_t
 {
 public:
     object_json_creator() noexcept
-    : sub_object_json_creator_t(m_fstr,
+    : sub_object_json_creator_t(m_std_str,
                               base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
     {}
 
 protected:
-    std::string m_fstr{empty_json_object};
+    std::string m_std_str{empty_json_object};
 };
 
 class DllExport array_json_creator : public sub_array_json_creator_t
 {
 public:
     array_json_creator() noexcept
-    : sub_array_json_creator_t(m_fstr,
+    : sub_array_json_creator_t(m_std_str,
                                base_json_creator<std::string&>::PreventAmbiguityOnConstructorCalls())
     {}
 
 protected:
-    std::string m_fstr{empty_json_array};
+    std::string m_std_str{empty_json_array};
 };
 
 } // namespace dyna

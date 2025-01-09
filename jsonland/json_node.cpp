@@ -136,21 +136,6 @@ const json_node& json_node::const_uninitialized_json_node() const
     return the_const_uninitialized_json_node;
 }
 
-
-json_node& json_node::operator=(const json_node& in_node) noexcept
-{
-    m_value_type = in_node.m_value_type;
-
-    m_value = in_node.m_value;
-    m_num = in_node.m_num;
-    m_values = in_node.m_values;
-    m_obj_key_to_index = in_node.m_obj_key_to_index;
-    m_hints = in_node.m_hints;
-    //m_key = in_node.m_key; - do not copy m_key, parent node (if obj) should take care of that
-
-    return *this;
-}
-
 json_node& json_node::operator=(json_node&& in_node) noexcept
 {
     m_value_type = in_node.m_value_type;

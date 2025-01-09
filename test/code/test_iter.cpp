@@ -41,3 +41,27 @@ TEST(Iter, obj)
         ++i;
     }
 }
+
+TEST(Iter, obj_to_array)
+{
+    json_node jn(jsonland::value_type::object_t);
+    std::string_view obj_to_array_jstr = R"(
+    {"A": [1],
+    "B": [2, 3],
+    "C": [4,5,6]}
+                                           )";
+
+    json_doc jdoc;
+    jdoc.parse(obj_to_array_jstr);
+
+    int total = 0;
+
+    for (auto& itm : jdoc)
+    {
+        for (auto& num : itm)
+        {
+            total += num.get_int();
+        }
+    }
+    EXPECT_EQ(total, 21);
+}

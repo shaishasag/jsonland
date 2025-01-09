@@ -61,8 +61,8 @@ TEST(Compare, copy_object)
         json_node copy_the_arrr_2{jn_original["three"]};
         EXPECT_EQ(copy_the_arrr_1, copy_the_arrr_2);
 
-        jn_copy_1 = jn_original;
-        jn_copy_2 = jn_original;
+        jn_copy_1 = jn_original.clone();
+        jn_copy_2 = std::move(jn_original);
         jn_original.clear();
     } // here jn_original goes out of scope making sure jn_copy_1 & jn_copy_2 are independant
     EXPECT_EQ(jn_copy_1, jn_copy_2);
@@ -92,7 +92,7 @@ TEST(Compare, move_object)
         arrr.push_back(2);
         arrr.push_back(3);
 
-        jn_copy_1 = jn_original;
+        jn_copy_1 = jn_original.clone();
         jn_copy_2 = std::move(jn_original);
         jn_original.clear();
     } // here jn_original goes out of scope making sure jn_copy_1 & jn_copy_2 are independant

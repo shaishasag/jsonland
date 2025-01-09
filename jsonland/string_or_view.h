@@ -257,13 +257,11 @@ public:
     {
         size_t original_size = out_unescaped.size();
         size_t i_unescaped = 0;
-        size_t num_escapes_found = 0;
         for (size_t i = 0; i < original_size; ++i)
         {
             char next_char = out_unescaped[i];
             if ('\\' == next_char)
             {
-                ++num_escapes_found;
                 next_char = out_unescaped[++i];
                 switch (next_char)
                 {

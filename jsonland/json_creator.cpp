@@ -298,7 +298,7 @@ void sub_array_json_creator<TStr>::prepend_json_str(const std::string_view in_va
 }
 
 template<typename TStr>
-void sub_array_json_creator<TStr>::append_value(const char* in_value)
+void sub_array_json_creator<TStr>::append_value(std::string_view in_value)
 {
     typename sub_array_json_creator::save_restore_end sv(*this);
     prepare_for_additional_value();

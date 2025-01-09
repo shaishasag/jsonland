@@ -150,9 +150,9 @@ static void operator_equal()
     // what is you use operator= on a non object
     {
         jsonland::json_node s1("I am a string");
-        auto s2 = s1["pilpel"];
+        auto s2 = s1["pilpel"].clone();
         jsonland::json_node n1(jsonland::null_t);
-        auto n2 = n1["pilpel"];
+        auto n2 = jsonland::json_node(n1["pilpel"]);
 
         std::cout << "jsonland: " << jsonland::value_type_name(s1.get_value_type()) << " node: " << s1.dump() << std::endl;
         std::cout << "jsonland: " << jsonland::value_type_name(s2.get_value_type()) << " node: " << s2.dump() << std::endl;
@@ -259,7 +259,7 @@ public:
     }
 
     std::vector<b> m_sub_values;
-    fixed::fstring31    m_value;
+    fstr::fstr31    m_value;
 };
 
 std::ostream& operator<<(std::ostream& os, const b& bob)
@@ -282,20 +282,49 @@ std::ostream& operator<<(std::ostream& os, const b& bob)
     return os;
 }
 
+static void compare_escaping_behaviour(std::string_view in_path)
+{
+    std::filesystem::path file_to_read = std::filesystem::path(in_path);
+    {
+        std::ifstream ifs(file_to_read);
+        nlohmann::json jf = nlohmann::json::parse(ifs);
+        jf["CP"] = jf["PF"];
+        std::filesystem::path out_file = file_to_read.parent_path().append("nlohmann_out.json");
+        std::ofstream ofs(out_file);
+        ofs << jf;
+        ofs << "\n...\n";
+        ofs << jf["PF"].dump();
+        ofs << "\n";
+        ofs << jf["AD"].dump();
+        ofs << "\n...\n";
+        ofs << jf["PF"].get<std::string_view>();
+        ofs << "\n";
+        ofs << jf["AD"].get<std::string_view>();
+    }
+
+    {
+        std::ifstream ifs(file_to_read);
+        jsonland::json_doc jf;
+        std::string iss((std::istreambuf_iterator<char>(ifs)),
+                         std::istreambuf_iterator<char>());
+        jf.parse(iss);
+        jf["CP"] = jf["PF"].clone();
+
+        std::filesystem::path out_file = file_to_read.parent_path().append("jsonland_out.json");
+        std::ofstream ofs(out_file);
+        ofs << jf;
+        ofs << "\n...\n";
+        ofs << jf["PF"].dump();
+        ofs << "\n";
+        ofs << jf["AD"].dump();
+        ofs << "\n...\n";
+        ofs << jf["PF"].get_string();
+        ofs << "\n";
+        ofs << jf["AD"].get_string();
+    }
+}
+
 int main(int argc, char* argv[])
 {
-    b b1(1);
-    b b2(2);
-    b1 += b2;
-    b1 += b(3);
-    b1 += 4;
-    b1 += "5";
-
-    std::cout << b1 << std::endl;
-    
-//    string_as_array();
-//    as_string();
-//    operator_equal();
-//    preserve_ordering();
-//    nlohmann_weird_insertions();
+    compare_escaping_behaviour(argv[1]);
 }
