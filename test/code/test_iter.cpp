@@ -7,7 +7,14 @@ std::array<std::string, 3> numbers{"one", "two", "three"};
 
 TEST(Iter, array)
 {
+    std::vector<std::string_view> v;
+    v.reserve(3);
+    for (auto& s : numbers) {
+        v.push_back(s);
+    }
+
     json_node jn(jsonland::value_type::array_t);
+    jn.reserve(3);
     for (auto& s : numbers) {
         jn.push_back(s);
     }

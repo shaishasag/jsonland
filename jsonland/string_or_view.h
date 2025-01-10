@@ -21,6 +21,89 @@ static inline char hex2char(const char hi, const char lo)
     return hi_t*16+lo_t;
 }
 
+static char32_t hexToCodepoint(std::string_view hex)
+{
+//    if (hex.size() != 4) {
+//        throw std::invalid_argument("Hex string must be exactly 4 characters");
+//    }
+
+    char32_t codepoint = 0;
+
+    for (char c : hex)
+    {
+        codepoint <<= 4; // Shift left by 4 bits to make room for the next hex digit
+        if (c >= '0' && c <= '9')
+        {
+            codepoint += c - '0';
+        }
+        else if (c >= 'A' && c <= 'F')
+        {
+            codepoint += c - 'A' + 10;
+        }
+        else if (c >= 'a' && c <= 'f')
+        {
+            codepoint += c - 'a' + 10;
+        }
+//        else
+//        {
+//            throw std::invalid_argument("Invalid hex digit in Unicode escape");
+//        }
+    }
+
+    return codepoint;
+}
+
+static void unicodeToUTF8(const char32_t codepoint, std::string& out_utf8)
+{
+    if (codepoint <= 0x7F)
+    {
+        out_utf8 += static_cast<char>(codepoint);
+    }
+    else if (codepoint <= 0x7FF)
+    {
+        out_utf8 += static_cast<char>(0xC0 | ((codepoint >> 6) & 0x1F));
+        out_utf8 += static_cast<char>(0x80 | (codepoint & 0x3F));
+    }
+    else if (codepoint <= 0xFFFF)
+    {
+        out_utf8 += static_cast<char>(0xE0 | ((codepoint >> 12) & 0x0F));
+        out_utf8 += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+        out_utf8 += static_cast<char>(0x80 | (codepoint & 0x3F));
+    }
+    else if (codepoint <= 0x10FFFF)
+    {
+        out_utf8 += static_cast<char>(0xF0 | ((codepoint >> 18) & 0x07));
+        out_utf8 += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+        out_utf8 += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+        out_utf8 += static_cast<char>(0x80 | (codepoint & 0x3F));
+    }
+//        else {
+//        throw std::invalid_argument("Invalid Unicode code point");
+//    }
+}
+
+[[maybe_unused]] static const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_copy)
+{
+    const char* retVal = in_c;
+    out_chars_to_copy = 2;
+
+    switch(*in_c)
+    {
+        case '"':  retVal = "\\\""; break;
+        case '\\':  retVal = "\\\\"; break;
+        case '\n': retVal = "\\n"; break;
+        case '\r': retVal = "\\r"; break;
+        case '\t': retVal = "\\t"; break;
+        case '\b': retVal = "\\b"; break;
+        case '\f': retVal = "\\f"; break;
+        default:
+            out_chars_to_copy = 1;
+            break;
+    }
+
+    return retVal;
+}
+
 
 class DllExport string_or_view
 {
@@ -32,7 +115,12 @@ public:
     using value_type = std::variant<std::string_view, std::string>;
     value_type m_value{};
 
-    int m_num_escapes{0};
+    enum source : char
+    {
+        parsed,             // string was parsed from json file or text, might contain chars escaped by backward slash
+        assigned            // string was assigned progrmatically, chars are not escaped
+    };
+    source m_source{assigned};
 
     string_or_view() = default;
     string_or_view(const string_or_view& in_sov) = default;
@@ -40,25 +128,42 @@ public:
     string_or_view& operator=(const string_or_view& in_sov) = default;
     string_or_view& operator=(string_or_view&& in_sov) = default;
 
-    string_or_view(const std::string_view in_str, const int in_num_escapes=0) noexcept
+    string_or_view(const std::string_view in_str, const source in_source=assigned) noexcept
     {
         reference_value(in_str);
-        m_num_escapes = in_num_escapes;
+        m_source = in_source;
     }
 
-    void store_value(const std::string& in_str, const int in_num_escapes=0) noexcept
+    void store_value(const char* in_str, const source in_source=assigned) noexcept
     {
-        m_value = in_str;
-        m_num_escapes = in_num_escapes;
+        m_value = std::string(in_str);
+        m_source = in_source;
+#if JSONLAND_DEBUG==1
+    ++num_allocations;
+#endif
+    }
+    void store_value(std::string_view in_str, const source in_source=assigned) noexcept
+    {
+        m_value = std::string(in_str);
+        m_source = in_source;
 #if JSONLAND_DEBUG==1
     ++num_allocations;
 #endif
     }
 
-    void reference_value(const std::string_view in_str, const int in_num_escapes=0) noexcept
+    void store_value(std::string&& in_str, const source in_source=assigned) noexcept
+    {
+        m_value = std::move(in_str);
+        m_source = in_source;
+#if JSONLAND_DEBUG==1
+    ++num_allocations;
+#endif
+    }
+
+    void reference_value(const std::string_view in_str, const source in_source=assigned) noexcept
     {
         m_value = in_str;
-        m_num_escapes = in_num_escapes;
+        m_source = in_source;
     }
 
     void convert_referenced_value_to_stored() noexcept
@@ -72,7 +177,7 @@ public:
         }
     }
 
-    void store_value_deal_with_escapes(std::string_view in_str)  noexcept;
+    //void store_value_deal_with_escapes(std::string_view in_str)  noexcept;
 
 
     void clear() noexcept
@@ -93,7 +198,7 @@ public:
                  static_assert(always_false_v<T>, "non-exhaustive visitor!");
              }
          }, m_value);
-        m_num_escapes = 0;
+        m_source = assigned;
     }
 
     bool is_value_referenced() const  noexcept { return std::holds_alternative<std::string_view>(m_value); }
@@ -149,29 +254,13 @@ public:
         return retVal;
     }
 
-    void dump_with_quotes(std::string& str) const noexcept
+    void dump_with_quotes(std::string& out_str) const noexcept
     {
-        std::visit([&](auto&& arg)
-        {
-             using T = std::decay_t<decltype(arg)>;
-             if constexpr (std::same_as<T, std::string_view>)
-             {
-                 str += '"';
-                 str.append(arg);
-                 str += '"';
-             }
-             else if constexpr (std::same_as<T, std::string>)
-             {
-                 str += '"';
-                 str.append(arg);
-                 str += '"';
-             }
-             else
-             {
-                 static_assert(always_false_v<T>, "non-exhaustive visitor!");
-             }
-         }, m_value);
-
+        out_str.reserve(out_str.size()+size()+2);
+        
+        out_str += '"';
+        dump(out_str);
+        out_str += '"';
     }
 
     void dump_no_quotes(std::string& str) const noexcept
@@ -253,6 +342,97 @@ public:
         return retVal;
     }
 
+    // dump the string to json text escaping special chars if needed
+    void dump(std::string& out_str) const
+    {
+        std::string_view original_str = as_string_view();
+        if (parsed == m_source) // parsed: no need to escape
+        {
+            out_str += original_str;
+        }
+        else // string was assigned, need to escape chars, e.g. '\n'  -> "\n"
+        {
+            size_t original_size = original_str.size();
+            for (size_t i = 0; i < original_size; ++i)
+            {
+                char next_char = original_str[i];
+                switch(next_char)
+                {
+                    case '"':  out_str+= "\\\""; break;
+                    case '\\': out_str+= "\\\\"; break;
+                    case '\n': out_str+= "\\n"; break;
+                    case '\r': out_str+= "\\r"; break;
+                    case '\t': out_str+= "\\t"; break;
+                    case '\b': out_str+= "\\b"; break;
+                    case '\f': out_str+= "\\f"; break;
+                        break;
+                    default:
+                        out_str+= next_char;
+                        break;
+                }
+            }
+        }
+    }
+
+    // write the string unescaping special chars if needed
+    void print(std::string& out_str) const
+    {
+        if (assigned == m_source) // string was assigned: no need to unescape
+        {
+            out_str += as_string_view();
+        }
+        else // string was parsed, escaped chars should be unescaped, e.g. "\n" -> '\n'
+        {
+            std::string_view original_str = as_string_view();
+            size_t original_size = original_str.size();
+            for (size_t i = 0; i < original_size; ++i)
+            {
+                char next_char = original_str[i];
+                if ('\\' == next_char) [[unlikely]]
+                {
+                    if (i < original_size - 1) [[likely]]
+                    {
+                        next_char = original_str[++i];
+                    }
+                    else [[unlikely]]
+                    {
+                        break; // should not happen string should not end with single backslash
+                    }
+
+                    switch (next_char)
+                    {
+                        case '\\':
+                        case '/':
+                        case '"':
+                            out_str += next_char;
+                        break;
+                        case 'n': out_str += '\n'; break;
+                        case 'r': out_str += '\r'; break;
+                        case 't': out_str += '\t'; break;
+                        case 'b': out_str += '\b'; break;
+                        case 'f': out_str += '\f'; break;
+                        case 'u':
+                        {
+                            if (i+4 < original_size) [[likely]]
+                            {
+                                std::string_view hex = original_str.substr(i+1, 4);
+                                char32_t codepoint = hexToCodepoint(hex);
+                                unicodeToUTF8(codepoint, out_str);
+                            }
+                            i += 4;
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    out_str += next_char;
+                }
+            }
+        }
+    }
+
+#if 0
     void unescape_internal(std::string& out_unescaped)   noexcept
     {
         size_t original_size = out_unescaped.size();
@@ -298,20 +478,22 @@ public:
         }
         out_unescaped.resize(i_unescaped);
     }
+#endif
 
     void unescape()  noexcept
     {
-        if (0 != m_num_escapes)
+        if (parsed == m_source)
         {
 #if JSONLAND_DEBUG==1
             if (is_value_referenced()) {  ++num_allocations; }
 #endif
             convert_referenced_value_to_stored();
-            unescape_internal(std::get<std::string>(m_value));
-            m_num_escapes = 0;
+            std::string unescaped;
+            unescaped.reserve(size());
+            print(unescaped); // can we do it inplace?
+            store_value(std::move(unescaped));
         }
     }
-
 };
 
 struct string_or_view_hasher

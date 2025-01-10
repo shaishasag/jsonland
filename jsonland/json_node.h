@@ -266,7 +266,7 @@ public:
     json_node& operator=(const std::string_view in_str_value) noexcept
     {
         clear(string_t);
-        m_value.store_value_deal_with_escapes(in_str_value);
+        m_value.reference_value(in_str_value);
         return *this;
     }
 
@@ -298,7 +298,7 @@ public:
     explicit json_node(const std::string_view in_str_value) noexcept
     : m_value_type(string_t)
     {
-        m_value.store_value_deal_with_escapes(in_str_value);
+        m_value.reference_value(in_str_value);
     }
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
@@ -306,7 +306,7 @@ public:
     json_node& operator=(const std::string& in_str_value) noexcept
     {
         clear(string_t);
-        m_value.store_value_deal_with_escapes(in_str_value);
+        m_value.store_value(in_str_value);
         return *this;
     }
 
@@ -327,7 +327,7 @@ public:
     json_node& operator=(const TCHAR in_str []) noexcept
     {
         clear(string_t);
-        m_value.store_value_deal_with_escapes(in_str);
+        m_value.store_value(in_str);
         return *this;
     }
 
@@ -699,7 +699,7 @@ public:
         {
             int index = -1;
             string_or_view key;
-            key.store_value_deal_with_escapes(in_key);
+            key.store_value(in_key);
 
             if (0 == m_obj_key_to_index.count(key))
             {
@@ -765,7 +765,7 @@ public:
         if (JSONLAND_LIKELY(is_object()))
         {
             string_or_view key;
-            key.store_value_deal_with_escapes(in_key);
+            key.store_value(in_key);
             if (auto iKey = m_obj_key_to_index.find(key);
                 iKey != m_obj_key_to_index.end())
             {
@@ -1049,9 +1049,7 @@ public:
     {
         if (is_string())
         {
-            if (0 != m_value.m_num_escapes) {
-                m_value.unescape();
-            }
+            m_value.unescape(); // will not allocate if string was assigned
             return as_string_view();
         }
         else
@@ -1370,7 +1368,7 @@ protected:
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
-        m_value.reference_value(in_str, m_value.m_num_escapes);
+        m_value.reference_value(in_str, string_or_view::parsed);
     }
 
     void parser_direct_set(jsonland::value_type in_type)

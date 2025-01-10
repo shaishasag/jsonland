@@ -23,7 +23,7 @@ TEST(Ownership, explicit_constructors)
         jsonland::json_node jns(jsonland::string_t);
         EXPECT_TRUE(jns.is_full_owner());
         jsonland::json_node jnc("marmalade");
-        EXPECT_TRUE(jnc.is_full_owner());
+        EXPECT_FALSE(jnc.is_full_owner());
     }
     {
         jsonland::json_node jnn(jsonland::number_t);
@@ -45,7 +45,7 @@ TEST(Ownership, explicit_constructors)
         jsonland::json_node jna(jsonland::array_t);
         EXPECT_TRUE(jna.is_full_owner());
         jsonland::json_node jnc("marmalade");
-        EXPECT_TRUE(jnc.is_full_owner());
+        EXPECT_FALSE(jnc.is_full_owner());
     }
 }
 

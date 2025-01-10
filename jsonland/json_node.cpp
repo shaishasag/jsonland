@@ -150,6 +150,7 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
     return *this;
 }
 
+#if 0
 void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noexcept
 {
     m_num_escapes = 0;
@@ -169,6 +170,7 @@ void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noex
     ++num_allocations;
 #endif
 }
+#endif
 
 std::ostream& json_node::dump(std::ostream& os,
                               dump_style in_style) const noexcept
@@ -765,7 +767,7 @@ namespace parser_impl
             char curr_char = next_char();
             char* str_start = m_curr_char;
 
-            out_node.m_value.m_num_escapes = 0;
+            out_node.m_value.m_source = string_or_view::parsed;
             out_node.m_value_type = jsonland::value_type::string_t;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
@@ -774,7 +776,6 @@ namespace parser_impl
                 }
                 if (curr_char == '\\')
                 {
-                    ++out_node.m_value.m_num_escapes;
                     curr_char = next_char();
                     if (JSONLAND_UNLIKELY(! is_there_more_data())) // the '\' was  the last char
                     {
