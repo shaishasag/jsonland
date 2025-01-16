@@ -4,6 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
+using namespace jsonland;
+
 const char* some_text = "mama mia";
 
 TEST(StringAndViewTest, DefaultConstructor)

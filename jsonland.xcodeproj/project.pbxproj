@@ -167,6 +167,7 @@
 		F617B2B22971B1EC007A0D81 /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gtest-all.cc"; path = "../googletest/googletest/src/gtest-all.cc"; sourceTree = "<group>"; };
 		F61C30DA2CF79244006B6B9B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F6213DA82CDB869800AE863B /* test_escape.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_escape.cpp; path = test/code/test_escape.cpp; sourceTree = "<group>"; };
+		F62BA55C2D39314800F54313 /* escape.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = escape.h; sourceTree = "<group>"; };
 		F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_parsing_Suites.cpp; path = test/code/test_parsing_Suites.cpp; sourceTree = "<group>"; };
 		F62C079626E8AAAB004DDA5D /* test_numbers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_numbers.cpp; path = test/code/test_numbers.cpp; sourceTree = "<group>"; };
 		F631F1C22C4FD591007C3C95 /* test_json_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_json_creator.cpp; path = test/code/test_json_creator.cpp; sourceTree = "<group>"; };
@@ -371,6 +372,7 @@
 				F6625B7E2C2C607B00C66A2A /* json_creator.h */,
 				F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */,
 				F63A07BA2D32946E00EB6C14 /* string_and_view.h */,
+				F62BA55C2D39314800F54313 /* escape.h */,
 			);
 			path = jsonland;
 			sourceTree = "<group>";

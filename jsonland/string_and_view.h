@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 
+#include "escape.h"
 ///
 /// @class string_and_view
 /// @brief A utility class that manages a `std::string` and its associated `std::string_view`.
@@ -30,6 +31,8 @@
 /// and behavior, making it indistinguishable to the user whether the instance owns the string
 /// or merely references it.
 ///
+namespace jsonland
+{
 class string_and_view
 {
 public:
@@ -149,10 +152,26 @@ public:
         m_view = m_string;
     }
 
+    void unescape_json_string()
+    {
+        std::string unescaped;
+        escapism::unescape_result uer = escapism::unescape_json_string(m_view, unescaped);
+        if (uer == escapism::something_was_unescaped)
+        {
+            m_string = std::move(unescaped);
+            m_view = m_string;
+        }
+        else
+        {
+            // m_view remained unchanged
+        }
+    }
+
 private:
     std::string m_string;       ///< The managed string.
     std::string_view m_view;    ///< The associated string view.
 };
+
 
 ///
 /// @brief Three-way comparison operator for `string_and_view`.
@@ -160,7 +179,7 @@ private:
 /// @param rhs The right-hand side operand.
 /// @return Strong ordering result.
 ////
-std::strong_ordering operator<=>(const string_and_view& lhs, const string_and_view& rhs) noexcept
+std::strong_ordering operator<=>(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
 {
     // Apple clang does not have operator<=> for std::string_view, so implementing with  std::string_view::compare
     int result = lhs.sv().compare(rhs.sv());
@@ -176,10 +195,12 @@ std::strong_ordering operator<=>(const string_and_view& lhs, const string_and_vi
 /// @param rhs The right-hand side operand.
 /// @return `true` if the two objects are equal, `false` otherwise.
 ////
-bool operator==(const string_and_view& lhs, const string_and_view& rhs) noexcept
+bool operator==(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
 {
     return lhs.sv() == rhs.sv();
 }
+
+} // namespace jsonland
 
 namespace std
 {
@@ -187,12 +208,12 @@ namespace std
     /// @brief Specialization of `std::hash` for `string_and_view`.
     /// @example:     std::unordered_map<string_and_view, string_and_view> uom;
     template <>
-    struct hash<string_and_view>
+    struct hash<jsonland::string_and_view>
     {
         /// @brief Hash function for `string_and_view`.
         /// @param sav The `string_and_view` instance to hash.
         /// @return The hash value.
-        std::size_t operator()(const string_and_view& sav) const noexcept
+        std::size_t operator()(const jsonland::string_and_view& sav) const noexcept
         {
             return std::hash<std::string_view>{}(sav.sv());
         }
