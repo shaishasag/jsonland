@@ -57,7 +57,7 @@ TEST(StringAndViewTest, CopyConstructor_Owned)
 TEST(StringAndViewTest, CopyConstructor_Referenced)
 {
     string_and_view original;
-    original.set_string_view_only(some_text);
+    original.set_without_ownership(some_text);
     EXPECT_FALSE(original.is_owner());
 
     string_and_view a_copy(original);
@@ -90,7 +90,7 @@ TEST(StringAndViewTest, MoveConstructor_Owned)
 TEST(StringAndViewTest, MoveConstructor_Referenced)
 {
     string_and_view original;
-    original.set_string_view_only(some_text);
+    original.set_without_ownership(some_text);
     EXPECT_FALSE(original.is_owner());
 
     string_and_view moved(std::move(original));
@@ -115,7 +115,7 @@ TEST(StringAndViewTest, CopyAssignment_Owned)
 TEST(StringAndViewTest, CopyAssignment_Referenced)
 {
     string_and_view original;
-    original.set_string_view_only(some_text);
+    original.set_without_ownership(some_text);
     EXPECT_FALSE(original.is_owner());
 
     string_and_view a_copy;
@@ -143,7 +143,7 @@ TEST(StringAndViewTest, MoveAssignment_Owned)
 TEST(StringAndViewTest, MoveAssignment_Referenced)
 {
     string_and_view original;
-    original.set_string_view_only(some_text);
+    original.set_without_ownership(some_text);
     EXPECT_FALSE(original.is_owner());
 
     string_and_view moved;
@@ -167,7 +167,7 @@ TEST(StringAndViewTest, SetStringViewOnly)
 {
     std::string data = some_text;
     string_and_view sav;
-    sav.set_string_view_only(data);
+    sav.set_without_ownership(data);
 
     EXPECT_EQ(sav.sv(), data);
     EXPECT_FALSE(sav.is_owner());
@@ -185,8 +185,8 @@ TEST(StringAndViewTest, IsOwner_Empty)
     }
     {
         string_and_view sav;
-        sav.set_string_view_only(std::string_view(some_text));
-        EXPECT_FALSE(sav.is_owner()) << "string_and_view set with set_string_view_only  should not be owned";
+        sav.set_without_ownership(std::string_view(some_text));
+        EXPECT_FALSE(sav.is_owner()) << "string_and_view set with set_without_ownership  should not be owned";
     }
 }
 
@@ -214,11 +214,11 @@ TEST(StringAndViewTest, InsideContainerTestOwned)
 TEST(StringAndViewTest, InsideContainerTestNonOwned)
 {
     std::vector<string_and_view> v;
-    v.emplace_back().set_string_view_only("one");
+    v.emplace_back().set_without_ownership("one");
     EXPECT_EQ(v[0].sv(), "one");
     EXPECT_FALSE(v[0].is_owner());
 
-    v.emplace_back().set_string_view_only("two");
+    v.emplace_back().set_without_ownership("two");
     EXPECT_EQ(v[0].sv(), "one") << "vector member value should not change after reallocation";
     EXPECT_FALSE(v[0].is_owner()) << "vector member owned state should not change after reallocation";
     EXPECT_EQ(v[1].sv(), "two");
@@ -270,7 +270,7 @@ TEST(StringAndViewTest, OperatorStarship)
         string_and_view sav1(view1);
 
         string_and_view sav2("persistent_string");
-        sav2.set_string_view_only(view1);
+        sav2.set_without_ownership(view1);
 
         EXPECT_EQ(sav1 <=> sav2, std::strong_ordering::equal);
         EXPECT_FALSE(sav1 < sav2);
