@@ -1,6 +1,10 @@
 #ifndef __escape_h__
 #define __escape_h__
 
+#include <string>
+#include <string_view>
+using namespace std::string_view_literals;
+
 namespace jsonland
 {
 namespace escapism
@@ -78,6 +82,21 @@ enum unescape_result
     error_during_unescape
 };
 
+/// @brief unescape_json_string is designed to efficiently process and unescape a JSON-formatted string,
+///  represented as a std::string_view, into a std::string.
+///  It avoids unnecessary allocations and copying if no escaped characters are found in the input string.
+/// @param[in] sv The input JSON string to be unescaped.
+/// @param[out] rv A reference to a std::string where the unescaped output will be stored.
+/// The string is only modified if escaped characters are found in sv.
+/// @return An unescape_result enum indicating the outcome of the operation:
+///  #nothing_to_unescape: Returned if no escaped characters are found in sv. In this case, rv is not modified.
+///  #something_was_unescaped: Returned if sv contains escaped characters, which are unescaped and appended to rv.
+///  #error_during_unescape: Returned if an error occurs during unescaping, such as encountering invalid escape sequences or incomplete Unicode code points.
+///
+///  @note: since #rv is not changed if there are no escaped character caller must check the return value
+///         and decide what to do with the string.
+///         See usage in json_node::dump_tight() and string_and_view::unescape_json_string()
+//
 unescape_result unescape_json_string(std::string_view sv, std::string& rv)
 {
     std::string::size_type index{0}; // current byte index in sv
@@ -268,6 +287,73 @@ unescape_result unescape_json_string(std::string_view sv, std::string& rv)
 
     return something_was_unescaped;
 }
+
+inline bool is_a_char_that_must_be_escaped(const char in_c)
+{
+    const bool retVal = '"' == in_c ||
+                        '\\' == in_c ||
+                        '\n' == in_c ||
+                        '\r' == in_c ||
+                        '\t' == in_c ||
+                        '\b' == in_c ||
+                        '\f' == in_c ;
+    return retVal;
+}
+
+enum escape_result
+{
+    nothing_to_escape,
+    something_was_escaped,
+    error_during_escape
+};
+
+escape_result escape_json_string(std::string_view sv, std::string& rv)
+{
+    std::string::size_type index{0}; // current byte index in sv
+    std::string::size_type length{sv.length()};
+    while (index < length)
+    {
+        if (is_a_char_that_must_be_escaped(sv[index]))
+        {
+            break;
+        }
+        ++index;
+    }
+    if (index > length) // went too far
+    {
+        return error_during_escape;
+    }
+    if (index == length)
+    {
+        return nothing_to_escape;
+    }
+
+    // copy the front characters that did not need escaping
+    rv.append(sv, 0, index);
+
+
+    while (index < length)
+    {
+        char next_char = sv[index++];
+        switch(next_char)
+        {
+            case '"':  rv+= "\\\""sv; break;
+            case '\\': rv+= "\\\\"sv; break;
+            case '\n': rv+= "\\n"sv; break;
+            case '\r': rv+= "\\r"sv; break;
+            case '\t': rv+= "\\t"sv; break;
+            case '\b': rv+= "\\b"sv; break;
+            case '\f': rv+= "\\f"sv; break;
+                break;
+            default:
+                rv+= next_char;
+                break;
+        }
+    }
+
+    return something_was_escaped;
+}
+
 } // namespace
 } // namespace escapism
 } // namespace jsonland

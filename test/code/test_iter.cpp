@@ -15,7 +15,7 @@ TEST(Iter, array)
 
     json_node jn(jsonland::value_type::array_t);
     jn.reserve(3);
-    for (auto& s : numbers) {
+    for (auto s : numbers) {
         jn.push_back(s);
     }
     

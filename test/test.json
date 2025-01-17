@@ -1,0 +1,109 @@
+
+{
+    "string_tests": {
+        "simple": "hello",
+        "escaped_characters": {
+            "double_quote": "\"",
+            "backslash": "\\",
+            "slash": "/",
+            "backspace": "\b",
+            "formfeed": "\f",
+            "newline": "\n",
+            "carriage_return": "\r",
+            "tab": "\t",
+            "unicode_basic": "\u0041",  // A
+            "unicode_extended": "\u1F600"  // 😀
+        },
+        "unicode_strings": [
+            "中文",
+            "Русский",
+            "हिन्दी",
+            "العربية",
+            "日本語",
+            "한국어",
+            "😀😂🥺👍"
+        ],
+        "empty_string": "",
+        "whitespace": " \t\n\r"
+    },
+    "number_tests": {
+        "integers": {
+            "zero": 0,
+            "positive": 42,
+            "negative": -42
+        },
+        "floats": {
+            "positive": 3.14159,
+            "negative": -2.71828,
+            "exponent_positive": 1e10,
+            "exponent_negative": 2.5e-10,
+            "negative_exponent_positive": -5e20,
+            "negative_exponent_negative": -7.5e-5
+        },
+        "boundary_values": {
+            "max_safe_integer": 9007199254740991,
+            "min_safe_integer": -9007199254740991,
+            "smallest_positive_float": 5e-324,
+            "largest_positive_float": 1.7976931348623157e+308
+        },
+        "invalid_values": [
+            null,
+            "NaN",
+            "Infinity",
+            "-Infinity"
+        ]
+    },
+    "object_keys_variations": {
+        "simple_key": "value",
+        "escaped_characters": {
+            "\"key_with_double_quotes\"": "value",
+            "key_with\\backslash": "value",
+            "key_with\/slash": "value",
+            "key_with\bbackspace": "value",
+            "key_with\fFormfeed": "value",
+            "key_with\nnewline": "value",
+            "key_with\rcarriage_return": "value",
+            "key_with\ttab": "value"
+        },
+        "unicode_keys": {
+            "中文": "value",
+            "Русский": "value",
+            "हिन्दी": "value",
+            "العربية": "value",
+            "日本語": "value",
+            "한국어": "value",
+            "😀😂🥺👍": "value"
+        },
+        "whitespace_keys": {
+            " key_with_space": "value",
+            "\tkey_with_tab": "value",
+            "\nkey_with_newline": "value"
+        }
+    },
+    "nested_structures": {
+        "array_of_objects": [
+            {"key1": "value1"},
+            {"key2": "value2"}
+        ],
+        "object_with_arrays": {
+            "array1": [1, 2, 3],
+            "array2": ["a", "b", "c"]
+        },
+        "deeply_nested": {
+            "level1": {
+                "level2": {
+                    "level3": {
+                        "level4": {
+                            "key": "value"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "empty_values": {
+        "empty_object": {},
+        "empty_array": [],
+        "null_value": null
+    }
+}

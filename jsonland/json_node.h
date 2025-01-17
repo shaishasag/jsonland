@@ -35,6 +35,7 @@
 #endif
 
 #include "string_or_view.h"
+#include "string_and_view.h"
 
 // #define JSONLAND_DEBUG
 
@@ -127,7 +128,9 @@ public:
 
 public:
     /// Type declaration of mapping of a string to the index of a value in #m_values.
-    using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
+    using KeyToIndexSAV = std::unordered_map<string_and_view, int>;
+    //using KeyToIndex = std::unordered_map<string_or_view, int, string_or_view_hasher>;
+
     /// Type declaration for a vector of #json_nodes.
     using ArrayVec = std::vector<json_node>;
 
@@ -138,7 +141,8 @@ private:
     /// Initilay it is set to #null_t
     value_type m_value_type{null_t};
     /// String representation of the JSON value.
-    mutable string_or_view m_value{the_null_string_view};
+    mutable string_and_view m_valueSAV{the_null_string_view, 0};
+    //mutable string_or_view m_value{the_null_string_view};
     /// Holds the JSON value if the value type is #number_t - but only when the number was changed from code.
     /// If the number value was parsed from string, #m_value will hold the number as text
     /// and #m_num will <b>not be assigned</b>.
@@ -150,19 +154,36 @@ private:
     ArrayVec m_values;
 
     /// Mapping of keys to the JSON values in #m_values. Only relevant if #m_value_type is #object_t.
-    KeyToIndex m_obj_key_to_index;
+    KeyToIndexSAV m_obj_key_to_indexSAV;
+    //KeyToIndex m_obj_key_to_index;
 
     /// The key of this JSON value in case it is a part of another object.
-    mutable string_or_view m_key{the_empty_string_view};
+    mutable string_and_view m_keySAV{the_empty_string_view, 0};
+    //mutable string_or_view m_key{the_empty_string_view};
 
     enum hints : uint32_t
     {
         _hint_none = 0,
         _num_is_int = 1<<0,
         _num_in_string = 1<<1,
+        _might_contain_escaped_chars = 1<<2
     };
 
-    hints m_hints{_hint_none};
+    mutable hints m_hints{_hint_none};
+
+    void set_hint(hints in_hint) const noexcept
+    {
+        m_hints =  static_cast<hints>(m_hints | in_hint);
+    }
+    void unset_hint(hints in_hint) const noexcept
+    {
+        m_hints =  static_cast<hints>(m_hints & ~in_hint);
+    }
+
+    bool get_hint(hints in_hint) const noexcept
+    {
+        return in_hint == (m_hints & in_hint);
+    }
 
     /// Default value for a string.
     static constexpr std::string_view the_empty_string_view{""};
@@ -220,13 +241,16 @@ public:
         switch (m_value_type)
         {
             case null_t:
-                m_value = the_null_string_view;
+                m_valueSAV.set_without_ownership(the_null_string_view);
+                //m_value = the_null_string_view;
             break;
             case number_t:
-                m_value = the_empty_string_view;
+                m_valueSAV.set_without_ownership(the_empty_string_view);
+                //m_value = the_empty_string_view;
             break;
             case bool_t:
-                m_value = the_false_string_view;
+                m_valueSAV.set_without_ownership(the_false_string_view);
+                //m_value = the_false_string_view;
             break;
             case object_t:
                 reserve(in_reserve);
@@ -235,7 +259,8 @@ public:
                 reserve(in_reserve);
             break;
             default:
-                m_value = the_empty_string_view;
+                m_valueSAV.set_without_ownership(the_empty_string_view);
+                //m_value = the_empty_string_view;
             break;
         }
    }
@@ -266,7 +291,8 @@ public:
     json_node& operator=(const std::string_view in_str_value) noexcept
     {
         clear(string_t);
-        m_value.reference_value(in_str_value);
+        m_valueSAV = in_str_value;
+        //m_value.reference_value(in_str_value);
         return *this;
     }
 
@@ -280,14 +306,15 @@ public:
     /// @codeend
     explicit json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
-    , m_value(in_str_value)
+    , m_valueSAV(in_str_value)
+    //, m_value(in_str_value)
     {
         if (m_value_type == number_t) {
-            m_hints = json_node::_num_in_string;
+            set_hint(_num_in_string);
             // (C++23): in_str_value.contains('.')
             if (auto pos = in_str_value.find('.'); pos==std::string_view::npos)
             {
-                m_hints = static_cast<hints>(m_hints | json_node::_num_is_int);
+                set_hint(_num_is_int);
             }
         }
     }
@@ -297,8 +324,10 @@ public:
     /// Efficiency note: a copy of in_str_value will be created, requiring an allocation.
     explicit json_node(const std::string_view in_str_value) noexcept
     : m_value_type(string_t)
+    , m_valueSAV(in_str_value)
     {
-        m_value.reference_value(in_str_value);
+        m_valueSAV = in_str_value;
+        //m_value.reference_value(in_str_value);
     }
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
@@ -306,7 +335,8 @@ public:
     json_node& operator=(const std::string& in_str_value) noexcept
     {
         clear(string_t);
-        m_value.store_value(in_str_value);
+        m_valueSAV = in_str_value;
+        //m_value.store_value(in_str_value);
         return *this;
     }
 
@@ -327,14 +357,16 @@ public:
     json_node& operator=(const TCHAR in_str []) noexcept
     {
         clear(string_t);
-        m_value.store_value(in_str);
+        m_valueSAV = in_str;
+        //m_value.store_value(in_str);
         return *this;
     }
 
     //--- integer constructor
     json_node(const IsInteger auto in_num) noexcept
     : m_value_type(number_t)
-    , m_value()
+    , m_valueSAV()
+    //, m_value()
     , m_num(static_cast<double>(in_num))
     , m_hints(_num_is_int)
     {}
@@ -344,7 +376,7 @@ public:
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
-        m_hints = _num_is_int;
+        set_hint(_num_is_int);
 
         return *this;
     }
@@ -364,7 +396,8 @@ public:
     //--- float constructor
     json_node(const IsFloat auto in_num) noexcept
     : m_value_type(number_t)
-    , m_value()
+    , m_valueSAV()
+    //, m_value()
     , m_num(static_cast<double>(in_num))
     {}
     // assign number
@@ -379,13 +412,15 @@ public:
     //--- bool constructor
     explicit json_node(const IsBool auto in_bool) noexcept
     : m_value_type(bool_t)
-    , m_value(in_bool ? the_true_string_view : the_false_string_view)
+    , m_valueSAV(in_bool ? the_true_string_view : the_false_string_view, 0)
+    //, m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
     json_node& operator=(const IsBool auto in_bool) noexcept
     {
         clear(bool_t);
-        m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
+        m_valueSAV.set_without_ownership(in_bool ? the_true_string_view : the_false_string_view);
+        //m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
         return *this;
     }
 
@@ -405,22 +440,27 @@ public:
     void clear(const value_type in_new_type=null_t) noexcept
     {
         m_value_type = in_new_type;
-        m_obj_key_to_index.clear();
+        m_obj_key_to_indexSAV.clear();
+        //m_obj_key_to_index.clear();
         m_values.clear();
         //m_value.clear();
         switch (m_value_type)
-        {
+        {//set_without_ownership
             case null_t:
-                m_value = the_null_string_view;
+                m_valueSAV.set_without_ownership(the_null_string_view);
+                //m_value = the_null_string_view;
             break;
             case number_t:
-                m_value = the_empty_string_view;
+                m_valueSAV.set_without_ownership(the_empty_string_view);
+                //m_value = the_empty_string_view;
             break;
             case bool_t:
-                m_value = the_false_string_view;
+                m_valueSAV.set_without_ownership(the_false_string_view);
+                //m_value = the_false_string_view;
             break;
             default:
-                m_value = the_empty_string_view;
+                m_valueSAV.set_without_ownership(the_empty_string_view);
+                //m_value = the_empty_string_view;
             break;
         }
 
@@ -443,9 +483,9 @@ public:
     /// Returns true if and only if the JSON value type is #number_t (float or integer).
     bool is_number() const noexcept {return number_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t, and the value is an integer (signed or unsigned).
-    bool is_int() const noexcept {return number_t == m_value_type && (m_hints & _num_is_int);}
+    bool is_int() const noexcept {return number_t == m_value_type && (get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #number_t, and the value is floating point (float, double).
-    bool is_float() const noexcept {return number_t == m_value_type && (0==(m_hints & _num_is_int));}
+    bool is_float() const noexcept {return number_t == m_value_type && (!get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #bool_t.
     bool is_bool() const noexcept {return bool_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #bool_t, #number_t or #string_t.
@@ -529,7 +569,8 @@ public:
                 case array_t:
                     retVal = m_values.size(); break;
                 case string_t:
-                    retVal = m_value.size(); break;
+                    retVal = m_valueSAV.size(); break;
+                    //retVal = m_value.size(); break;
                 case bool_t:
                 case number_t:
                     retVal = 1; break;
@@ -592,7 +633,10 @@ public:
         {
             m_values.reserve(new_cap);
             if (is_object())
-                m_obj_key_to_index.reserve(new_cap);
+            {
+                m_obj_key_to_indexSAV.reserve(new_cap);
+                //m_obj_key_to_index.reserve(new_cap);
+            }
         }
     }
 
@@ -626,7 +670,8 @@ public:
         TGETTYPE retVal = in_default;
         if (contains(key))  // contains return false if this is not an object_t
         {
-            const json_node& theJ = m_values[m_obj_key_to_index.at(key)];
+            const json_node& theJ = m_values[m_obj_key_to_indexSAV.at(string_and_view(key, 0))];
+            //const json_node& theJ = m_values[m_obj_key_to_index.at(key)];
             if constexpr (std::same_as<bool, TGETTYPE>) {
                 retVal = theJ.get_bool(in_default);
             }
@@ -655,7 +700,8 @@ public:
         size_t retVal = 0;
         if (is_object())
         {
-            retVal = m_obj_key_to_index.count(in_key);
+            retVal = m_obj_key_to_indexSAV.count(string_and_view(in_key, 0));
+            //retVal = m_obj_key_to_index.count(in_key);
         }
 
         return retVal;
@@ -681,8 +727,11 @@ public:
 
         if (contains(in_key))
         {
-            const json_node& theJ = m_values[m_obj_key_to_index.at(in_key)];
-            retVal = in_expected_type == theJ.m_value_type;
+            const json_node& theJSAV = m_values[m_obj_key_to_indexSAV.at(string_and_view(in_key, 0))];
+            retVal = in_expected_type == theJSAV.m_value_type;
+
+//            const json_node& theJ = m_values[m_obj_key_to_index.at(in_key)];
+//            retVal = in_expected_type == theJ.m_value_type;
         }
 
         return retVal;
@@ -698,20 +747,22 @@ public:
         if (JSONLAND_LIKELY(is_object()))
         {
             int index = -1;
-            string_or_view key;
-            key.store_value(in_key);
+//            string_or_view key;
+//            key.store_value(in_key);
 
-            if (0 == m_obj_key_to_index.count(key))
+            string_and_view key(in_key, 0);
+
+            if (0 == m_obj_key_to_indexSAV.count(key))
             {
                 index = static_cast<int>(m_values.size());
                 json_node& value = m_values.emplace_back();
-                value.m_key = std::move(key);
+                value.m_keySAV = key;
 
-                m_obj_key_to_index[value.m_key] = index;
+                m_obj_key_to_indexSAV[value.m_keySAV] = index;
             }
             else
             {
-                index = m_obj_key_to_index[key];
+                index = m_obj_key_to_indexSAV[key];
             }
             return m_values[index];
         }
@@ -743,10 +794,11 @@ public:
     {
         if (JSONLAND_LIKELY(is_object()))
         {
-            string_or_view key;
-            key.reference_value(in_str);
-            if (contains(key.as_string_view())) {
-                return m_values[m_obj_key_to_index.at(key)];
+            string_and_view key(in_str, 0);
+//            string_or_view key;
+//            key.reference_value(in_str);
+            if (contains(key)) {
+                return m_values[m_obj_key_to_indexSAV.at(key)];
             }
             else {
                 return const_uninitialized_json_node();
@@ -764,13 +816,14 @@ public:
         size_t retVal{0};
         if (JSONLAND_LIKELY(is_object()))
         {
-            string_or_view key;
-            key.store_value(in_key);
-            if (auto iKey = m_obj_key_to_index.find(key);
-                iKey != m_obj_key_to_index.end())
+            string_and_view key(in_key, 0);
+//            string_or_view key;
+//            key.reference_value(in_str);
+            if (auto iKey = m_obj_key_to_indexSAV.find(key);
+                iKey != m_obj_key_to_indexSAV.end())
             {
                 int index = iKey->second;
-                m_obj_key_to_index.erase(iKey);
+                m_obj_key_to_indexSAV.erase(iKey);
                 m_values.erase(m_values.begin() + index);
                 retVal = 1;
             }
@@ -834,8 +887,8 @@ public:
     std::vector<std::string_view> keys()
     {
         std::vector<std::string_view> retVal;
-        for (auto& key2indexItem : m_obj_key_to_index) {
-            retVal.push_back(key2indexItem.first.as_string_view());
+        for (auto& key2indexItem : m_obj_key_to_indexSAV) {
+            retVal.push_back(key2indexItem.first.sv());
         }
         return retVal;
     }
@@ -1024,7 +1077,7 @@ public:
     /// <br>If JSON value type is #array_t or #object_t: empty string.
     const std::string_view as_string_view() const noexcept
     {
-        return m_value.as_string_view();
+        return m_valueSAV.sv();
     }
 
     /// @brief If JSON value type is #string_t, return the string value (without quoates). Otherwise returns the given default value.
@@ -1049,7 +1102,11 @@ public:
     {
         if (is_string())
         {
-            m_value.unescape(); // will not allocate if string was assigned
+            if (get_hint(_might_contain_escaped_chars))
+            {
+                m_valueSAV.unescape_json_string_internal(); // will not allocate if string does not contain escapes
+                unset_hint(_might_contain_escaped_chars);
+            }
             return as_string_view();
         }
         else
@@ -1079,10 +1136,15 @@ public:
         TFLOAT retVal = in_default_fp;
         if (JSONLAND_LIKELY(is_number()))
         {
-            if (m_hints & json_node::_num_in_string)
-                retVal = static_cast<TFLOAT>(std::atof(m_value.data()));
+            if (get_hint(_num_in_string))
+            {
+                retVal = static_cast<TFLOAT>(std::atof(m_valueSAV.sv().data()));
+                //retVal = static_cast<TFLOAT>(std::atof(m_value.data()));
+            }
             else
+            {
                 retVal = static_cast<TFLOAT>(m_num);
+            }
         }
 
         return retVal;
@@ -1117,10 +1179,15 @@ public:
         TINT retVal = in_default_int;
         if (JSONLAND_LIKELY(is_number()))
         {
-            if (m_hints & json_node::_num_in_string)
-                retVal = static_cast<TINT>(std::atoll(m_value.data()));
+            if (get_hint(_num_in_string))
+            {
+                retVal = static_cast<TINT>(std::atoll(m_valueSAV.sv().data()));
+                //retVal = static_cast<TINT>(std::atoll(m_value.data()));
+            }
             else
+            {
                 retVal = static_cast<TINT>(m_num);
+            }
         }
 
         return retVal;
@@ -1145,9 +1212,13 @@ public:
     bool get_bool(const bool in_default_bool=false) const noexcept
     {
         if (JSONLAND_LIKELY(is_bool()))
-            return m_value.data()[0] == 't';
+        {
+            return m_valueSAV.sv().data()[0] == 't';
+        }
         else
+        {
             return in_default_bool;
+        }
     }
 
     /// @brief Return nullptr
@@ -1340,35 +1411,30 @@ public:
 
     std::string_view key() const noexcept
     {
-        m_key.unescape();
-        return m_key.as_string_view();
+        //m_key.unescape(); key should be unescaped
+        return m_keySAV.sv();
     }
 
     bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
 
-private:
-
-    KeyToIndex& get_key_to_index_map() noexcept
-    {
-        return m_obj_key_to_index;
-    }
-
+    
 protected:
 
     // for parser use, *this is assumed to be freshly constructed, so no need to call clear
-    void parser_direct_set(string_or_view&& in_str, jsonland::value_type in_type)
-    {
-        // add asserts that m_obj_key_to_index & m_values are empty
-        m_value_type = in_type;
-        m_value = std::move(in_str);
-    }
+//    void parser_direct_set(string_or_view&& in_str, jsonland::value_type in_type)
+//    {
+//        // add asserts that m_obj_key_to_index & m_values are empty
+//        m_value_type = in_type;
+//        m_value = std::move(in_str);
+//    }
 
     void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
     {
         // add asserts that m_obj_key_to_index & m_values are empty
         m_value_type = in_type;
-        m_value.reference_value(in_str, string_or_view::parsed);
+        m_valueSAV.set_without_ownership(in_str);
+        //m_value.reference_value(in_str, string_or_view::parsed);
     }
 
     void parser_direct_set(jsonland::value_type in_type)
@@ -1388,8 +1454,8 @@ private:
     // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
     // occur in the same json_node is repeatadly assigned number values. The compromise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
-    bool is_num_in_string() const {return m_hints & json_node::_num_in_string;}
-    bool is_string_assigned() const {return m_value.is_value_stored();}
+    bool is_num_in_string() const {return get_hint(_num_in_string);}
+    bool is_string_assigned() const {return m_valueSAV.is_owner();}
 
 };
 

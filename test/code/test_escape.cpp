@@ -43,11 +43,94 @@ TEST(EscapeInfra, some_escapes)
 
 TEST(EscapeJson, parse_and_dump)
 {
-    std::string_view parse_me = R"({"backslash":"\\","quote":"\"","tab":"\t","newline":"\n","bell":"\b","carriage_return":"\r","\\":"backslash","\"":"quote","\t":"tab","\n":"newline","\b":"bell","\r":"carriage_return"})";
+    std::string parse_me = R"({"backslash":"\\",
+                                    "quote":"\"",
+                                    "tab":"\t",
+                                    "newline":"\n",
+                                    "bell":"\b",
+                                    "carriage_return":"\r",
+                                    "\\":"backslash",
+                                    "\"":"quote",
+                                    "\t":"tab",
+                                    "\n":"newline",
+                                    "\b":"bell",
+                                    "\r":"carriage_return"})";
 
     jsonland::json_doc jdoc;
     jdoc.parse(parse_me);
+
+    // check the escaped values, check each twice incase there was internal change
+    // all permutations of 2 X get_string + 2 X dump are tried
+    {
+        EXPECT_EQ(jdoc["backslash"].get_string(), "\\");
+        EXPECT_EQ(jdoc["backslash"].get_string(), "\\");
+        EXPECT_EQ(jdoc["backslash"].dump(), "\"\\\\\"");
+        EXPECT_EQ(jdoc["backslash"].dump(), "\"\\\\\"");
+
+        EXPECT_EQ(jdoc["quote"].get_string(), "\"");
+        EXPECT_EQ(jdoc["quote"].dump(), "\"\\\"\"");
+        EXPECT_EQ(jdoc["quote"].get_string(), "\"");
+        EXPECT_EQ(jdoc["quote"].dump(), "\"\\\"\"");
+
+        EXPECT_EQ(jdoc["tab"].dump(), "\"\\t\"");
+        EXPECT_EQ(jdoc["tab"].dump(), "\"\\t\"");
+        EXPECT_EQ(jdoc["tab"].get_string(), "\t");
+        EXPECT_EQ(jdoc["tab"].get_string(), "\t");
+
+        EXPECT_EQ(jdoc["newline"].dump(), "\"\\n\"");
+        EXPECT_EQ(jdoc["newline"].get_string(), "\n");
+        EXPECT_EQ(jdoc["newline"].dump(), "\"\\n\"");
+        EXPECT_EQ(jdoc["newline"].get_string(), "\n");
+
+        EXPECT_EQ(jdoc["bell"].get_string(), "\b");
+        EXPECT_EQ(jdoc["bell"].get_string(), "\b");
+        EXPECT_EQ(jdoc["bell"].dump(), "\"\\b\"");
+        EXPECT_EQ(jdoc["bell"].dump(), "\"\\b\"");
+
+        EXPECT_EQ(jdoc["carriage_return"].dump(), "\"\\r\"");
+        EXPECT_EQ(jdoc["carriage_return"].dump(), "\"\\r\"");
+        EXPECT_EQ(jdoc["carriage_return"].get_string(), "\r");
+        EXPECT_EQ(jdoc["carriage_return"].get_string(), "\r");
+    }
+
+    // check the escaped keys, check each twice incase there was internal change
+    // all permutations of 2 X get_string + 2 X dump are tried
+    {
+        EXPECT_EQ(jdoc["\\"].get_string(), "backslash");
+        EXPECT_EQ(jdoc["\\"].get_string(), "backslash");
+        EXPECT_EQ(jdoc["\\"].dump(), "\"backslash\"");
+        EXPECT_EQ(jdoc["\\"].dump(), "\"backslash\"");
+
+        EXPECT_EQ(jdoc["\""].get_string(), "quote");
+        EXPECT_EQ(jdoc["\""].dump(), "\"quote\"");
+        EXPECT_EQ(jdoc["\""].get_string(), "quote");
+        EXPECT_EQ(jdoc["\""].dump(), "\"quote\"");
+
+        EXPECT_EQ(jdoc["\t"].dump(), "\"tab\"");
+        EXPECT_EQ(jdoc["\t"].dump(), "\"tab\"");
+        EXPECT_EQ(jdoc["\t"].get_string(), "tab");
+        EXPECT_EQ(jdoc["\t"].get_string(), "tab");
+
+        EXPECT_EQ(jdoc["\n"].dump(), "\"newline\"");
+        EXPECT_EQ(jdoc["\n"].get_string(), "newline");
+        EXPECT_EQ(jdoc["\n"].dump(), "\"newline\"");
+        EXPECT_EQ(jdoc["\n"].get_string(), "newline");
+
+        EXPECT_EQ(jdoc["\b"].get_string(), "bell");
+        EXPECT_EQ(jdoc["\b"].get_string(), "bell");
+        EXPECT_EQ(jdoc["\b"].dump(), "\"bell\"");
+        EXPECT_EQ(jdoc["\b"].dump(), "\"bell\"");
+
+        EXPECT_EQ(jdoc["\r"].dump(), "\"carriage_return\"");
+        EXPECT_EQ(jdoc["\r"].dump(), "\"carriage_return\"");
+        EXPECT_EQ(jdoc["\r"].get_string(), "carriage_return");
+        EXPECT_EQ(jdoc["\r"].get_string(), "carriage_return");
+   }
+
     std::string dump_me = jdoc.dump();
+    // for readability parse_me has new lines and spaces, remove them for comparing
+    parse_me.erase(std::remove_if(parse_me.begin(), parse_me.end(), ::isspace), parse_me.end());
+    dump_me.erase(std::remove_if(dump_me.begin(), dump_me.end(), ::isspace), dump_me.end());
 
     EXPECT_EQ(dump_me, parse_me);
 }
@@ -92,6 +175,8 @@ TEST(EscapeJson, escape_and_copy)
 
     json_node jo(object_t);
     jo["win_path"sv] = some_win_path;
+    std::cout << jo["win_path"sv].dump() << std::endl;
+    std::cout << jo.dump() << std::endl;
     EXPECT_EQ(jo.dump(), R"({"win_path":"c:\\something\\something"})"sv);
     EXPECT_EQ(jo["win_path"sv].dump(), R"("c:\\something\\something")"sv);
     EXPECT_EQ(jo["win_path"sv].get_string(), R"(c:\something\something)"sv);

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <string_view>
+using namespace std::string_view_literals;
 
 #include "escape.h"
 ///
@@ -42,9 +43,30 @@ public:
 
     /// @brief Constructor initializing with a `std::string_view`.
     /// @param in_str_view The string view to initialize the object with.
+    /// the int parameter is there just to signal to not own the string
+    /// Ownership: non-owning, no allocation or copy.
+    explicit string_and_view(std::string_view in_str_view, int) noexcept
+    : m_view(in_str_view)
+    {}
+
+    /// @brief Constructor initializing with a `std::string_view`.
+    /// @param in_str_view The string view to initialize the object with.
     /// Ownership: owning, resulting in allocation and copy.
-    string_and_view(std::string_view in_str_view) noexcept
+    explicit string_and_view(std::string_view in_str_view) noexcept
     : m_string(in_str_view)
+    , m_view(m_string)
+    {}
+
+    explicit string_and_view(const char* in_str) noexcept
+    : string_and_view(std::string_view(in_str))
+    {}
+
+    explicit string_and_view(const std::string& in_str) noexcept
+    : string_and_view(std::string_view(in_str))
+    {}
+
+    explicit string_and_view(std::string&& in_str) noexcept
+    : m_string(std::move(in_str))
     , m_view(m_string)
     {}
 
@@ -55,6 +77,22 @@ public:
     string_and_view& operator=(std::string_view in_str_view) noexcept
     {
         m_string = in_str_view;
+        m_view = m_string;
+        return *this;
+    }
+    string_and_view& operator=(const char* in_str) noexcept
+    {
+        operator=(std::string_view(in_str));
+        return *this;
+    }
+    string_and_view& operator=(const std::string& in_str) noexcept
+    {
+        operator=(std::string_view(in_str));
+        return *this;
+    }
+    string_and_view& operator=(std::string&& in_str) noexcept
+    {
+        m_string = std::move(in_str);
         m_view = m_string;
         return *this;
     }
@@ -136,6 +174,15 @@ public:
         return retVal;
     }
 
+    void take_ownership() noexcept
+    {
+        if (!is_owner())
+        {
+            m_string = m_view;
+            m_view = m_string;
+        }
+    }
+
     /// @brief Sets the object to only manage a string view.
     /// @param in_str_view The string view to manage.
     /// Ownership: non-owning, lifetime of the original string must acceed that this instance.
@@ -145,6 +192,16 @@ public:
         m_view = in_str_view;
     }
 
+    size_t size() const noexcept
+    {
+        return m_view.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return m_view.empty();
+    }
+
     /// @brief Clears the managed string and string view.
     void clear() noexcept
     {
@@ -152,7 +209,15 @@ public:
         m_view = m_string;
     }
 
-    void unescape_json_string()
+    size_t allocation_size() const noexcept
+    {
+        return m_string.size();
+    }
+
+    /// unescape escaped characters and update internal m_string if needed.
+    /// if there were not escaped character internal members are not changed,
+    /// saving allocation and copying
+    void unescape_json_string_internal() noexcept
     {
         std::string unescaped;
         escapism::unescape_result uer = escapism::unescape_json_string(m_view, unescaped);
@@ -161,10 +226,59 @@ public:
             m_string = std::move(unescaped);
             m_view = m_string;
         }
-        else
+        else if (escapism::nothing_to_unescape)
         {
             // m_view remained unchanged
         }
+    }
+    /// unescape escaped characters copy to an internal string.
+    void unescape_json_string_external(std::string& out_str) const noexcept
+    {
+        escapism::unescape_result uer = escapism::unescape_json_string(m_view, out_str);
+        if (escapism::nothing_to_unescape == uer)
+        {
+            out_str += m_view;
+        }
+        else if (escapism::something_was_unescaped)
+        {
+            // out_str was already updated
+        }
+    }
+//...
+
+    /// if there were not escaped character internal members are not changed,
+    /// saving allocation and copying
+    void escape_json_string_internal() noexcept
+    {
+        std::string escaped;
+        escapism::escape_result uer = escapism::escape_json_string(m_view, escaped);
+        if (uer == escapism::something_was_escaped)
+        {
+            m_string = std::move(escaped);
+            m_view = m_string;
+        }
+        else if (escapism::something_was_escaped)
+        {
+            // m_view remained unchanged
+        }
+    }
+    /// escape escapable characters copy to an internal string.
+    void escape_json_string_external(std::string& out_str) const noexcept
+    {
+        escapism::escape_result uer = escapism::escape_json_string(m_view, out_str);
+        if (escapism::nothing_to_escape == uer)
+        {
+            out_str += m_view;
+        }
+        else if (escapism::something_was_escaped)
+        {
+            // out_str was already updated
+        }
+    }
+
+    bool operator==(std::string_view other) const noexcept
+    {
+        return sv() == other;
     }
 
 private:
@@ -179,7 +293,7 @@ private:
 /// @param rhs The right-hand side operand.
 /// @return Strong ordering result.
 ////
-std::strong_ordering operator<=>(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
+inline std::strong_ordering operator<=>(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
 {
     // Apple clang does not have operator<=> for std::string_view, so implementing with  std::string_view::compare
     int result = lhs.sv().compare(rhs.sv());
@@ -195,7 +309,7 @@ std::strong_ordering operator<=>(const jsonland::string_and_view& lhs, const jso
 /// @param rhs The right-hand side operand.
 /// @return `true` if the two objects are equal, `false` otherwise.
 ////
-bool operator==(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
+inline bool operator==(const jsonland::string_and_view& lhs, const jsonland::string_and_view& rhs) noexcept
 {
     return lhs.sv() == rhs.sv();
 }
