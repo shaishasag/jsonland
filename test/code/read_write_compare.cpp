@@ -82,3 +82,39 @@ TEST(ReadWriteCompare, file)
     EXPECT_TRUE(compare_files(reference_pretty_file_path, output_pretty_file_path)) << "dump(pretty) output!=reference";
 }
 
+// access the keys with escaped char programatically
+TEST(ReadWriteCompare, access_weird_keys)
+{
+    std::filesystem::path test_files_folder = std::filesystem::path(__FILE__).parent_path().parent_path();
+    std::filesystem::path file_to_read = test_files_folder / "test.source.json"sv;
+    jsonland::json_doc jdoc;
+    std::ifstream ifs(file_to_read);
+    std::string contents((std::istreambuf_iterator<char>(ifs)), {});
+    int parse_result = jdoc.parse_insitu(contents);
+    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+
+    auto& escaped_keys_j = jdoc["object_keys_variations"]["escaped_characters"];
+
+    ASSERT_EQ(escaped_keys_j["\"key_with_double_quotes\""].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\\backslash"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with/slash"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\bbackspace"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\fFormfeed"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\nnewline"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\rcarriage_return"].get_string(), "value"sv);
+    ASSERT_EQ(escaped_keys_j["key_with\ttab"].get_string(), "value"sv);
+
+    auto& unicode_keys_j = jdoc["object_keys_variations"]["unicode_keys"];
+    ASSERT_EQ(unicode_keys_j["中文"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["Русский"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["हिन्दी"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["العربية"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["日本語"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["한국어"].get_string(), "value"sv);
+    ASSERT_EQ(unicode_keys_j["😀😂🥺👍"].get_string(), "value"sv);
+
+    auto& whitespace_keys_j = jdoc["object_keys_variations"]["whitespace_keys"];
+    ASSERT_EQ(whitespace_keys_j[" key_with_space"].get_string(), "value"sv);
+    ASSERT_EQ(whitespace_keys_j["\tkey_with_tab"].get_string(), "value"sv);
+    ASSERT_EQ(whitespace_keys_j["\nkey_with_newline"].get_string(), "value"sv);
+}
