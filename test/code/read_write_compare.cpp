@@ -75,7 +75,6 @@ TEST(ReadWriteCompare, file)
         out_tight << jdoc.dump(jsonland::dump_style::tight);
         std::ofstream out_pretty(output_pretty_file_path);
         out_pretty << jdoc.dump(jsonland::dump_style::pretty);
-        out_pretty << std::endl;
     }
 
     EXPECT_TRUE(compare_files(reference_tight_file_path, output_tight_file_path)) << "dump(tight) output!=reference";
@@ -117,4 +116,30 @@ TEST(ReadWriteCompare, access_weird_keys)
     ASSERT_EQ(whitespace_keys_j[" key_with_space"].get_string(), "value"sv);
     ASSERT_EQ(whitespace_keys_j["\tkey_with_tab"].get_string(), "value"sv);
     ASSERT_EQ(whitespace_keys_j["\nkey_with_newline"].get_string(), "value"sv);
+}
+
+TEST(ReadWriteCompare, ownership_after_parse)
+{
+    std::filesystem::path test_files_folder = std::filesystem::path(__FILE__).parent_path().parent_path();
+    std::filesystem::path file_to_read = test_files_folder / "test.source.json"sv;
+    jsonland::json_doc jdoc;
+    std::ifstream ifs(file_to_read);
+    std::string contents((std::istreambuf_iterator<char>(ifs)), {});
+    int parse_result = jdoc.parse_insitu(contents);
+    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+
+    ASSERT_TRUE(jdoc.refers_to_external_memory());
+    ASSERT_FALSE(jdoc.is_full_owner());
+
+    jdoc["somebody"] = "somewhere";                 // when assiging aditional value to parsed json
+    ASSERT_TRUE(jdoc.refers_to_external_memory());  // jdoc still refers to external memory
+    ASSERT_FALSE(jdoc.is_full_owner());             // jdoc still is not a full owner
+
+    jsonland::json_node jnode = jdoc.clone();
+    ASSERT_FALSE(jnode.refers_to_external_memory());
+    ASSERT_TRUE(jnode.is_full_owner());
+
+    jnode["somewhere"] = "somebody";                  // when assiging aditional value to cloned json
+    ASSERT_FALSE(jnode.refers_to_external_memory());  // jdoc still does not refers to external memory
+    ASSERT_TRUE(jnode.is_full_owner());               // jdoc still is a full owner
 }

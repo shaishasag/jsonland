@@ -1415,6 +1415,7 @@ public:
         return m_keySAV.sv();
     }
 
+    bool refers_to_external_memory() const noexcept;
     bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
 

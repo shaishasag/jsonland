@@ -505,6 +505,42 @@ size_t json_node::memory_consumption() const noexcept
     return retVal;
 }
 
+// return true if any of m_key or m_value or one of the m_values refers to external memory.
+// refering to external memory happens when calling json_doc.parse_insitue or son_doc.parse.
+// note that json_doc.parse will also result in this function returning true
+// because the memory is held by the top json_doc object not each json_node.
+bool json_node::refers_to_external_memory() const noexcept
+{
+    bool retVal{true};
+
+    switch (m_value_type)
+    {
+        case jsonland::value_type::uninitialized_t:
+        case jsonland::value_type::null_t:
+        case jsonland::value_type::bool_t:
+            retVal = false; // these types always refer to const string_view(s)
+        break;
+        case jsonland::value_type::number_t:
+        case jsonland::value_type::string_t:
+            retVal = (m_valueSAV.refers_to_external_memory())
+                        || (m_keySAV.refers_to_external_memory());
+        break;
+        case jsonland::value_type::array_t:
+        case jsonland::value_type::object_t:
+            retVal = std::any_of(m_values.begin(),
+                                 m_values.end(),
+                                 [](const auto& sub_val)
+                                    {return sub_val.refers_to_external_memory();} );
+        break;
+    }
+
+    return retVal;
+}
+
+// return true if all of m_key and m_value and all of the m_values do not refers to external memory
+// unless json_doc.parse_insitue or json_doc.parse where called, json_node should always be full owner.
+// calling json_doc/json_node.clone() should always produce a copy with full ownership.
+// calling std::move(json_doc/json_node) will copy the ownership of the source object.
 bool json_node::is_full_owner() const noexcept
 {
     bool retVal{false};
@@ -518,8 +554,8 @@ bool json_node::is_full_owner() const noexcept
         break;
         case jsonland::value_type::number_t:
         case jsonland::value_type::string_t:
-            retVal = (m_valueSAV.empty() || m_valueSAV.is_owner())
-                        && (m_keySAV.empty() || m_keySAV.is_owner());
+            retVal = ! m_valueSAV.refers_to_external_memory()
+                    && ! m_keySAV.refers_to_external_memory();
         break;
         case jsonland::value_type::array_t:
         case jsonland::value_type::object_t:

@@ -165,6 +165,11 @@ public:
     /// @return The current string view.
     std::string_view sv() const  noexcept {return m_view;}
 
+    bool refers_to_external_memory() const noexcept
+    {
+        return m_string.empty() && !m_view.empty();
+    }
+
     /// @brief Checks if the object owns the string data.
     /// @return `true` if the object owns the string, `false` otherwise.
     bool is_owner() const  noexcept
