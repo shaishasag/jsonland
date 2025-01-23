@@ -605,9 +605,9 @@ namespace parser_impl
         const char* str_leftp = str_left;
         const char* str_rightp = str_right.data();
         size_t chars_left = str_right.size();
-        while (JSONLAND_LIKELY(chars_left > 0))
+        while (chars_left > 0) [[likely]]
         {
-            if (JSONLAND_UNLIKELY(*str_leftp != *str_rightp))
+            if (*str_leftp != *str_rightp) [[unlikely]]
                 break;
             ++str_leftp;
             ++str_rightp;
@@ -626,9 +626,9 @@ namespace parser_impl
         const char* str_leftp = str_left;
         const char* str_rightp = str_right.data();
         size_t chars_left = str_right.size();
-        while (JSONLAND_LIKELY(chars_left > 0))
+        while (chars_left > 0) [[likely]]
         {
-            if (JSONLAND_UNLIKELY(std::tolower(*str_leftp) != *str_rightp))
+            if (std::tolower(*str_leftp) != *str_rightp) [[unlikely]]
                 break;
             ++str_leftp;
             ++str_rightp;
@@ -801,7 +801,7 @@ namespace parser_impl
         inline bool get_next_node(json_node& out_node, parsing_value_type& out_type)
         {
             bool retVal = false;
-            while (JSONLAND_LIKELY(!retVal && is_there_more_data()))
+            while (!retVal && is_there_more_data())  [[likely]]
             {
                 char curr_char = *m_curr_char;
                 if (256 > (unsigned int)curr_char)
@@ -830,7 +830,7 @@ namespace parser_impl
             char* str_start = m_curr_char;
 
             out_node.m_value_type = jsonland::value_type::string_t;
-            while (JSONLAND_LIKELY(is_there_more_data()))
+            while (is_there_more_data())  [[likely]]
             {
                 if (curr_char == '"') {
                     break;
@@ -838,7 +838,7 @@ namespace parser_impl
                 if (curr_char == '\\')
                 {
                     curr_char = next_char();
-                    if (JSONLAND_UNLIKELY(! is_there_more_data())) // the '\' was  the last char
+                    if (! is_there_more_data()) [[unlikely]] // the '\' was  the last char
                     {
                         throw parsing_exception("escape char '\\' is the last char", curr_offset());
                     }
@@ -851,13 +851,13 @@ namespace parser_impl
                     }
                     else if ('u' == curr_char)  // unicode escape
                     {
-                        if (4 > num_remaining_chars())
+                        if (4 > num_remaining_chars()) [[unlikely]]
                         {
                             throw parsing_exception("Unicode escape should be followed by 4 characters", curr_offset());
                         }
                         for (int i = 0; i < 4; ++i)
                         {
-                            if (! is_hex_digit(next_char()))
+                            if (! is_hex_digit(next_char())) [[unlikely]]
                             {
                                 std::string message = "char '";
                                 message += curr_char;
@@ -882,16 +882,14 @@ namespace parser_impl
                 curr_char = next_char();
             }
 
-            if (JSONLAND_LIKELY(curr_char == '"'))
+            if (curr_char == '"')  [[likely]]
             {
-                //*const_cast<char*>(m_curr_char) = '\0';
-
                 size_t str_size = m_curr_char-str_start;
                 out_node.parser_direct_set(std::string_view(str_start, str_size), jsonland::value_type::string_t);
                 next_char();
                 retVal = true;
             }
-            else
+            else [[unlikely]]
             {
                 throw parsing_exception("string was not terminated with '\"'", curr_offset());
             }
@@ -909,7 +907,8 @@ namespace parser_impl
             if ('-' == curr_char)
                 curr_char = next_char();
 
-            if ('0' == curr_char) {
+            if ('0' == curr_char)
+            {
                 // number started with zero
                 // so only '.' or 'e' or 'E' are expected, not more digits
                 curr_char = next_char();
@@ -917,7 +916,7 @@ namespace parser_impl
                     goto after_decimal_point;
                 else if ('e' == curr_char || 'E' == curr_char)
                     goto after_exponent;
-                else if (isdigit(curr_char))
+                else if (isdigit(curr_char)) [[unlikely]]
                 {
                     std::string message = "number starting with 0 cannot have more digits after the 0";
                     throw parsing_exception(message.c_str(), curr_offset());
@@ -935,7 +934,8 @@ namespace parser_impl
                 else
                     goto scan_number_done;
             }
-            else {
+            else  [[unlikely]]
+            {
                 std::string message = "expected a digit or '-' to start a number go '";
                 message += curr_char;
                 message += "' instead";
@@ -946,7 +946,8 @@ after_decimal_point:
             num_is_int = false;
             // after a '.' only a digit is expected
             curr_char = next_char();
-            if (!isdigit(curr_char)) {
+            if (!isdigit(curr_char))  [[unlikely]]
+            {
                 std::string message = "expected a digit after '.' got '";
                 message += curr_char;
                 message += "' instead";
@@ -969,7 +970,8 @@ after_exponent:
                 while (isdigit(next_char())) ;
                 goto scan_number_done;
             }
-            else {
+            else  [[unlikely]]
+            {
                 std::string message = "expected a digit after '";
                 message += *(m_curr_char-1);
                 message += "' got '";
@@ -998,7 +1000,8 @@ scan_number_done:
             bool retVal = false;
 
             char first_char = *m_curr_char;
-            switch (first_char) {
+            switch (first_char)
+            {
                 case 'f':
                     out_node.parser_direct_set(json_node::the_false_string_view, jsonland::bool_t);
                 break;
@@ -1008,7 +1011,7 @@ scan_number_done:
                 case 'n':
                     out_node.parser_direct_set(json_node::the_null_string_view, jsonland::null_t);
                 break;
-                default:
+                default: [[unlikely]]
                 {
                     std::string message = "word starting with '";
                     message += first_char;
@@ -1018,20 +1021,19 @@ scan_number_done:
                 break;
             }
 
-            if (JSONLAND_UNLIKELY(num_remaining_chars() < static_cast<size_t>(out_node.as_string_view().size())))
+            if (num_remaining_chars() < static_cast<size_t>(out_node.as_string_view().size())) [[unlikely]]
             {
                 std::string message = "not enough characters to form '";
                 message += out_node.as_string_view();
                 message += "'";
                 throw parsing_exception(message.c_str() ,curr_offset());
             }
-
-            else if (JSONLAND_LIKELY(str_compare_case_sensitive_n(m_curr_char, out_node.as_string_view())))
+            else if (str_compare_case_sensitive_n(m_curr_char, out_node.as_string_view()))  [[likely]]
             {
                 next_chars(out_node.as_string_view().size());
                 retVal = true;
             }
-            else
+            else [[unlikely]]
             {
                 std::string message = "word starting with '";
                 message += first_char;
@@ -1072,7 +1074,7 @@ scan_number_done:
 
         bool parse_array(json_node& out_node)
         {
-            if (JSONLAND_UNLIKELY(++m_nesting_level > m_max_nesting_level))
+            if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
                 std::array<char, 64> temp_str;
                 std::string message = "Reached maximum nesting level of ";
@@ -1088,14 +1090,14 @@ scan_number_done:
             next_char();
             json_node next_node;
             parsing_value_type new_value_type;
-            while (JSONLAND_LIKELY(get_next_node(next_node, new_value_type)))
+            while (get_next_node(next_node, new_value_type)) [[likely]]
             {
-                if (JSONLAND_UNLIKELY(!(new_value_type & expecting)))
+                if (!(new_value_type & expecting)) [[unlikely]]
                 {
                     throw parsing_exception("json syntax error: unexpected token during array creation", curr_offset());
                 }
 
-                if (JSONLAND_LIKELY(new_value_type & parsing_value_type::_value))
+                if (new_value_type & parsing_value_type::_value) [[likely]]
                 {
                     m_array_values_stack.push_back(std::move(next_node));
                     expecting = parsing_value_type::_comma | parsing_value_type::_array_close;
@@ -1104,9 +1106,9 @@ scan_number_done:
                 {
                     expecting = parsing_value_type::_value;
                 }
-                else if (JSONLAND_UNLIKELY(new_value_type & parsing_value_type::_array_close))
+                else if (new_value_type & parsing_value_type::_array_close) [[unlikely]]
                 {
-                    if (JSONLAND_LIKELY(array_values_stack_starting_index != m_array_values_stack.size()))  // is array is not empty
+                    if (array_values_stack_starting_index != m_array_values_stack.size()) [[likely]] // is array is not empty
                     {
                         auto move_starts_from = std::next(m_array_values_stack.begin(), array_values_stack_starting_index);
 
@@ -1124,7 +1126,7 @@ scan_number_done:
                 }
             }
 
-            if (JSONLAND_UNLIKELY(0 == ((int)next_node.m_value_type & parsing_value_type::_array_close)))
+            if (0 == ((int)next_node.m_value_type & parsing_value_type::_array_close)) [[unlikely]]
             {
                 throw parsing_exception("unexpected end of tokens during array initializtion", curr_offset());
             }
@@ -1134,7 +1136,7 @@ scan_number_done:
 
         bool parse_obj(json_node& out_node)
         {
-            if (JSONLAND_UNLIKELY(++m_nesting_level > m_max_nesting_level))
+            if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
                 std::array<char, 64> temp_str;
                 std::string message = "Reached maximum nesting level of ";
@@ -1152,9 +1154,9 @@ scan_number_done:
             jsonland::string_and_view key;
             json_node next_node;
             parsing_value_type new_value_type;
-            while (JSONLAND_LIKELY(get_next_node(next_node, new_value_type)))
+            while (get_next_node(next_node, new_value_type)) [[likely]]
             {
-                if (JSONLAND_UNLIKELY(!((int)new_value_type & expecting)))
+                if (!((int)new_value_type & expecting)) [[unlikely]]
                 {
                     throw parsing_exception("json syntax error: unexpected token during object creation", curr_offset());
                 }
@@ -1182,9 +1184,9 @@ scan_number_done:
                     expecting = static_cast<jsonland::value_type>(parsing_value_type::_str);
                     expecting_key = true;
                 }
-                else if (JSONLAND_UNLIKELY(new_value_type & parsing_value_type::_obj_close))
+                else if (new_value_type & parsing_value_type::_obj_close)
                 {
-                    if (JSONLAND_LIKELY(array_values_stack_starting_index != m_array_values_stack.size()))  // if array is not empty
+                    if (array_values_stack_starting_index != m_array_values_stack.size()) [[likely]]  // if array is not empty
                     {
                         auto move_starts_from = std::next(m_array_values_stack.begin(), array_values_stack_starting_index);
 
@@ -1211,13 +1213,13 @@ scan_number_done:
                     --m_nesting_level;
                     return true;
                 }
-                else
+                else [[unlikely]]
                 {
                     throw parsing_exception("C++ parser bug: unexpected token during json-object creation", curr_offset());
                 }
             }
 
-            if (JSONLAND_UNLIKELY(0 == ((int)next_node.m_value_type & parsing_value_type::_obj_close)))
+            if (0 == ((int)next_node.m_value_type & parsing_value_type::_obj_close)) [[unlikely]]
             {
                 throw parsing_exception("unexpected end of tokens during object initializtion", curr_offset());
             }
@@ -1254,7 +1256,7 @@ public:
             {
                 skip_whitespace();
 
-                if (is_there_more_data())
+                if (is_there_more_data()) [[likely]]
                 {
                     // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
@@ -1264,16 +1266,16 @@ public:
                     {
                         // check that remaing characters are only whitespace
                         int num_remaining_non_whitespace_chars = skip_whitespace();
-                        if (0 < num_remaining_non_whitespace_chars)
+                        if (0 < num_remaining_non_whitespace_chars) [[unlikely]]
                         {
                             throw parsing_exception("Invalid characters after json", curr_offset());
                         }
                     }
-                    else {
+                    else [[unlikely]]{
                         throw parsing_exception("Could not find valid json", curr_offset());
                     }
                 }
-                else
+                else [[unlikely]]
                 {
                     throw parsing_exception("Could not find valid json - only whitespace", curr_offset());
                 }

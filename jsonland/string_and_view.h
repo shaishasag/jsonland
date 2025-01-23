@@ -6,7 +6,9 @@
 using namespace std::string_view_literals;
 
 #include "escape.h"
-///
+
+namespace jsonland
+{
 /// @class string_and_view
 /// @brief A utility class that manages a `std::string` and its associated `std::string_view`.
 ///
@@ -32,8 +34,6 @@ using namespace std::string_view_literals;
 /// and behavior, making it indistinguishable to the user whether the instance owns the string
 /// or merely references it.
 ///
-namespace jsonland
-{
 class string_and_view
 {
 public:

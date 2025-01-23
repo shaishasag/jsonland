@@ -19,21 +19,6 @@
     #define DllExport
 #endif
 
-#ifndef JSONLAND_LIKELY
-#if defined(__GNUC__) || defined(__clang__)
-#define JSONLAND_LIKELY(x) __builtin_expect(!!(x), 1)
-#else
-#define JSONLAND_LIKELY(x) (x)
-#endif
-#endif
-#ifndef JSONLAND_UNLIKELY
-#if defined(__GNUC__) || defined(__clang__)
-#define JSONLAND_UNLIKELY(x) __builtin_expect(!!(x), 0)
-#else
-#define JSONLAND_UNLIKELY(x) (x)
-#endif
-#endif
-
 #include "string_and_view.h"
 
 // #define JSONLAND_DEBUG
@@ -487,34 +472,6 @@ public:
     /// @param[in] check_for_type the type in question.
     bool is_type(jsonland::value_type check_for_type) const noexcept {return check_for_type == m_value_type;}
 
-#if 0
-    template<typename TISTYPE>
-    bool is_type() const noexcept
-    {
-        if constexpr (IsBool<TISTYPE>::value) {
-            return is_bool();
-        }
-        else if constexpr (IsFloat<TISTYPE>) {
-            return is_float();
-        }
-        else if constexpr (IsInteger<TISTYPE>) {
-            return is_int();
-        }
-//        else if (std::is_same<const char*, TISTYPE>::value) {
-//            return get_string(in_default);
-//        }
-        // if can be converted to string_views...
-        else if (std::is_same<std::string_view, TISTYPE>::value) {
-            return is_string();
-        }
-        else if constexpr (IsNullPtr<TISTYPE>) {
-            return is_null();
-        }
-
-        return false;
-    }
-#endif
-
     /// functions for JSON value types #object_t or array_t
 
     /// Number of elements in a object or array
@@ -603,7 +560,7 @@ public:
     size_t capacity() noexcept
     {
         size_t capa = 0;
-        if (JSONLAND_LIKELY(is_array() || is_object()))
+        if (is_array() || is_object()) [[likely]]
         {
             capa = m_values.capacity();
         }
@@ -617,7 +574,7 @@ public:
     /// @param new_cap new capacity of the object or array, in number of elements
     void reserve(const size_t new_cap) noexcept
     {
-        if (JSONLAND_LIKELY(is_array() || is_object()))
+        if (is_array() || is_object()) [[likely]]
         {
             m_values.reserve(new_cap);
             if (is_object())
@@ -732,7 +689,7 @@ public:
             clear(object_t);
         }
 
-        if (JSONLAND_LIKELY(is_object()))
+        if (is_object()) [[likely]]
         {
             int index = -1;
             string_and_view key(in_key, 0);
@@ -777,7 +734,7 @@ public:
     ///          beforehand or check the returned node's validity before use.
     const json_node& operator[](std::string_view in_str) const noexcept
     {
-        if (JSONLAND_LIKELY(is_object()))
+        if (is_object()) [[likely]]
         {
             string_and_view key(in_str, 0);
             if (contains(key)) {
@@ -797,7 +754,7 @@ public:
     size_t erase(std::string_view in_key)
     {
         size_t retVal{0};
-        if (JSONLAND_LIKELY(is_object()))
+        if (is_object()) [[likely]]
         {
             string_and_view key(in_key, 0);
             if (auto iKey = m_obj_key_to_index.find(key);
@@ -819,7 +776,7 @@ public:
     size_t erase(size_t in_index)
     {
         size_t retVal{0};
-        if (JSONLAND_LIKELY(is_array()))
+        if (is_array()) [[likely]]
         {
             if (in_index < m_values.size()) {
                 m_values.erase(m_values.begin() + in_index);
@@ -835,9 +792,10 @@ public:
         return json_node(*this);
     }
 
+    // append object to object
     json_node& append_object(std::string_view in_key, size_t in_reserve=0)
     {
-        if (JSONLAND_LIKELY(is_object()))
+        if (is_object()) [[likely]]
         {
             json_node& retVal = this->operator[](in_key);
             retVal = object_t;
@@ -849,9 +807,10 @@ public:
             return *this;  // what to return here?
     }
 
+    // append array to object
     json_node& append_array(std::string_view in_key, size_t in_reserve=0)
     {
-        if (JSONLAND_LIKELY(is_object()))
+        if (is_object()) [[likely]]
         {
             json_node& retVal = this->operator[](in_key);
             retVal = array_t;
@@ -918,7 +877,7 @@ public:
 
     json_node& operator[](const IsInteger auto in_dex) noexcept
     {
-        if (JSONLAND_LIKELY(is_array() || is_object()))
+        if (is_array() || is_object()) [[likely]]
         {
             return m_values.at(in_dex);
         }
@@ -959,9 +918,10 @@ public:
             return const_uninitialized_json_node();
     }
 
+    // append object to array
     json_node& append_object(size_t in_reserve=0)
     {
-        if (JSONLAND_LIKELY(is_array()))
+        if (is_array()) [[likely]]
         {
             json_node& retVal = m_values.emplace_back(object_t);
             retVal.reserve(in_reserve);
@@ -972,9 +932,10 @@ public:
             return *this;  // what to return here?
     }
 
+    // append array to array
     json_node& append_array(size_t in_reserve=0)
     {
-        if (JSONLAND_LIKELY(is_array()))
+        if (is_array())  [[likely]]
         {
             json_node& retVal = m_values.emplace_back(array_t);
             retVal.reserve(in_reserve);
@@ -1115,7 +1076,7 @@ public:
     TFLOAT get_float(const TFLOAT in_default_fp=0.0f) const noexcept
     {
         TFLOAT retVal = in_default_fp;
-        if (JSONLAND_LIKELY(is_number()))
+        if (is_number())  [[likely]]
         {
             if (get_hint(_num_in_string))
             {
@@ -1158,7 +1119,7 @@ public:
     TINT get_int(const TINT in_default_int=0) const noexcept
     {
         TINT retVal = in_default_int;
-        if (JSONLAND_LIKELY(is_number()))
+        if (is_number()) [[likely]]
         {
             if (get_hint(_num_in_string))
             {
@@ -1192,7 +1153,7 @@ public:
     /// @endcode
     bool get_bool(const bool in_default_bool=false) const noexcept
     {
-        if (JSONLAND_LIKELY(is_bool()))
+        if (is_bool()) [[likely]]
         {
             return m_value.sv().data()[0] == 't';
         }
