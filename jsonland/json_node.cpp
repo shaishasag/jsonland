@@ -274,15 +274,21 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
 
             auto io = m_values.begin();
             out_str += '"';
-            out_str += io->m_keySAV.sv(); // keys are supposed to be unescaped
+            io->m_keySAV.escape_json_string_external(out_str);
             out_str += '"';
 
+            if (io->m_keySAV.sv().compare("escaped_characters") == 0)
+            {
+                std::cout << io->m_keySAV.sv() << std::endl;
+            }
             out_str += ':';
-            if (!io->empty_as(object_t) || !io->empty_as(array_t)) {
+            if (!io->empty_as(object_t) || !io->empty_as(array_t))
+            {
                 out_str += '\n';
                 indent(out_str, level);
             }
-            else {
+            else
+            {
                 out_str += ' ';
             }
             io->dump_pretty(out_str, level);
@@ -293,15 +299,17 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
                 nl_indent(out_str, level);
 
                 out_str += '"';
-                out_str += io->m_keySAV.sv(); // keys are supposed to be unescaped
+                io->m_keySAV.escape_json_string_external(out_str);
                 out_str += '"';
 
                 out_str += ':';
-                if (!io->empty_as(object_t) || !io->empty_as(array_t)) {
+                if (!io->empty_as(object_t) || !io->empty_as(array_t))
+                {
                     out_str += '\n';
                     indent(out_str, level);
                 }
-                else {
+                else
+                {
                     out_str += ' ';
                 }
                 io->dump_pretty(out_str, level);
@@ -386,7 +394,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
         {
             auto io = m_values.begin();
             out_str += '"';
-            out_str += io->m_keySAV.sv(); // keys are supposed to be unescaped
+            io->m_keySAV.escape_json_string_external(out_str);
             out_str += '"';
 
             out_str += ':';
@@ -396,7 +404,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
             {
                 out_str += ',';
                 out_str += '"';
-                out_str += io->m_keySAV.sv(); // keys are supposed to be unescaped
+                io->m_keySAV.escape_json_string_external(out_str);
                 out_str += '"';
                 out_str += ':';
                 io->dump_tight(out_str);
