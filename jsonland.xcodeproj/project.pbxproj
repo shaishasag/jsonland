@@ -24,7 +24,6 @@
 		F63A07BC2D3294C100EB6C14 /* test_string_and_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F63A07BB2D3294C100EB6C14 /* test_string_and_view.cpp */; };
 		F648C9B52B3AEE550061D302 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F648C9BC2B3AEE8C0061D302 /* behaviours_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F648C9BB2B3AEE8C0061D302 /* behaviours_main.cpp */; };
-		F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */; };
 		F64C472B2C3EDF0B001430EC /* test_erase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F64C47292C3EDF0B001430EC /* test_erase.cpp */; };
 		F64C7EF626D79256006E4F12 /* create_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611015926CD66F600A01C16 /* create_json_gtests.cpp */; };
 		F64C7EF826D79256006E4F12 /* parse_json_gtests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F611016726CD6BB300A01C16 /* parse_json_gtests.cpp */; };
@@ -205,12 +204,10 @@
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
 		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
 		F6ABDE2A2B065AB3007ACD9A /* examples */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = examples; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6ABDE342B07C175007ACD9A /* string_or_view.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string_or_view.h; sourceTree = "<group>"; };
 		F6C14DBB2B1A121900E0202D /* just_parse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = just_parse.cpp; sourceTree = "<group>"; };
 		F6CB98072D4236FA008302A1 /* read_write_compare.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = read_write_compare.cpp; path = test/code/read_write_compare.cpp; sourceTree = "<group>"; };
 		F6F5A08626EB975E007E11BE /* test_iter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_iter.cpp; path = test/code/test_iter.cpp; sourceTree = "<group>"; };
 		F6FB299A2B28CC3D005D1D23 /* test_get_value.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_get_value.cpp; path = test/code/test_get_value.cpp; sourceTree = "<group>"; };
-		F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_string_or_view.cpp; path = test/code/test_string_or_view.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -325,7 +322,6 @@
 				F62C079626E8AAAB004DDA5D /* test_numbers.cpp */,
 				F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */,
 				F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */,
-				F6FF2B642A32226A00E662D2 /* test_string_or_view.cpp */,
 				F63A07BB2D3294C100EB6C14 /* test_string_and_view.cpp */,
 				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
 				F62BA55D2D3A6B9D00F54313 /* test.json */,
@@ -373,7 +369,6 @@
 			children = (
 				F68EC13E26E23A7600B8BA77 /* json_node.h */,
 				F68EC13F26E23A7600B8BA77 /* json_node.cpp */,
-				F6ABDE342B07C175007ACD9A /* string_or_view.h */,
 				F6625B7E2C2C607B00C66A2A /* json_creator.h */,
 				F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */,
 				F63A07BA2D32946E00EB6C14 /* string_and_view.h */,
@@ -644,7 +639,6 @@
 				F6020A9A2CCEA397004A630B /* test_copy.cpp in Sources */,
 				F63A07BC2D3294C100EB6C14 /* test_string_and_view.cpp in Sources */,
 				F62C079726E8AAAB004DDA5D /* test_numbers.cpp in Sources */,
-				F64C45FC2B0FB5D700ADDAC9 /* test_string_or_view.cpp in Sources */,
 				F6213DA92CDB869800AE863B /* test_escape.cpp in Sources */,
 				F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */,
 				F6139BBE2CC91C0A0006F0AB /* test_deduce_type.cpp in Sources */,

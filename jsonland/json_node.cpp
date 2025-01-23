@@ -9,7 +9,6 @@
 using namespace jsonland;
 
 #if JSONLAND_DEBUG==1
-size_t string_or_view::num_allocations{0};
 #endif
 
 inline bool is_white_space_not_new_line(const char in_c)
@@ -140,39 +139,17 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
 {
     m_value_type = in_node.m_value_type;
 
-    m_valueSAV = std::move(in_node.m_valueSAV);
+    m_value = std::move(in_node.m_value);
     //m_value = std::move(in_node.m_value);
     m_num = in_node.m_num;
     m_values = std::move(in_node.m_values);
-    m_obj_key_to_indexSAV = std::move(in_node.m_obj_key_to_indexSAV);
+    m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
     //m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
     m_hints = in_node.m_hints;
     //m_key = in_node.m_key; - do not copy m_key, parent node (if obj) should take care of that
 
     return *this;
 }
-
-#if 0
-void string_or_view::store_value_deal_with_escapes(std::string_view in_str) noexcept
-{
-    m_num_escapes = 0;
-    std::string temp_str;
-    temp_str.reserve(static_cast<size_t>(static_cast<double>(in_str.size())*1.1));
-
-    for (char curr : in_str)
-    {
-        size_t num_chars_to_copy = 0;
-        const char* p = escapable_to_escaped(&curr, num_chars_to_copy);
-        temp_str.append(p, num_chars_to_copy);
-        if ('\\' == *p) // \\ will be counted as two escapes, but count need not be accurate
-            ++m_num_escapes;
-    }
-    m_value = std::move(temp_str);
-#if JSONLAND_DEBUG==1
-    ++num_allocations;
-#endif
-}
-#endif
 
 std::ostream& json_node::dump(std::ostream& os,
                               dump_style in_style) const noexcept
@@ -274,12 +251,12 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
 
             auto io = m_values.begin();
             out_str += '"';
-            io->m_keySAV.escape_json_string_external(out_str);
+            io->m_key.escape_json_string_external(out_str);
             out_str += '"';
 
-            if (io->m_keySAV.sv().compare("escaped_characters") == 0)
+            if (io->m_key.sv().compare("escaped_characters") == 0)
             {
-                std::cout << io->m_keySAV.sv() << std::endl;
+                std::cout << io->m_key.sv() << std::endl;
             }
             out_str += ':';
             if (!io->empty_as(object_t) || !io->empty_as(array_t))
@@ -299,7 +276,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
                 nl_indent(out_str, level);
 
                 out_str += '"';
-                io->m_keySAV.escape_json_string_external(out_str);
+                io->m_key.escape_json_string_external(out_str);
                 out_str += '"';
 
                 out_str += ':';
@@ -345,7 +322,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
     {  // where art thou Grisu2 ?
         if (is_num_in_string())
         {
-            out_str += m_valueSAV.sv();
+            out_str += m_value.sv();
             //m_value.dump_no_quotes(out_str);
         }
         else
@@ -371,17 +348,17 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
         out_str += '"';
         if (get_hint(_might_contain_escaped_chars))
         {
-            out_str += m_valueSAV.sv();
+            out_str += m_value.sv();
         }
         else
         {
-            m_valueSAV.escape_json_string_external(out_str);
+            m_value.escape_json_string_external(out_str);
         }
         out_str += '"';
     }
     else
     {
-        out_str += m_valueSAV.sv();
+        out_str += m_value.sv();
     }
 }
 
@@ -394,7 +371,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
         {
             auto io = m_values.begin();
             out_str += '"';
-            io->m_keySAV.escape_json_string_external(out_str);
+            io->m_key.escape_json_string_external(out_str);
             out_str += '"';
 
             out_str += ':';
@@ -404,7 +381,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
             {
                 out_str += ',';
                 out_str += '"';
-                io->m_keySAV.escape_json_string_external(out_str);
+                io->m_key.escape_json_string_external(out_str);
                 out_str += '"';
                 out_str += ':';
                 io->dump_tight(out_str);
@@ -431,7 +408,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
     {  // where art thou Grisu2 ?
         if (is_num_in_string())
         {
-            out_str += m_valueSAV.sv();
+            out_str += m_value.sv();
         }
         else
         {
@@ -456,17 +433,17 @@ void json_node::dump_tight(std::string& out_str) const noexcept
         out_str += '"';
         if (get_hint(_might_contain_escaped_chars))
         {
-            out_str += m_valueSAV.sv();
+            out_str += m_value.sv();
         }
         else
         {
-            m_valueSAV.escape_json_string_external(out_str);
+            m_value.escape_json_string_external(out_str);
         }
         out_str += '"';
     }
     else
     {
-        out_str += m_valueSAV.sv();
+        out_str += m_value.sv();
     }
 }
 
@@ -482,8 +459,8 @@ size_t json_node::memory_consumption() const noexcept
     size_t retVal{0};
 
     // add allocation by this object's own value
-    retVal += m_valueSAV.allocation_size();
-    retVal += m_keySAV.allocation_size();
+    retVal += m_value.allocation_size();
+    retVal += m_key.allocation_size();
 
     // add allocations by child elements if array or object
     for (const json_node& val : m_values)
@@ -496,9 +473,9 @@ size_t json_node::memory_consumption() const noexcept
     retVal += (m_values.capacity() - m_values.size()) * sizeof(ArrayVec::value_type);
 
     // add allocations by keys values if object
-    for (const KeyToIndexSAV::value_type& val : m_obj_key_to_indexSAV)
+    for (const KeyToIndex::value_type& val : m_obj_key_to_index)
     {
-        retVal += sizeof(KeyToIndexSAV::value_type);
+        retVal += sizeof(KeyToIndex::value_type);
         retVal += val.first.allocation_size();
     }
 
@@ -522,8 +499,8 @@ bool json_node::refers_to_external_memory() const noexcept
         break;
         case jsonland::value_type::number_t:
         case jsonland::value_type::string_t:
-            retVal = (m_valueSAV.refers_to_external_memory())
-                        || (m_keySAV.refers_to_external_memory());
+            retVal = (m_value.refers_to_external_memory())
+                        || (m_key.refers_to_external_memory());
         break;
         case jsonland::value_type::array_t:
         case jsonland::value_type::object_t:
@@ -554,8 +531,8 @@ bool json_node::is_full_owner() const noexcept
         break;
         case jsonland::value_type::number_t:
         case jsonland::value_type::string_t:
-            retVal = ! m_valueSAV.refers_to_external_memory()
-                    && ! m_keySAV.refers_to_external_memory();
+            retVal = ! m_value.refers_to_external_memory()
+                    && ! m_key.refers_to_external_memory();
         break;
         case jsonland::value_type::array_t:
         case jsonland::value_type::object_t:
@@ -571,8 +548,8 @@ bool json_node::is_full_owner() const noexcept
 
 void json_node::take_ownership() noexcept
 {
-    m_keySAV.take_ownership();
-    m_valueSAV.take_ownership();
+    m_key.take_ownership();
+    m_value.take_ownership();
 
     switch (m_value_type)
     {
@@ -585,7 +562,7 @@ void json_node::take_ownership() noexcept
         case jsonland::value_type::array_t:
         case jsonland::value_type::object_t:
 
-            for (auto& k : m_obj_key_to_indexSAV)
+            for (auto& k : m_obj_key_to_index)
             {
                 const_cast<string_and_view&>(k.first).take_ownership();
             }
@@ -727,7 +704,7 @@ namespace parser_impl
         {
             prepare_char_to_token_table();
             m_array_values_stack.reserve(1024);
-            m_obj_keys_stackSAV.reserve(1024);
+            m_obj_keys_stack.reserve(1024);
         }
 
     private:
@@ -749,8 +726,7 @@ namespace parser_impl
         std::string m_parse_error_message;
 
         json_node::ArrayVec m_array_values_stack;
-        std::vector<jsonland::string_and_view> m_obj_keys_stackSAV;
-        //std::vector<jsonland::string_or_view> m_obj_keys_stack;
+        std::vector<jsonland::string_and_view> m_obj_keys_stack;
 
         inline char next_char()
         {
@@ -853,7 +829,6 @@ namespace parser_impl
             char curr_char = next_char();
             char* str_start = m_curr_char;
 
-            //out_node.m_value.m_source = string_or_view::parsed;
             out_node.m_value_type = jsonland::value_type::string_t;
             while (JSONLAND_LIKELY(is_there_more_data()))
             {
@@ -1169,13 +1144,12 @@ scan_number_done:
 
             out_node.m_value_type = jsonland::value_type::object_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
-            size_t obj_keys_stack_starting_index = m_obj_keys_stackSAV.size();
+            size_t obj_keys_stack_starting_index = m_obj_keys_stack.size();
 
             bool expecting_key = true;
             jsonland::value_type expecting = static_cast<jsonland::value_type>(parsing_value_type::_str | parsing_value_type::_obj_close);
             next_char();
-            jsonland::string_and_view keySAV;
-            jsonland::string_or_view key;
+            jsonland::string_and_view key;
             json_node next_node;
             parsing_value_type new_value_type;
             while (JSONLAND_LIKELY(get_next_node(next_node, new_value_type)))
@@ -1186,7 +1160,7 @@ scan_number_done:
                 }
                 if ((new_value_type & parsing_value_type::_str) && expecting_key)
                 {
-                    auto& last_key = m_obj_keys_stackSAV.emplace_back(next_node.m_valueSAV);
+                    auto& last_key = m_obj_keys_stack.emplace_back(next_node.m_value);
                     last_key.unescape_json_string_internal();
                     //m_obj_keys_stack.emplace_back(next_node.m_value);
                     expecting_key = false;
@@ -1198,7 +1172,7 @@ scan_number_done:
                 }
                 else if (new_value_type & parsing_value_type::_value)
                 {
-                    next_node.m_keySAV = m_obj_keys_stackSAV.back();
+                    next_node.m_key = m_obj_keys_stack.back();
                     //next_node.m_key = m_obj_keys_stack.back();
                     m_array_values_stack.emplace_back(std::move(next_node));
                     expecting = static_cast<jsonland::value_type>(parsing_value_type::_comma | parsing_value_type::_obj_close);
@@ -1220,19 +1194,19 @@ scan_number_done:
                                                 std::make_move_iterator(m_array_values_stack.end()));
                         m_array_values_stack.erase(move_starts_from, m_array_values_stack.end());
 
-                        out_node.m_obj_key_to_indexSAV.reserve(m_obj_keys_stackSAV.size() -
+                        out_node.m_obj_key_to_index.reserve(m_obj_keys_stack.size() -
                                                                obj_keys_stack_starting_index);
                         //out_node.m_obj_key_to_index.reserve(m_obj_keys_stack.size() - obj_keys_stack_starting_index);
 
                         int index = 0;
-                        auto obj_key_stack_start = std::next(m_obj_keys_stackSAV.begin(),
+                        auto obj_key_stack_start = std::next(m_obj_keys_stack.begin(),
                                                              obj_keys_stack_starting_index);
                         for (auto iterKey = obj_key_stack_start;
-                             iterKey != m_obj_keys_stackSAV.end(); ++iterKey)
+                             iterKey != m_obj_keys_stack.end(); ++iterKey)
                         {
-                            out_node.m_obj_key_to_indexSAV[*iterKey] = index++;
+                            out_node.m_obj_key_to_index[*iterKey] = index++;
                         }
-                        m_obj_keys_stackSAV.erase(obj_key_stack_start, m_obj_keys_stackSAV.end());
+                        m_obj_keys_stack.erase(obj_key_stack_start, m_obj_keys_stack.end());
                     }
                     --m_nesting_level;
                     return true;
@@ -1414,7 +1388,7 @@ bool json_node::operator==(const jsonland::json_node& other) const
                 // e.g. "1.000000000000000011", "1.000000000000000012"
                 // Answer: if both numbers are text - compare the text, otherwise compare m_num
                 if (other.is_num_in_string() && is_num_in_string())
-                    retVal = other.m_valueSAV == m_valueSAV;
+                    retVal = other.m_value == m_value;
                 else
                 {
                     double my_num = other.get_float<double>();
@@ -1424,7 +1398,7 @@ bool json_node::operator==(const jsonland::json_node& other) const
             break;
             case jsonland::value_type::string_t:
             case jsonland::value_type::bool_t:
-                retVal = other.m_valueSAV == m_valueSAV;
+                retVal = other.m_value == m_value;
             break;
             case jsonland::value_type::null_t:
             default:
