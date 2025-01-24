@@ -300,7 +300,6 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
         if (is_num_in_string())
         {
             out_str += m_value.sv();
-            //m_value.dump_no_quotes(out_str);
         }
         else
         {

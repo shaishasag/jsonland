@@ -214,15 +214,12 @@ public:
         {
             case null_t:
                 m_value.set_without_ownership(the_null_string_view);
-                //m_value = the_null_string_view;
             break;
             case number_t:
                 m_value.set_without_ownership(the_empty_string_view);
-                //m_value = the_empty_string_view;
             break;
             case bool_t:
                 m_value.set_without_ownership(the_false_string_view);
-                //m_value = the_false_string_view;
             break;
             case object_t:
                 reserve(in_reserve);
@@ -232,7 +229,6 @@ public:
             break;
             default:
                 m_value.set_without_ownership(the_empty_string_view);
-                //m_value = the_empty_string_view;
             break;
         }
    }
@@ -264,7 +260,6 @@ public:
     {
         clear(string_t);
         m_value = in_str_value;
-        //m_value.reference_value(in_str_value);
         return *this;
     }
 
@@ -298,7 +293,6 @@ public:
     , m_value(in_str_value)
     {
         m_value = in_str_value;
-        //m_value.reference_value(in_str_value);
     }
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
@@ -307,7 +301,7 @@ public:
     {
         clear(string_t);
         m_value = in_str_value;
-        //m_value.store_value(in_str_value);
+
         return *this;
     }
 
@@ -329,7 +323,7 @@ public:
     {
         clear(string_t);
         m_value = in_str;
-        //m_value.store_value(in_str);
+
         return *this;
     }
 
@@ -388,7 +382,7 @@ public:
     {
         clear(bool_t);
         m_value.set_without_ownership(in_bool ? the_true_string_view : the_false_string_view);
-        //m_value.reference_value(in_bool ? the_true_string_view : the_false_string_view);
+
         return *this;
     }
 
@@ -409,26 +403,21 @@ public:
     {
         m_value_type = in_new_type;
         m_obj_key_to_index.clear();
-        //m_obj_key_to_index.clear();
         m_values.clear();
-        //m_value.clear();
+
         switch (m_value_type)
-        {//set_without_ownership
+        {
             case null_t:
                 m_value.set_without_ownership(the_null_string_view);
-                //m_value = the_null_string_view;
             break;
             case number_t:
                 m_value.set_without_ownership(the_empty_string_view);
-                //m_value = the_empty_string_view;
             break;
             case bool_t:
                 m_value.set_without_ownership(the_false_string_view);
-                //m_value = the_false_string_view;
             break;
             default:
                 m_value.set_without_ownership(the_empty_string_view);
-                //m_value = the_empty_string_view;
             break;
         }
 
@@ -574,7 +563,6 @@ public:
             if (is_object())
             {
                 m_obj_key_to_index.reserve(new_cap);
-                //m_obj_key_to_index.reserve(new_cap);
             }
         }
     }
@@ -1347,7 +1335,7 @@ public:
     bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
 
-    
+
 protected:
 
     void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
