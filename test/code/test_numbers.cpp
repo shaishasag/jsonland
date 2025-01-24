@@ -37,8 +37,9 @@ TEST(Numbers, bad_numbers)
         "0e","-0e","0-0","-1.123e",         // json numbers cannot end with 'e'
         "1.123e+","-1.123e-","-1.123e+","1.123e-",   // json numbers cannot end with 'e+' or 'e-'
        "-0-0","0+0","-0+0",
-        "123.","-123.","1.123e"   // json numbers cannot end with '.'
-        };
+        "123.","-123.","1.123e" ,  // json numbers cannot end with '.'
+        "001"                        // only 0 can start with a zero
+    };
     
     
     for (auto& num : num_array)

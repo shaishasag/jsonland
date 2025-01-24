@@ -200,6 +200,7 @@
 		F6963C6526D51C1700C71771 /* libjsonland.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjsonland.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F69BAEE22D0303C10093E446 /* HOWTO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HOWTO.cpp; path = examples/HOWTO.cpp; sourceTree = SOURCE_ROOT; };
 		F69BAEE42D0305120093E446 /* HOWTO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HOWTO.h; path = examples/HOWTO.h; sourceTree = "<group>"; };
+		F69C9C5F2D43AA4100E0336C /* nnnnn.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = nnnnn.metal; sourceTree = "<group>"; };
 		F6A8319D26EE636B00806E20 /* test_unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_unicode.cpp; path = test/code/test_unicode.cpp; sourceTree = "<group>"; };
 		F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = json_creator.cpp; path = jsonland/json_creator.cpp; sourceTree = SOURCE_ROOT; };
 		F6AA89B72C2D9CB500D5ED6E /* fstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fstring.h; path = ../fstring/fstring.h; sourceTree = "<group>"; };
@@ -345,6 +346,7 @@
 				F6930AED2CDE4E9D00D75684 /* Serialize */,
 				F65C68CA26C9624F00E4AA5F /* gtest */,
 				F64C7EE426D7921C006E4F12 /* test */,
+				F69C9C5E2D43AA4100E0336C /* nnnnn */,
 				F65C68BC26C95D1B00E4AA5F /* Products */,
 				F6963CA526D55F9B00C71771 /* Frameworks */,
 			);
@@ -402,6 +404,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F69C9C5E2D43AA4100E0336C /* nnnnn */ = {
+			isa = PBXGroup;
+			children = (
+				F69C9C5F2D43AA4100E0336C /* nnnnn.metal */,
+			);
+			path = nnnnn;
 			sourceTree = "<group>";
 		};
 		F6A9BB4A2B470B81001D7684 /* behaviours */ = {

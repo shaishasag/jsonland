@@ -129,7 +129,6 @@ private:
 
     /// Mapping of keys to the JSON values in #m_values. Only relevant if #m_value_type is #object_t.
     KeyToIndex m_obj_key_to_index;
-    //KeyToIndex m_obj_key_to_index;
 
     /// The key of this JSON value in case it is a part of another object.
     mutable string_and_view m_key{the_empty_string_view, 0};
@@ -280,7 +279,6 @@ public:
     explicit json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
     : m_value_type(in_type)
     , m_value(in_str_value)
-    //, m_value(in_str_value)
     {
         if (m_value_type == number_t) {
             set_hint(_num_in_string);
@@ -339,7 +337,6 @@ public:
     json_node(const IsInteger auto in_num) noexcept
     : m_value_type(number_t)
     , m_value()
-    //, m_value()
     , m_num(static_cast<double>(in_num))
     , m_hints(_num_is_int)
     {}
@@ -370,7 +367,6 @@ public:
     json_node(const IsFloat auto in_num) noexcept
     : m_value_type(number_t)
     , m_value()
-    //, m_value()
     , m_num(static_cast<double>(in_num))
     {}
     // assign number
@@ -386,7 +382,6 @@ public:
     explicit json_node(const IsBool auto in_bool) noexcept
     : m_value_type(bool_t)
     , m_value(in_bool ? the_true_string_view : the_false_string_view, 0)
-    //, m_value(in_bool ? the_true_string_view : the_false_string_view)
     {}
     // assign bool
     json_node& operator=(const IsBool auto in_bool) noexcept
@@ -515,7 +510,6 @@ public:
                     retVal = m_values.size(); break;
                 case string_t:
                     retVal = m_value.size(); break;
-                    //retVal = m_value.size(); break;
                 case bool_t:
                 case number_t:
                     retVal = 1; break;
@@ -616,7 +610,6 @@ public:
         if (contains(key))  // contains return false if this is not an object_t
         {
             const json_node& theJ = m_values[m_obj_key_to_index.at(string_and_view(key, 0))];
-            //const json_node& theJ = m_values[m_obj_key_to_index.at(key)];
             if constexpr (std::same_as<bool, TGETTYPE>) {
                 retVal = theJ.get_bool(in_default);
             }
@@ -646,7 +639,6 @@ public:
         if (is_object())
         {
             retVal = m_obj_key_to_index.count(string_and_view(in_key, 0));
-            //retVal = m_obj_key_to_index.count(in_key);
         }
 
         return retVal;
@@ -674,9 +666,6 @@ public:
         {
             const json_node& theJ = m_values[m_obj_key_to_index.at(string_and_view(in_key, 0))];
             retVal = in_expected_type == theJ.m_value_type;
-
-//            const json_node& theJ = m_values[m_obj_key_to_index.at(in_key)];
-//            retVal = in_expected_type == theJ.m_value_type;
         }
 
         return retVal;
@@ -966,7 +955,6 @@ public:
         bool      operator!=(const iterator_template& rhs) const { return !(*this == rhs); }
 
         TNode& value() const                    { return m_parent.m_values[m_index]; }
-        //json_node& key() const                    { return m_parent.m_obj_key_to_index[m_index]; }
 
     };
 
@@ -1081,7 +1069,6 @@ public:
             if (get_hint(_num_in_string))
             {
                 retVal = static_cast<TFLOAT>(std::atof(m_value.sv().data()));
-                //retVal = static_cast<TFLOAT>(std::atof(m_value.data()));
             }
             else
             {
@@ -1124,7 +1111,6 @@ public:
             if (get_hint(_num_in_string))
             {
                 retVal = static_cast<TINT>(std::atoll(m_value.sv().data()));
-                //retVal = static_cast<TINT>(std::atoll(m_value.data()));
             }
             else
             {

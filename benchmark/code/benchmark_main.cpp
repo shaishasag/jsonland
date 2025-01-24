@@ -4,10 +4,9 @@
 #include <fstream>
 #include <chrono>
 
-#if 0
 #include "JsonlandBenchMarker.h"
 #include "RapidjsonBenchmarker.h"
-#include "ArduinoJsonBenchmarker.h"
+#include "NlohmannBenchmarker.h"
 
 static void prepare_file_list(std::vector<std::filesystem::path>& path_vec)
 {
@@ -22,43 +21,33 @@ static void prepare_file_list(std::vector<std::filesystem::path>& path_vec)
 //    path_vec.push_back(file_in_folder.replace_filename("example_3.json"));
 
 }
-#endif
-#include <nlohmann/json.hpp>
 
 int main(int argc, char* argv[])
 {
-    nlohmann::json bk{nlohmann::json::object()};
-    bk["0"] = nlohmann::json("the original");
 
-    bk["1"].push_back(bk["0"]); // <<<
+    std::vector<std::filesystem::path> file_vec;
+    prepare_file_list(file_vec);
 
-    std::cout << "bk: " << bk.dump() << std::endl;
-    std::cout << "bk[0]: " << bk[0].dump() << std::endl;
-    std::cout << "bk[1]: " << bk[1].dump() << std::endl;
+    std::vector<Benchmark_results> res_vec;
 
-//    std::vector<std::filesystem::path> file_vec;
-//    prepare_file_list(file_vec);
-//
-//    std::vector<Benchmark_results> res_vec;
-//
-//    for (auto& path : file_vec)
-//    {
-//        {
-//            JsonlandBenchMarker jsl_bench;
-//            jsl_bench.benchmark_file(path, res_vec.emplace_back());
-//        }
-//        {
-//            RapidjsonBenchmarker rpj_bench;
-//            rpj_bench.benchmark_file(path, res_vec.emplace_back());
-//        }
-////        {
-////            ArduinoJsonBenchmarker ard_bench;
-////            ard_bench.benchmark_file(path, res_vec.emplace_back());
-////        }
-//    }
-//
-//    for (auto& res : res_vec)
-//    {
-//        res.report_results(std::cout);
-//    }
+    for (auto& path : file_vec)
+    {
+        {
+            JsonlandBenchMarker jsl_bench;
+            jsl_bench.benchmark_file(path, res_vec.emplace_back());
+        }
+        {
+            RapidjsonBenchmarker rpj_bench;
+            rpj_bench.benchmark_file(path, res_vec.emplace_back());
+        }
+        {
+            NlohmannBenchmarker nloh_bench;
+            nloh_bench.benchmark_file(path, res_vec.emplace_back());
+        }
+    }
+
+    for (auto& res : res_vec)
+    {
+        res.report_results(std::cout);
+    }
 }

@@ -107,26 +107,6 @@ static const char* name_of_control_char(const char in_c)
     return retVal;
 }
 
-//json_node::json_node(const json_node& in_node) noexcept
-//: m_value_type(in_node.m_value_type)
-//, m_value(in_node.m_value)
-//, m_num(in_node.m_num)
-//, m_values(in_node.m_values)
-//, m_obj_key_to_index(in_node.m_obj_key_to_index)
-//, m_key(in_node.m_key)
-//{
-//}
-//
-//json_node::json_node(json_node&& in_node) noexcept
-//: m_value_type(in_node.m_value_type)
-//, m_value(std::move(in_node.m_value))
-//, m_num(in_node.m_num)
-//, m_values(std::move(in_node.m_values))
-//, m_obj_key_to_index(std::move(in_node.m_obj_key_to_index))
-//, m_key(std::move(in_node.m_key))
-//{
-//}
-
 // dummy uninitialized json_node to be returned from operator[] const; where the
 // object/array doe snot contain the key/index
 const json_node& json_node::const_uninitialized_json_node() const
@@ -140,13 +120,10 @@ json_node& json_node::operator=(json_node&& in_node) noexcept
     m_value_type = in_node.m_value_type;
 
     m_value = std::move(in_node.m_value);
-    //m_value = std::move(in_node.m_value);
     m_num = in_node.m_num;
     m_values = std::move(in_node.m_values);
     m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
-    //m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
     m_hints = in_node.m_hints;
-    //m_key = in_node.m_key; - do not copy m_key, parent node (if obj) should take care of that
 
     return *this;
 }
@@ -607,7 +584,7 @@ namespace parser_impl
         size_t chars_left = str_right.size();
         while (chars_left > 0) [[likely]]
         {
-            if (*str_leftp != *str_rightp) [[unlikely]]
+            if (*str_leftp != *str_rightp)
                 break;
             ++str_leftp;
             ++str_rightp;
@@ -628,7 +605,7 @@ namespace parser_impl
         size_t chars_left = str_right.size();
         while (chars_left > 0) [[likely]]
         {
-            if (std::tolower(*str_leftp) != *str_rightp) [[unlikely]]
+            if (std::tolower(*str_leftp) != *str_rightp)
                 break;
             ++str_leftp;
             ++str_rightp;
@@ -1164,7 +1141,6 @@ scan_number_done:
                 {
                     auto& last_key = m_obj_keys_stack.emplace_back(next_node.m_value);
                     last_key.unescape_json_string_internal();
-                    //m_obj_keys_stack.emplace_back(next_node.m_value);
                     expecting_key = false;
                     expecting = static_cast<jsonland::value_type>(parsing_value_type::_colon);
                 }
@@ -1175,7 +1151,6 @@ scan_number_done:
                 else if (new_value_type & parsing_value_type::_value)
                 {
                     next_node.m_key = m_obj_keys_stack.back();
-                    //next_node.m_key = m_obj_keys_stack.back();
                     m_array_values_stack.emplace_back(std::move(next_node));
                     expecting = static_cast<jsonland::value_type>(parsing_value_type::_comma | parsing_value_type::_obj_close);
                 }
@@ -1198,8 +1173,6 @@ scan_number_done:
 
                         out_node.m_obj_key_to_index.reserve(m_obj_keys_stack.size() -
                                                                obj_keys_stack_starting_index);
-                        //out_node.m_obj_key_to_index.reserve(m_obj_keys_stack.size() - obj_keys_stack_starting_index);
-
                         int index = 0;
                         auto obj_key_stack_start = std::next(m_obj_keys_stack.begin(),
                                                              obj_keys_stack_starting_index);

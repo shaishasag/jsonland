@@ -249,7 +249,6 @@ public:
             // out_str was already updated
         }
     }
-//...
 
     /// if there were not escaped character internal members are not changed,
     /// saving allocation and copying
