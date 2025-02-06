@@ -67,6 +67,26 @@ template<typename TJSONABLE> concept IsJsonScalarType = IsBool<TJSONABLE>
                                                         || IsEnum<TJSONABLE>
                                                         || IsString<TJSONABLE>;
 
+// Concept to check if a type is iterable
+template<typename T>
+concept Iterable = requires(T container) {
+    { container.begin() } -> std::same_as<typename T::iterator>;
+    { container.end() } -> std::same_as<typename T::iterator>;
+};
+
+// Concept to check if a type is a key-value container
+template<typename T>
+concept KeyValueContainer = Iterable<T> &&
+    requires(T container) {
+        typename T::value_type;
+        { container.begin()->first } -> std::convertible_to<std::string_view>;
+        { container.begin()->second };
+    };
+
+// Concept to check if a type is a sequence container (but not a key-value container)
+template<typename T>
+concept SequenceContainer = Iterable<T> && !KeyValueContainer<T>;
+
 namespace parser_impl { class Parser; }
 
 enum class dump_style : int32_t
@@ -1206,7 +1226,8 @@ public:
     ///
     /// Useful, for example, when a json_node might hold a number as a string
     /// If there is a mismatch between the JSON value type and the type of #TASTYPE,
-    /// try to convert the string_t to the required type. If no conversion can be made
+    /// try to convert the string_t to the required type. If no conversion can be made return the
+    /// default initialization for #TASTYPE
     ///
     /// <br>Example:
     /// @code
@@ -1224,98 +1245,123 @@ public:
         }
         else if constexpr (IsBool<TASTYPE>)
         {
-            if (is_null())
+            switch (m_value_type)
             {
-                retVal = false;
-            }
-            else if (is_bool())
-            {
-                retVal = get_bool();
-            }
-            else if (is_number())
-            {
-                retVal = get_int<int>() == 0 ? false : true;
-            }
-            else if (is_string())
-            {
-                std::string_view str_val = get_string();
-                if (str_val == "true") {
-                    retVal = true;
+                case uninitialized_t:
+                case null_t:
+                    retVal = false;
+                break;
+                case bool_t:
+                    retVal = get_bool();
+                break;
+                case number_t:
+                    retVal = get_int<int>() == 0 ? false : true;
+                break;
+                case string_t:
+                {
+                    std::string_view str_val = get_string();
+                    if (str_val == "true") {
+                        retVal = true;
+                    }
+                    else {
+                        retVal = false;
+                    }
                 }
-            }
-            else
-            {
-                retVal = false;
+                break;
+                case array_t:
+                case object_t:
+                default:
+                    retVal = false;
+                break;
             }
         }
         else if constexpr (IsFloat<TASTYPE>)
         {
-            if (is_null())
+            switch (m_value_type)
             {
-                retVal = 0.0;
-            }
-            else if (is_bool())
-            {
-                retVal = get_bool() ? TASTYPE{ 1.0} : TASTYPE{0.0};
-            }
-            else if (is_number())
-            {
-                retVal = get_float<TASTYPE>();
-            }
-            else if (is_string())
-            {
-                std::string_view str_val = get_string();
-                retVal = static_cast<TASTYPE>(std::atof(str_val.data()));
-            }
-            else
-            {
-                retVal = 0.0;
+                case uninitialized_t:
+                case null_t:
+                    retVal = 0.0;
+                break;
+                case bool_t:
+                    retVal = get_bool() ? TASTYPE{1.0} : TASTYPE{0.0};
+                break;
+                case number_t:
+                    retVal = get_float<TASTYPE>();
+                break;
+                case string_t:
+                {
+                    std::string_view str_val = get_string();
+                    retVal = static_cast<TASTYPE>(std::atof(str_val.data()));
+                }
+                break;
+                case array_t:
+                case object_t:
+                default:
+                    retVal = 0.0;
+                break;
             }
         }
         else if constexpr (IsInteger<TASTYPE>)
         {
-            if (is_null())
+            switch (m_value_type)
             {
-                retVal = 0;
-            }
-            else if (is_bool())
-            {
-                retVal = get_bool() ? 1 : 0;
-            }
-            else if (is_number())
-            {
-                retVal = get_int<TASTYPE>();
-            }
-            else if (is_string())
-            {
-                std::string_view str_val = get_string();
-                retVal = static_cast<TASTYPE>(std::atoll(str_val.data()));
-            }
-            else
-            {
-                retVal = 0;
+                case uninitialized_t:
+                case null_t:
+                    retVal = 0;
+                break;
+                case bool_t:
+                    retVal = get_bool() ? TASTYPE{1} : TASTYPE{0};
+                break;
+                case number_t:
+                    retVal = get_int<TASTYPE>();
+                break;
+                case string_t:
+                {
+                    std::string_view str_val = get_string();
+                    retVal = static_cast<TASTYPE>(std::atoll(str_val.data()));
+                }
+                break;
+                case array_t:
+                case object_t:
+                default:
+                    retVal = 0;
+                break;
             }
         }
         else if constexpr (std::convertible_to<TASTYPE, std::string_view>)
         {
-            if (is_null())
+            switch (m_value_type)
             {
-                retVal = the_null_string_view;
-            }
-            else if (is_bool())
-            {
-                retVal = get_bool() ? the_true_string_view : the_false_string_view;
-            }
-            else if (is_number())
-            {
-            }
-            else if (is_string())
-            {
-                retVal = static_cast<TASTYPE>(get_string());
-            }
-            else
-            {
-                retVal = the_empty_string_view;
+                case uninitialized_t:
+                    retVal = the_empty_string_view;
+                break;
+                case null_t:
+                    retVal = the_null_string_view;
+                break;
+                case bool_t:
+                    retVal = get_bool() ? the_true_string_view : the_false_string_view;
+                break;
+                case number_t:
+                    if (!is_num_in_string())
+                    {
+                        std::string out_str;
+                        dump(out_str);
+                        m_value = std::move(out_str);
+                        set_hint(_num_in_string);
+                    }
+                    retVal = m_value.sv();
+                break;
+                case string_t:
+                {
+                    retVal = static_cast<TASTYPE>(get_string());
+                }
+                break;
+                case array_t:
+                case object_t:
+                default:
+                    retVal = the_empty_string_view;
+                break;
             }
         }
         else {
@@ -1334,6 +1380,37 @@ public:
     bool refers_to_external_memory() const noexcept;
     bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
+
+
+    // Extend function for key-value containers (JSON objects)
+    template<KeyValueContainer TContainer>
+    void extend(const TContainer& container)
+    {
+        if (is_null())
+        {
+            clear(object_t);
+        }
+
+        for (const auto& [key, value] : container)
+        {
+            this->operator[](key) = value;
+        }
+    }
+
+    // Extend function for sequence containers (JSON arrays)
+    template<SequenceContainer TContainer>
+    void extend(const TContainer& container)
+    {
+        if (is_null())
+        {
+            clear(array_t);
+        }
+
+        for (const auto& value : container)
+        {
+            push_back(value);
+        }
+    }
 
 
 protected:

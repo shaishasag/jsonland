@@ -98,10 +98,9 @@ TEST(MemberValue, get_as)
 
         EXPECT_EQ(j_num.get<int>(), 17);
         EXPECT_EQ(j_num.get_as<int>(), 17);
-        EXPECT_EQ(j_num.get_string(), std::string_view(""));
-
-        // cannot get number as string as it would cause allocation
-        EXPECT_NE(j_num.get_as<std::string_view>(), std::string_view("17"));
+        EXPECT_EQ(j_num.get_int(), 17);
+        EXPECT_EQ(j_num.get_string(), ""sv);
+        EXPECT_EQ(j_num.get_as<std::string_view>(), "17"sv);
     }
 
     {
@@ -109,8 +108,9 @@ TEST(MemberValue, get_as)
 
         EXPECT_EQ(j_str_num.get<int>(), 0);
         EXPECT_EQ(j_str_num.get_as<int>(), 19);
+        EXPECT_EQ(j_str_num.get_int(), 0);
         EXPECT_EQ(j_str_num.get_string(), std::string_view("19"));
-        EXPECT_EQ(j_str_num.get_as<std::string_view>(), std::string_view("19"));
+        EXPECT_EQ(j_str_num.get_as<std::string_view>(), "19"sv);
     }
 }
 
