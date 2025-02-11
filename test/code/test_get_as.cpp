@@ -42,8 +42,8 @@ TEST(GetAs, all)
     EXPECT_EQ(j["float"].get_as<int>(), 3);
     EXPECT_EQ(j["float"].get_as<float>(), 3.1415f);
     EXPECT_EQ(j["float"].get_as<double>(), 3.1415);
-    EXPECT_EQ(j["float"].get_as<std::string_view>(), "3.1415"sv);
-    EXPECT_EQ(j["float"].get_as<std::string>(), "3.1415"sv);
+    EXPECT_EQ(j["float"].get_as<std::string_view>(), "3.141500000000000181"sv);
+    EXPECT_EQ(j["float"].get_as<std::string>(), "3.141500000000000181"sv);
 
     EXPECT_EQ(j["string"].get_as<nullptr_t>(), nullptr);
     EXPECT_EQ(j["string"].get_as<bool>(), false);

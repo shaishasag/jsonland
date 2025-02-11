@@ -29,7 +29,7 @@ TEST(Write, to_ostream)
     oss  << json_node(5);
     oss << "=";
     oss  << json_node(12.1);
-    EXPECT_STREQ(oss.str().c_str(), R"(7.1+5=12.1)");
+    EXPECT_STREQ(oss.str().c_str(), R"(7.099999999999999645+5=12.099999999999999645)");
     oss.str("");
     
     json_node ajn(jsonland::value_type::array_t);

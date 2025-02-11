@@ -148,13 +148,13 @@ static int __printf(char* in_buff,
     {
         if constexpr (IsFloat<TToPrintf>) {
             if constexpr (std::is_same_v<TToPrintf, float>) {
-                printf_format = "%f";
+                printf_format = "%.10f"; // std::numeric_limits<float>::max_digits10+1
             }
             else if constexpr (std::is_same_v<TToPrintf, double>) {
-                printf_format = "%lf";
+                printf_format = "%.18lf"; // std::numeric_limits<double>::max_digits10+1
             }
             else if constexpr (std::is_same_v<TToPrintf, long double>) {
-                printf_format = "%Lf";
+                printf_format = "%.18Lf"; // std::numeric_limits<long double>::max_digits10+1
             }
             remove_zeros = true;
         }
@@ -174,7 +174,7 @@ static int __printf(char* in_buff,
         --num_chars;
     }
 
-    if (remove_zeros && num_chars > 1)// when ouput_size==1 there are no extra '0's
+    if (remove_zeros && num_chars > 1)// when num_chars==1 there are no extra '0's
     {
         const bool is_dot_found = (memchr(in_buff, '.', num_chars-1) != nullptr);
         if (is_dot_found)
