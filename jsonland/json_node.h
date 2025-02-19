@@ -1412,6 +1412,31 @@ public:
         }
     }
 
+    // Extract function for sequence containers (JSON arrays)
+    template<SequenceContainer TContainer>
+    void extract(TContainer& container) const
+    {
+        if (is_array())
+        {
+            for (const auto& value_j : m_values)
+            {
+                container.push_back(value_j.get_as<typename TContainer::value_type>());
+            }
+        }
+    }
+
+    template<KeyValueContainer TContainer>
+    void extract(TContainer& container) const
+    {
+        if (is_object())
+        {
+            for (const auto& value_j : m_values)
+            {
+                container[value_j.key()] = value_j.get_as<typename TContainer::mapped_type>();
+            }
+        }
+    }
+
 
 protected:
 
