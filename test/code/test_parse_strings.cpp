@@ -37,7 +37,7 @@ TEST(ParseStrings, good_strings)
         ASSERT_TRUE(doc.is_valid());
         ASSERT_TRUE(doc.is_string()) << "parsing '" << str_str << "' should yield a string";;
         ASSERT_FALSE(doc.is_number()) << "parsing '" << str_str << "' should not yield a number";;
-        std::cout << std::fixed << doc.get_string()  << "\n";
+        //std::cout << std::fixed << doc.get_string()  << "\n";
     }
 }
 
@@ -62,6 +62,6 @@ TEST(ParseStrings, bad_strings)
         ASSERT_FALSE(doc.is_valid());
         ASSERT_FALSE(doc.is_number());
         ASSERT_FALSE(doc.is_string()) << "parsing '" << str_str << "' should not yield a string_t";;
-        std::cout << std::fixed <<  doc.get_string()  << "\n";
+        //std::cout << std::fixed <<  doc.get_string()  << "\n";
     }
 }

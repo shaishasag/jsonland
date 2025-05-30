@@ -9,7 +9,9 @@ TEST(ParseArrays, good_arrays)
 {
     std::vector<std::string_view> array_array = {
         "[]", "  []",
-        "[] ", " [] ",
+        "[]  ", "  []  ",
+        "[ ]", "   [ ]",
+        "[     ]                         ",
         "[true]", "[ true]",
         "[true ]", "[ true ]",
         "[1]", "[ 2]",
@@ -30,8 +32,8 @@ TEST(ParseArrays, good_arrays)
 TEST(ParseArrays, bad_arrays)
 {
     std::vector<std::string_view> array_array = {
-//        "[", "  [",
-//        "[ ", " [ ",
+        "[", "  [",
+        "[ ", " [ ",
         "]", "  ]",
         "] ", " ] ",
         "[true,]", "[ true ,]",

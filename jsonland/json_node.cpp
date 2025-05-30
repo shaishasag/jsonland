@@ -642,6 +642,15 @@ namespace parser_impl
 
             _scalar = _null|_bool|_num|_str,
             _value = _scalar|_array|_obj,
+
+            _value_or_array_close = _value|_array_close,
+            _comma_or_array_close = _comma|_array_close,
+
+            _value_or_object_close = _value|_obj_close,
+            _str_or_obj_close = _str|_obj_close,
+            _comma_or_obj_close = _comma|_obj_close,
+
+            _any = ~_uninitialized,
         };
 
         class parsing_exception : public std::exception
@@ -742,7 +751,7 @@ namespace parser_impl
             for (int i = 0; i < 256; ++i)
                 m_char_to_token_table[i] = {&Parser::skip_one_char, parsing_value_type::_uninitialized};
 
-            m_char_to_token_table[(int)'['] = {&Parser::parse_array, parsing_value_type::_array};
+             m_char_to_token_table[(int)'['] = {&Parser::parse_array, parsing_value_type::_array};
              m_char_to_token_table[(int)']'] = {&Parser::parse_control_char, parsing_value_type::_array_close};
              m_char_to_token_table[(int)','] = {&Parser::parse_control_char, parsing_value_type::_comma};
              m_char_to_token_table[(int)'{'] = {&Parser::parse_obj, parsing_value_type::_obj};
@@ -774,7 +783,9 @@ namespace parser_impl
 #endif
         }
 
-        inline bool get_next_node(json_node& out_node, parsing_value_type& out_type)
+        inline bool get_next_node(json_node& out_node,
+                                  parsing_value_type& out_type,
+                                  parsing_value_type expecting=parsing_value_type::_any)
         {
             bool retVal = false;
             while (!retVal && is_there_more_data())  [[likely]]
@@ -785,12 +796,20 @@ namespace parser_impl
                     func_type_pair& call_pair = m_char_to_token_table[(int)curr_char];
                     out_type = call_pair.m_type;
                     retVal = (this->*call_pair.m_func)(out_node);
+                    if (retVal && (call_pair.m_type & expecting) == 0)
+                    {
+                        throw parsing_exception("json syntax error: unexpected token", curr_offset());
+                    }
                 }
                 else
                 {
                     func_type_pair& call_pair = m_char_to_token_table[0];
                     out_type = call_pair.m_type;
                     retVal = (this->*call_pair.m_func)(out_node);
+                    if (retVal && (call_pair.m_type & expecting) == 0)
+                    {
+                        throw parsing_exception("json syntax error: unexpected token", curr_offset());
+                    }
                 }
                 out_node.set_hint(json_node::_might_contain_escaped_chars);
             }
@@ -1062,21 +1081,17 @@ scan_number_done:
             out_node.m_value_type = jsonland::value_type::array_t;
             size_t array_values_stack_starting_index = m_array_values_stack.size();
 
-            uint32_t expecting = parsing_value_type::_value | parsing_value_type::_array_close;
+            parsing_value_type expecting = _value_or_array_close;
             next_char();
             json_node next_node;
             parsing_value_type new_value_type;
-            while (get_next_node(next_node, new_value_type)) [[likely]]
+            while (get_next_node(next_node, new_value_type, expecting)) [[likely]]
             {
-                if (!(new_value_type & expecting)) [[unlikely]]
-                {
-                    throw parsing_exception("json syntax error: unexpected token during array creation", curr_offset());
-                }
 
                 if (new_value_type & parsing_value_type::_value) [[likely]]
                 {
                     m_array_values_stack.push_back(std::move(next_node));
-                    expecting = parsing_value_type::_comma | parsing_value_type::_array_close;
+                    expecting = _comma_or_array_close;
                 }
                 else if (new_value_type & parsing_value_type::_comma)
                 {
@@ -1125,37 +1140,33 @@ scan_number_done:
             size_t obj_keys_stack_starting_index = m_obj_keys_stack.size();
 
             bool expecting_key = true;
-            jsonland::value_type expecting = static_cast<jsonland::value_type>(parsing_value_type::_str | parsing_value_type::_obj_close);
+            parsing_value_type expecting = _str_or_obj_close;
             next_char();
             jsonland::string_and_view key;
             json_node next_node;
             parsing_value_type new_value_type;
-            while (get_next_node(next_node, new_value_type)) [[likely]]
+            while (get_next_node(next_node, new_value_type, expecting)) [[likely]]
             {
-                if (!((int)new_value_type & expecting)) [[unlikely]]
-                {
-                    throw parsing_exception("json syntax error: unexpected token during object creation", curr_offset());
-                }
                 if ((new_value_type & parsing_value_type::_str) && expecting_key)
                 {
                     auto& last_key = m_obj_keys_stack.emplace_back(next_node.m_value);
                     last_key.unescape_json_string_internal();
                     expecting_key = false;
-                    expecting = static_cast<jsonland::value_type>(parsing_value_type::_colon);
+                    expecting = parsing_value_type::_colon;
                 }
                 else if (new_value_type & parsing_value_type::_colon)
                 {
-                    expecting = static_cast<jsonland::value_type>(parsing_value_type::_value);
+                    expecting = parsing_value_type::_value;
                 }
                 else if (new_value_type & parsing_value_type::_value)
                 {
                     next_node.m_key = m_obj_keys_stack.back();
                     m_array_values_stack.emplace_back(std::move(next_node));
-                    expecting = static_cast<jsonland::value_type>(parsing_value_type::_comma | parsing_value_type::_obj_close);
+                    expecting = parsing_value_type::_comma_or_obj_close;
                 }
                 else if (new_value_type & parsing_value_type::_comma)
                 {
-                    expecting = static_cast<jsonland::value_type>(parsing_value_type::_str);
+                    expecting = parsing_value_type::_str;
                     expecting_key = true;
                 }
                 else if (new_value_type & parsing_value_type::_obj_close)
@@ -1226,14 +1237,14 @@ public:
 
             try
             {
-                skip_whitespace();
+                //skip_whitespace();
 
                 if (is_there_more_data()) [[likely]]
                 {
                     // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
                     parsing_value_type type_dummy = _uninitialized;
-                    bool found_json = get_next_node(m_top_node, type_dummy);
+                    bool found_json = get_next_node(m_top_node, type_dummy, parsing_value_type::_value);
                     if (found_json && m_top_node.is_valid())
                     {
                         // check that remaing characters are only whitespace
