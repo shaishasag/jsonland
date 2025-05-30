@@ -343,8 +343,8 @@
 				F62C078226E6469A004DDA5D /* test_parsing_Suites.cpp */,
 				F63A07BB2D3294C100EB6C14 /* test_string_and_view.cpp */,
 				F6A8319D26EE636B00806E20 /* test_unicode.cpp */,
-				F62BA55D2D3A6B9D00F54313 /* test.json */,
 				F6CC79012DE8C13100456276 /* test_parse_object.cpp */,
+				F62BA55D2D3A6B9D00F54313 /* test.json */,
 			);
 			name = test;
 			sourceTree = "<group>";

@@ -8,7 +8,7 @@
 TEST(ParseNumbers, good_numbers)
 {
     std::vector<std::string_view> num_array = {
-        "0.0","0","-0","-0.0","0.1","-0.1",
+        "0","0.0","-0","-0.0","0.1","-0.1",
         "0e0","-0e0","0e-0","-0e-0","0e+0","-0e+0",
         "0e1","-0e2","0e-3","-0e-4","0e+5","-0e+6",
         "1e1","-1e2","1e-3","-1e-4","1e+5","-1e+6",
@@ -34,6 +34,8 @@ TEST(ParseNumbers, good_numbers)
 TEST(ParseNumbers, bad_numbers)
 {
     std::vector<std::string_view> num_array = {
+        "-"     // - must be followed by digits
+        "+"     // + is not valid prefix
         ".",    // Missing integer and fraction digits
         ".0",   // Must have integer before .
         "-.0",  // Must have integer before .
