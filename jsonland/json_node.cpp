@@ -1255,6 +1255,7 @@ public:
             catch (parsing_exception& p_ex) {
                 m_top_node.m_parse_error = -1;
                 m_top_node.m_parse_error_message = p_ex.what();
+                m_top_node.m_value_type = uninitialized_t;
             }
 
             return m_top_node.m_parse_error;
