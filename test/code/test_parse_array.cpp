@@ -38,7 +38,11 @@ TEST(ParseArrays, bad_arrays)
         "] ", " ] ",
         "[true,]", "[ true ,]",
         "[true, ]", "[ , true ]",
+        " [1,2,3,]",
+        " [1, \"a\" ",
+        " [1, \"a] "
     };
+
     for (auto array_str : array_array)
     {
         jsonland::json_doc doc;

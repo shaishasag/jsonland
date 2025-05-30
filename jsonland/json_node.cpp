@@ -656,17 +656,19 @@ namespace parser_impl
         class parsing_exception : public std::exception
         {
         public:
-            parsing_exception(const char* in_message, const location_in_string& in_location)
+            parsing_exception(const location_in_string& in_location,
+                              std::initializer_list<std::string_view> in_message_parts)
             {
-                std::array<char, 64> temp_str;
-                m_message += in_message;
+                for (auto message_part : in_message_parts)
+                {
+                    m_message += message_part;
+                }
+
                 m_message += "' line ";
-                std::snprintf(&temp_str[0], 64, "%zu", in_location.m_line);
-                m_message += &temp_str[0];
+                m_message += std::to_string(in_location.m_line);
 
                 m_message += " at offset ";
-                std::snprintf(&temp_str[0], 64, "%zu", in_location.m_offset);
-                m_message += &temp_str[0];
+                m_message += std::to_string(in_location.m_offset);
 
                 m_message += ";";
             }
@@ -677,6 +679,16 @@ namespace parser_impl
             }
 
             std::string m_message;
+        };
+
+        class parsing_exception_maximum_nesting_level : public parsing_exception
+        {
+        public:
+            parsing_exception_maximum_nesting_level(const location_in_string& in_location,
+                                                    size_t max_nesting_level)
+            : parsing_exception(in_location, {"Reached maximum nesting level of ", std::to_string(max_nesting_level)})
+            {
+            }
         };
 
         Parser(json_doc& in_top_node, char* in_start, char* in_end)
@@ -798,7 +810,7 @@ namespace parser_impl
                     retVal = (this->*call_pair.m_func)(out_node);
                     if (retVal && (call_pair.m_type & expecting) == 0)
                     {
-                        throw parsing_exception("json syntax error: unexpected token", curr_offset());
+                        throw parsing_exception(curr_offset(), {"json syntax error: unexpected token"sv});
                     }
                 }
                 else
@@ -808,7 +820,7 @@ namespace parser_impl
                     retVal = (this->*call_pair.m_func)(out_node);
                     if (retVal && (call_pair.m_type & expecting) == 0)
                     {
-                        throw parsing_exception("json syntax error: unexpected token", curr_offset());
+                        throw parsing_exception(curr_offset(), {"json syntax error: unexpected token"sv});
                     }
                 }
                 out_node.set_hint(json_node::_might_contain_escaped_chars);
@@ -835,43 +847,43 @@ namespace parser_impl
                     curr_char = next_char();
                     if (! is_there_more_data()) [[unlikely]] // the '\' was  the last char
                     {
-                        throw parsing_exception("escape char '\\' is the last char", curr_offset());
+                        throw parsing_exception(curr_offset(), {"escape char '\\' is the last char"sv});
                     }
                     else if (! is_escapable_char(curr_char))
                     {
-                        std::string message = "char '";
-                        message += curr_char;
-                        message += "' should not be escaped";
-                        throw parsing_exception(message.c_str(), curr_offset());
+                        throw parsing_exception(curr_offset(), {"char '"sv,
+                                                                std::string_view(&curr_char, 1),
+                                                                "' should not be escaped"sv});
                     }
                     else if ('u' == curr_char)  // unicode escape
                     {
                         if (4 > num_remaining_chars()) [[unlikely]]
                         {
-                            throw parsing_exception("Unicode escape should be followed by 4 characters", curr_offset());
+                            throw parsing_exception(curr_offset(),
+                                                    {"Unicode escape should be followed by 4 characters"sv});
                         }
                         for (int i = 0; i < 4; ++i)
                         {
                             if (! is_hex_digit(next_char())) [[unlikely]]
                             {
-                                std::string message = "char '";
-                                message += curr_char;
-                                message += "' is no a hex digit";
-                                throw parsing_exception(message.c_str(), curr_offset());
+                                throw parsing_exception(curr_offset(),
+                                                        {"char '"sv,
+                                                        std::string_view(&curr_char, 1),
+                                                        "' is no a hex digit"sv});
                             }
                         }
                     }
                 }
                 else if (is_a_char_that_must_be_escaped(curr_char))
                 {
-                    std::string message = "char '";
-                    message +=  name_of_control_char(curr_char);
-                    message += "' should be escaped";
-                    throw parsing_exception(message.c_str(), curr_offset());
+                    throw parsing_exception(curr_offset(),
+                                            {"char '"sv,
+                                            name_of_control_char(curr_char),
+                                            "' should be escaped"sv});
                 }
                 else if (is_illegal_string_char(curr_char))
                 {
-                    throw parsing_exception("illegal char in string", curr_offset());
+                    throw parsing_exception(curr_offset(), {"illegal char in string"sv});
                 }
 
                 curr_char = next_char();
@@ -886,7 +898,7 @@ namespace parser_impl
             }
             else [[unlikely]]
             {
-                throw parsing_exception("string was not terminated with '\"'", curr_offset());
+                throw parsing_exception(curr_offset(), {"string was not terminated with '\"'"});
             }
 
             return retVal;
@@ -913,8 +925,8 @@ namespace parser_impl
                     goto after_exponent;
                 else if (isdigit(curr_char)) [[unlikely]]
                 {
-                    std::string message = "number starting with 0 cannot have more digits after the 0";
-                    throw parsing_exception(message.c_str(), curr_offset());
+                    throw parsing_exception(curr_offset(),
+                                           {"number starting with 0 cannot have more digits after the 0"sv});
                 }
                 else
                     goto scan_number_done;
@@ -931,10 +943,10 @@ namespace parser_impl
             }
             else  [[unlikely]]
             {
-                std::string message = "expected a digit or '-' to start a number go '";
-                message += curr_char;
-                message += "' instead";
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"expected a digit or '-' to start a number got '"sv,
+                                        std::string_view(&curr_char, 1),
+                                        "' instead"sv});
             }
 
 after_decimal_point:
@@ -943,10 +955,10 @@ after_decimal_point:
             curr_char = next_char();
             if (!isdigit(curr_char))  [[unlikely]]
             {
-                std::string message = "expected a digit after '.' got '";
-                message += curr_char;
-                message += "' instead";
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"expected a digit after '.' got '"sv,
+                                        std::string_view(&curr_char, 1),
+                                        "' instead"sv});
             }
             while (isdigit(curr_char = next_char())) ;
             if ('e' == curr_char || 'E' == curr_char)
@@ -967,12 +979,12 @@ after_exponent:
             }
             else  [[unlikely]]
             {
-                std::string message = "expected a digit after '";
-                message += *(m_curr_char-1);
-                message += "' got '";
-                message += curr_char;
-                message += "' instead";
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"expected a digit after '"sv,
+                                        std::string_view(m_curr_char-1, 1),
+                                        "' got '"sv,
+                                        std::string_view(&curr_char, 1),
+                                        "' instead"sv});
             }
 
 scan_number_done:
@@ -1008,20 +1020,20 @@ scan_number_done:
                 break;
                 default: [[unlikely]]
                 {
-                    std::string message = "word starting with '";
-                    message += first_char;
-                    message += "' is not the expected 'false', 'true', 'null'";
-                    throw parsing_exception(message.c_str() ,curr_offset());
+                    throw parsing_exception(curr_offset(),
+                                            {"word starting with '"sv,
+                                            std::string_view(&first_char, 1),
+                                            "' is not the expected 'false', 'true', 'null'"});
                 }
                 break;
             }
 
             if (num_remaining_chars() < static_cast<size_t>(out_node.as_string_view().size())) [[unlikely]]
             {
-                std::string message = "not enough characters to form '";
-                message += out_node.as_string_view();
-                message += "'";
-                throw parsing_exception(message.c_str() ,curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"not enough characters to form '",
+                                        out_node.as_string_view(),
+                                        "'"});
             }
             else if (str_compare_case_sensitive_n(m_curr_char, out_node.as_string_view()))  [[likely]]
             {
@@ -1030,12 +1042,12 @@ scan_number_done:
             }
             else [[unlikely]]
             {
-                std::string message = "word starting with '";
-                message += first_char;
-                message += "' is not the expected '";
-                message += out_node.as_string_view().data();
-                message += "'";
-                throw parsing_exception(message.c_str() ,curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"word starting with '"sv,
+                                        std::string_view(&first_char, 1),
+                                        "' is not the expected '",
+                                        out_node.as_string_view(),
+                                        "'"});
             }
 
             return retVal;
@@ -1049,7 +1061,7 @@ scan_number_done:
 
         bool skip_one_char(json_node&)
         {
-            throw parsing_exception("json syntax error: unexpected character", curr_offset());
+            throw parsing_exception(curr_offset(), {"json syntax error: unexpected character"sv});
            // return false;
         }
 
@@ -1071,11 +1083,7 @@ scan_number_done:
         {
             if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
-                std::array<char, 64> temp_str;
-                std::string message = "Reached maximum nesting level of ";
-                std::snprintf(&temp_str[0], 64, "%zu", m_max_nesting_level);
-                message += &temp_str[0];
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception_maximum_nesting_level(curr_offset(), m_max_nesting_level);
             }
 
             out_node.m_value_type = jsonland::value_type::array_t;
@@ -1113,13 +1121,13 @@ scan_number_done:
                 }
                 else
                 {
-                    throw parsing_exception("C++ parser bug: unexpected token during array creation", curr_offset());
+                    throw parsing_exception(curr_offset(), {"C++ parser bug: unexpected token during array creation"sv});
                 }
             }
 
             if (0 == ((int)next_node.m_value_type & parsing_value_type::_array_close)) [[unlikely]]
             {
-                throw parsing_exception("unexpected end of tokens during array initializtion", curr_offset());
+                throw parsing_exception(curr_offset(), {"unexpected end of tokens during array initializtion"sv});
             }
 
             return false;
@@ -1129,10 +1137,7 @@ scan_number_done:
         {
             if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
-                std::array<char, 64> temp_str;
-                std::string message = "Reached maximum nesting level of ";
-                std::snprintf(&temp_str[0], 64, "%zu", m_max_nesting_level);
-                throw parsing_exception(message.c_str(), curr_offset());
+                throw parsing_exception_maximum_nesting_level(curr_offset(), m_max_nesting_level);
             }
 
             out_node.m_value_type = jsonland::value_type::object_t;
@@ -1198,13 +1203,15 @@ scan_number_done:
                 }
                 else [[unlikely]]
                 {
-                    throw parsing_exception("C++ parser bug: unexpected token during json-object creation", curr_offset());
+                    throw parsing_exception(curr_offset(),
+                                            {"C++ parser bug: unexpected token during json-object creation"sv});
                 }
             }
 
             if (0 == ((int)next_node.m_value_type & parsing_value_type::_obj_close)) [[unlikely]]
             {
-                throw parsing_exception("unexpected end of tokens during object initializtion", curr_offset());
+                throw parsing_exception(curr_offset(),
+                                        {"unexpected end of tokens during object initializtion"sv});
             }
 
             return false;
@@ -1251,16 +1258,16 @@ public:
                         int num_remaining_non_whitespace_chars = skip_whitespace();
                         if (0 < num_remaining_non_whitespace_chars) [[unlikely]]
                         {
-                            throw parsing_exception("Invalid characters after json", curr_offset());
+                            throw parsing_exception(curr_offset(), {"Invalid characters after json"sv});
                         }
                     }
                     else [[unlikely]]{
-                        throw parsing_exception("Could not find valid json", curr_offset());
+                        throw parsing_exception(curr_offset(), {"Could not find valid json"sv});
                     }
                 }
                 else [[unlikely]]
                 {
-                    throw parsing_exception("Could not find valid json - only whitespace", curr_offset());
+                    throw parsing_exception(curr_offset(), {"Could not find valid json - only whitespace"sv});
                 }
             }
             catch (parsing_exception& p_ex) {
