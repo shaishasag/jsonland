@@ -67,6 +67,8 @@ TEST(Ownership, move_ownership)
         std::string_view j_str{R"({"one":1, "two": 2.00, "three": "3C:\\PO"})"};
         jsonland::json_doc jd;
         jd.parse_insitu(j_str);
+        EXPECT_TRUE(jd.is_valid());
+        EXPECT_TRUE(jd.is_object());
         EXPECT_FALSE(jd.is_full_owner());
         EXPECT_TRUE(jd.refers_to_external_memory());
 

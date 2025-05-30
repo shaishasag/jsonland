@@ -675,7 +675,7 @@ namespace parser_impl
         , m_str_size(in_end-in_start)
         , m_start(in_start)
         , m_end(in_end)
-        , m_curr_char(in_start)
+        , m_curr_char_p(in_start)
         , m_offset_of_line(in_start)
         {
             prepare_char_to_token_table();
@@ -684,13 +684,16 @@ namespace parser_impl
         }
 
     private:
+        const char end_mark = '\0';
         json_doc& m_top_node;
 
         [[maybe_unused]] const size_t m_str_size;
         [[maybe_unused]] const char* m_start = nullptr;
         const char* m_end = nullptr;
+        char* m_curr_char_p = nullptr;
 
-        char* m_curr_char = nullptr;
+        char m_curr_char{end_mark};
+
         size_t m_max_nesting_level = 64;
         size_t m_nesting_level = 0;
 
@@ -704,30 +707,27 @@ namespace parser_impl
         json_node::ArrayVec m_array_values_stack;
         std::vector<jsonland::string_and_view> m_obj_keys_stack;
 
-        inline char next_char()
+        __attribute__((optnone))
+        inline void skip_chars(size_t in_num_chars_to_skip)
         {
-            return *++m_curr_char;
-        }
-
-        inline char next_chars(const size_t in_num_chars_to_skip)
-        {
-            m_curr_char += in_num_chars_to_skip;
-            return *m_curr_char;
+            for (int i = 0; i < static_cast<int>(in_num_chars_to_skip) && next_char2(); ++i)
+            {
+            }
         }
 
         inline location_in_string curr_offset()
         {
-            return location_in_string{m_current_line, (size_t)(m_curr_char - m_offset_of_line)};
+            return location_in_string{m_current_line, (size_t)(m_curr_char_p - m_offset_of_line)};
         }
 
         inline bool is_there_more_data()
         {
-            return m_curr_char < m_end;
+            return m_curr_char_p < m_end;
         }
 
         inline size_t num_remaining_chars()
         {
-           return m_end - m_curr_char;
+           return m_end - m_curr_char_p;
         }
 
         struct func_type_pair
@@ -742,7 +742,7 @@ namespace parser_impl
             for (int i = 0; i < 256; ++i)
                 m_char_to_token_table[i] = {&Parser::skip_one_char, parsing_value_type::_uninitialized};
 
-            m_char_to_token_table[(int)'['] = {&Parser::parse_array, parsing_value_type::_array};
+             m_char_to_token_table[(int)'['] = {&Parser::parse_array, parsing_value_type::_array};
              m_char_to_token_table[(int)']'] = {&Parser::parse_control_char, parsing_value_type::_array_close};
              m_char_to_token_table[(int)','] = {&Parser::parse_control_char, parsing_value_type::_comma};
              m_char_to_token_table[(int)'{'] = {&Parser::parse_obj, parsing_value_type::_obj};
@@ -776,13 +776,14 @@ namespace parser_impl
 
         inline bool get_next_node(json_node& out_node, parsing_value_type& out_type)
         {
+            assert(m_curr_char != end_mark);
+
             bool retVal = false;
-            while (!retVal && is_there_more_data())  [[likely]]
+            while (!retVal)  [[likely]]
             {
-                char curr_char = *m_curr_char;
-                if (256 > (unsigned int)curr_char)
+                if (256 > (unsigned int)m_curr_char)
                 {
-                    func_type_pair& call_pair = m_char_to_token_table[(int)curr_char];
+                    func_type_pair& call_pair = m_char_to_token_table[(int)m_curr_char];
                     out_type = call_pair.m_type;
                     retVal = (this->*call_pair.m_func)(out_node);
                 }
@@ -799,33 +800,33 @@ namespace parser_impl
 
         bool parse_string(json_node& out_node)
         {
-            // if parse_string was called then *curr == '"'
+            assert(m_curr_char == '"');
+
             bool retVal = false;
 
-            char curr_char = next_char();
-            char* str_start = m_curr_char;
+            char* str_start = m_curr_char_p;
 
             out_node.m_value_type = jsonland::value_type::string_t;
-            while (is_there_more_data())  [[likely]]
+            while (next_char2())  [[likely]]
             {
-                if (curr_char == '"') {
+                if (m_curr_char == '"') {
                     break;
                 }
-                if (curr_char == '\\')
+                if (m_curr_char == '\\')
                 {
-                    curr_char = next_char();
+                    next_char2();
                     if (! is_there_more_data()) [[unlikely]] // the '\' was  the last char
                     {
                         throw parsing_exception("escape char '\\' is the last char", curr_offset());
                     }
-                    else if (! is_escapable_char(curr_char))
+                    else if (! is_escapable_char(m_curr_char))
                     {
                         std::string message = "char '";
-                        message += curr_char;
+                        message += m_curr_char;
                         message += "' should not be escaped";
                         throw parsing_exception(message.c_str(), curr_offset());
                     }
-                    else if ('u' == curr_char)  // unicode escape
+                    else if ('u' == m_curr_char)  // unicode escape
                     {
                         if (4 > num_remaining_chars()) [[unlikely]]
                         {
@@ -833,36 +834,35 @@ namespace parser_impl
                         }
                         for (int i = 0; i < 4; ++i)
                         {
-                            if (! is_hex_digit(next_char())) [[unlikely]]
+                            next_char2();
+                            if (! is_hex_digit(m_curr_char)) [[unlikely]]
                             {
                                 std::string message = "char '";
-                                message += curr_char;
+                                message += m_curr_char;
                                 message += "' is no a hex digit";
                                 throw parsing_exception(message.c_str(), curr_offset());
                             }
                         }
                     }
                 }
-                else if (is_a_char_that_must_be_escaped(curr_char))
+                else if (is_a_char_that_must_be_escaped(m_curr_char))
                 {
                     std::string message = "char '";
-                    message +=  name_of_control_char(curr_char);
+                    message +=  name_of_control_char(m_curr_char);
                     message += "' should be escaped";
                     throw parsing_exception(message.c_str(), curr_offset());
                 }
-                else if (is_illegal_string_char(curr_char))
+                else if (is_illegal_string_char(m_curr_char))
                 {
                     throw parsing_exception("illegal char in string", curr_offset());
                 }
-
-                curr_char = next_char();
             }
 
-            if (curr_char == '"')  [[likely]]
+            if (m_curr_char == '"')  [[likely]]
             {
-                size_t str_size = m_curr_char-str_start;
+                size_t str_size = m_curr_char_p-str_start-1;
                 out_node.parser_direct_set(std::string_view(str_start, str_size), jsonland::value_type::string_t);
-                next_char();
+                next_char2();
                 retVal = true;
             }
             else [[unlikely]]
@@ -875,37 +875,41 @@ namespace parser_impl
 
         bool parse_number(json_node& out_node)
         {
-            char* str_start = m_curr_char;
-            char curr_char = *m_curr_char;
+            char* str_start = m_curr_char_p-1;
             bool num_is_int{true};
 
-            // json number should start with '-' or a digit
-            if ('-' == curr_char)
-                curr_char = next_char();
+            // this function calls next_char2() without checking return value
+            // this works before if ens-of-data was reached, m_curr_char==end_marker
+            // and end_marker is not a valid char for a number
 
-            if ('0' == curr_char)
+            // json number should start with '-' or a digit
+            if ('-' == m_curr_char)
+                next_char2();
+
+            if ('0' == m_curr_char)
             {
                 // number started with zero
                 // so only '.' or 'e' or 'E' are expected, not more digits
-                curr_char = next_char();
-                if ('.' == curr_char)
+                if (!is_there_more_data()) // sugngle token single digit "0"
+                    goto scan_number_done;
+
+                next_char2();
+                if ('.' == m_curr_char)
                     goto after_decimal_point;
-                else if ('e' == curr_char || 'E' == curr_char)
+                else if ('e' == m_curr_char || 'E' == m_curr_char)
                     goto after_exponent;
-                else if (isdigit(curr_char)) [[unlikely]]
+                else  [[unlikely]]
                 {
-                    std::string message = "number starting with 0 cannot have more digits after the 0";
+                    std::string message = "number starting with 0 must continue with either '.' or 'e'";
                     throw parsing_exception(message.c_str(), curr_offset());
                 }
-                else
-                    goto scan_number_done;
             }
-            else if (isdigit(curr_char)) { // number started with 1-9
-                while (isdigit(curr_char = next_char())) ;
+            else if (isdigit(m_curr_char)) { // number started with 1-9
+                do { next_char2(); } while (isdigit(m_curr_char)) ;
 
-                if ('.' == curr_char)
+                if ('.' == m_curr_char)
                     goto after_decimal_point;
-                else if ('e' == curr_char || 'E' == curr_char)
+                else if ('e' == m_curr_char || 'E' == m_curr_char)
                     goto after_exponent;
                 else
                     goto scan_number_done;
@@ -913,7 +917,7 @@ namespace parser_impl
             else  [[unlikely]]
             {
                 std::string message = "expected a digit or '-' to start a number go '";
-                message += curr_char;
+                message += m_curr_char;
                 message += "' instead";
                 throw parsing_exception(message.c_str(), curr_offset());
             }
@@ -921,16 +925,17 @@ namespace parser_impl
 after_decimal_point:
             num_is_int = false;
             // after a '.' only a digit is expected
-            curr_char = next_char();
-            if (!isdigit(curr_char))  [[unlikely]]
+            next_char2();
+            if (!isdigit(m_curr_char))  [[unlikely]]
             {
                 std::string message = "expected a digit after '.' got '";
-                message += curr_char;
+                message += m_curr_char;
                 message += "' instead";
                 throw parsing_exception(message.c_str(), curr_offset());
             }
-            while (isdigit(curr_char = next_char())) ;
-            if ('e' == curr_char || 'E' == curr_char)
+            do { next_char2(); } while (isdigit(m_curr_char)) ;
+
+            if ('e' == m_curr_char || 'E' == m_curr_char)
                 goto after_exponent;
             else
                 goto scan_number_done;
@@ -938,26 +943,27 @@ after_decimal_point:
 after_exponent:
             num_is_int = false;
             // after 'e' or 'E'
-            curr_char = next_char();
-            if ('-' == curr_char || '+' == curr_char)
-                curr_char = next_char();
+            next_char2();
+            if ('-' == m_curr_char || '+' == m_curr_char)
+                next_char2();
 
-            if (isdigit(curr_char)) {
-                while (isdigit(next_char())) ;
+            if (isdigit(m_curr_char))
+            {
+                do { next_char2(); } while (isdigit(m_curr_char)) ;
                 goto scan_number_done;
             }
             else  [[unlikely]]
             {
                 std::string message = "expected a digit after '";
-                message += *(m_curr_char-1);
+                message += *(m_curr_char_p-1);
                 message += "' got '";
-                message += curr_char;
+                message += m_curr_char;
                 message += "' instead";
                 throw parsing_exception(message.c_str(), curr_offset());
             }
 
 scan_number_done:
-            std::string_view sov(str_start, m_curr_char-str_start);
+            std::string_view sov(str_start, m_curr_char_p-str_start);
 #if JSONLAND_DEBUG==1
 // in release build the number is translated from text only when to_double/to_int is called
             out_node.m_num = std::atof((const char*)sov.data());
@@ -973,10 +979,11 @@ scan_number_done:
 
         bool parse_constant(json_node& out_node)
         {
+            assert('f' == m_curr_char || 't' == m_curr_char || 'n' == m_curr_char);
+
             bool retVal = false;
 
-            char first_char = *m_curr_char;
-            switch (first_char)
+            switch (m_curr_char)
             {
                 case 'f':
                     out_node.parser_direct_set(json_node::the_false_string_view, jsonland::bool_t);
@@ -990,32 +997,28 @@ scan_number_done:
                 default: [[unlikely]]
                 {
                     std::string message = "word starting with '";
-                    message += first_char;
+                    message += m_curr_char;
                     message += "' is not the expected 'false', 'true', 'null'";
                     throw parsing_exception(message.c_str() ,curr_offset());
                 }
                 break;
             }
+            std::string_view actual_token(m_curr_char_p-1,
+                                          std::min(out_node.as_string_view().size(), num_remaining_chars()+1));
 
-            if (num_remaining_chars() < static_cast<size_t>(out_node.as_string_view().size())) [[unlikely]]
+            if (actual_token == out_node.as_string_view())  [[likely]]
             {
-                std::string message = "not enough characters to form '";
-                message += out_node.as_string_view();
-                message += "'";
-                throw parsing_exception(message.c_str() ,curr_offset());
-            }
-            else if (str_compare_case_sensitive_n(m_curr_char, out_node.as_string_view()))  [[likely]]
-            {
-                next_chars(out_node.as_string_view().size());
+                skip_chars(out_node.as_string_view().size());
                 retVal = true;
             }
             else [[unlikely]]
             {
-                std::string message = "word starting with '";
-                message += first_char;
-                message += "' is not the expected '";
-                message += out_node.as_string_view().data();
-                message += "'";
+
+                std::string message;
+                message += '"';
+                message += actual_token;
+                message += '"';
+                message += " is not one of the valid json constants 'false', 'true', 'null'";
                 throw parsing_exception(message.c_str() ,curr_offset());
             }
 
@@ -1024,7 +1027,7 @@ scan_number_done:
 
         bool parse_control_char(json_node&)
         {
-            next_char();
+            next_char2();
             return true;
         }
 
@@ -1036,20 +1039,48 @@ scan_number_done:
 
         bool skip_new_line(json_node&)
         {
-            ++m_current_line;
-            next_char();
-            m_offset_of_line = m_curr_char;
+            // skip_new_line should be called only if m_curr_char is '\n'
+            assert('\n' == m_curr_char);
+
+            while (next_char2())
+            {
+                ++m_current_line;
+                m_offset_of_line = m_curr_char_p;
+                if ('\n' != m_curr_char)
+                {
+                    break;
+                }
+            }
+
+            assert(!is_there_more_data() || '\n' != m_curr_char);
+
             return false;
         }
 
         bool skip_whilespace(json_node&)
         {
-            while(is_white_space_not_new_line(next_char())) ;
+            // skip_whilespace should be called only if m_curr_char is whitespace (but not newline)
+            assert(is_white_space_not_new_line(m_curr_char));
+
+            while (next_char2())
+            {
+                if (!is_white_space_not_new_line(m_curr_char))
+                {
+                    break;
+                }
+            }
+
+            // when skip_whilespace exits m_curr_char should be non-whilespace or
+            // end of data has being reached
+            assert(!is_there_more_data() || !is_white_space_not_new_line(m_curr_char));
+
             return false;
         }
 
         bool parse_array(json_node& out_node)
         {
+            assert('[' == m_curr_char);
+
             if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
                 std::array<char, 64> temp_str;
@@ -1063,7 +1094,11 @@ scan_number_done:
             size_t array_values_stack_starting_index = m_array_values_stack.size();
 
             uint32_t expecting = parsing_value_type::_value | parsing_value_type::_array_close;
-            next_char();
+
+            if (!next_char2()) {
+                throw parsing_exception("unexpected end of data during array parsing", curr_offset());
+            }
+
             json_node next_node;
             parsing_value_type new_value_type;
             while (get_next_node(next_node, new_value_type)) [[likely]]
@@ -1112,6 +1147,8 @@ scan_number_done:
 
         bool parse_obj(json_node& out_node)
         {
+            assert('{' == m_curr_char);
+
             if (++m_nesting_level > m_max_nesting_level) [[unlikely]]
             {
                 std::array<char, 64> temp_str;
@@ -1126,7 +1163,10 @@ scan_number_done:
 
             bool expecting_key = true;
             jsonland::value_type expecting = static_cast<jsonland::value_type>(parsing_value_type::_str | parsing_value_type::_obj_close);
-            next_char();
+
+            if (!next_char2()) {
+                throw parsing_exception("unexpected end of data during array parsing", curr_offset());
+            }
             jsonland::string_and_view key;
             json_node next_node;
             parsing_value_type new_value_type;
@@ -1199,23 +1239,11 @@ scan_number_done:
             return false;
         }
 
-        // skip possibly whitespace at the beginning or end, while still keeping count of the number of new lines
-        int skip_whitespace()
+        inline bool next_char2()
         {
-            json_node node_dummy;
-
-            while (is_there_more_data())
-            {
-                if ('\n' == *m_curr_char) {
-                    skip_new_line(node_dummy);
-                }
-                else if (is_white_space_not_new_line(*m_curr_char)) {
-                    next_char();
-                }
-                else
-                    break;
-            }
-            return static_cast<int>(num_remaining_chars());
+            bool retVal = m_curr_char_p < m_end;
+            m_curr_char = retVal ? *m_curr_char_p++ : end_mark;
+            return retVal;
         }
 
 public:
@@ -1226,9 +1254,7 @@ public:
 
             try
             {
-                skip_whitespace();
-
-                if (is_there_more_data()) [[likely]]
+                if (next_char2()) [[likely]]
                 {
                     // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
@@ -1237,8 +1263,11 @@ public:
                     if (found_json && m_top_node.is_valid())
                     {
                         // check that remaing characters are only whitespace
-                        int num_remaining_non_whitespace_chars = skip_whitespace();
-                        if (0 < num_remaining_non_whitespace_chars) [[unlikely]]
+                        while (is_whitespace(m_curr_char)) {
+                            next_char2();
+                        }
+
+                        if (m_curr_char != end_mark) // found non white space chars
                         {
                             throw parsing_exception("Invalid characters after json", curr_offset());
                         }
@@ -1255,6 +1284,7 @@ public:
             catch (parsing_exception& p_ex) {
                 m_top_node.m_parse_error = -1;
                 m_top_node.m_parse_error_message = p_ex.what();
+                m_top_node.m_value_type = uninitialized_t;
             }
 
             return m_top_node.m_parse_error;
