@@ -938,7 +938,7 @@ namespace parser_impl
                     goto scan_number_done;
             }
             else if (isdigit(m_curr_char)) { // number started with 1-9
-                do { next_char2(); } while (isdigit(m_curr_char)) ;
+                while (next_char2() && isdigit(m_curr_char)){} // skip digits
 
                 if ('.' == m_curr_char)
                     goto after_decimal_point;
@@ -966,7 +966,7 @@ after_decimal_point:
                                         std::string_view(&m_curr_char, 1),
                                         "' instead"sv});
             }
-            do { next_char2(); } while (isdigit(m_curr_char)) ;
+            while (next_char2() && isdigit(m_curr_char)){} // skip digits
 
             if ('e' == m_curr_char || 'E' == m_curr_char)
                 goto after_exponent;
@@ -982,7 +982,7 @@ after_exponent:
 
             if (isdigit(m_curr_char))
             {
-                do { next_char2(); } while (isdigit(m_curr_char)) ;
+                while (next_char2() && isdigit(m_curr_char)){} // skip digits
                 goto scan_number_done;
             }
             else  [[unlikely]]
