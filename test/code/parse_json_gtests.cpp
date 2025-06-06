@@ -34,7 +34,7 @@ TEST(Parse, big_file)
                      std::istreambuf_iterator<char>());
 
     json_doc jd;
-    jd.parse_insitu(jstr.data(), jstr.data()+jstr.size());
+    jd.parse_insitu(jstr);
 }
 
 //TEST(Parse, nlohmann)

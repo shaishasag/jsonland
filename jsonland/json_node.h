@@ -1520,14 +1520,17 @@ public:
     friend class jsonland::parser_impl::Parser;
 
 
-    int parse_insitu(char* in_json_str, char* in_json_str_end);
-    int parse_insitu(char* in_json_str, const size_t in_json_str_size);
-    int parse_insitu(std::string& in_json_str);
+//    int parse_insitu(char* in_json_str, char* in_json_str_end);
+//    int parse_insitu(char* in_json_str, const size_t in_json_str_size);
+//    int parse_insitu(std::string& in_json_str);
+    // parse json string without copying it. Original string lifetime must be at lease
+    // as long as this json_doc lifetime is
     int parse_insitu(std::string_view in_json_str);
 
-    int parse(const char* in_json_str, const char* in_json_str_end=nullptr);
-    int parse(const char* in_json_str, const size_t in_json_str_size);
-    int parse(const std::string& in_json_str);
+//    int parse(const char* in_json_str, const char* in_json_str_end=nullptr);
+//    int parse(const char* in_json_str, const size_t in_json_str_size);
+//    int parse(const std::string& in_json_str);
+    // parse a copy of a json string. Original string can be discarded.
     int parse(const std::string_view in_json_str);
 
     void set_max_nesting_level(const size_t in_nesting_level);
