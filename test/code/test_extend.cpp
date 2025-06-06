@@ -21,7 +21,7 @@ TEST(Extend, VectorArray)
         EXPECT_TRUE(j.is_array()); // should be converted to an array even is v is empty
         EXPECT_TRUE(j.empty());
         EXPECT_TRUE(j.empty_as(array_t));
-        EXPECT_EQ(j.size_as(array_t), 0);
+        EXPECT_EQ(j.size_as<array_t>(), 0);
 
         std::vector<int> v_out;
         j.extract(v_out);
@@ -31,7 +31,7 @@ TEST(Extend, VectorArray)
         j.push_back(5);
         EXPECT_FALSE(j.empty());
         EXPECT_FALSE(j.empty_as(array_t));
-        EXPECT_EQ(j.size_as(array_t), 1);
+        EXPECT_EQ(j.size_as<array_t>(), 1);
         EXPECT_EQ(j[0].get_int(), 5);
     }
     {   // non-empty vector
@@ -41,7 +41,7 @@ TEST(Extend, VectorArray)
 
         EXPECT_TRUE(j.is_array());
         EXPECT_FALSE(j.empty());
-        EXPECT_EQ(j.size_as(array_t), 4);
+        EXPECT_EQ(j.size_as<array_t>(), 4);
         EXPECT_EQ(j[0].get_int(), 1);
         EXPECT_EQ(j[1].get_int(), 2);
         EXPECT_EQ(j[2].get_int(), 3);
@@ -53,7 +53,7 @@ TEST(Extend, VectorArray)
 
         // push_back some more
         j.push_back(5);
-        EXPECT_EQ(j.size_as(array_t), 5);
+        EXPECT_EQ(j.size_as<array_t>(), 5);
         EXPECT_EQ(j[0].get_int(), 1);
         EXPECT_EQ(j[1].get_int(), 2);
         EXPECT_EQ(j[2].get_int(), 3);
@@ -64,7 +64,7 @@ TEST(Extend, VectorArray)
         std::array<std::string_view, 2> svv{"mama"sv, "mia"sv};
         j.extend(svv);
 
-        EXPECT_EQ(j.size_as(array_t), 7);
+        EXPECT_EQ(j.size_as<array_t>(), 7);
         EXPECT_EQ(j[0].get_int(), 1);
         EXPECT_EQ(j[1].get_int(), 2);
         EXPECT_EQ(j[2].get_int(), 3);
@@ -96,7 +96,7 @@ TEST(Extend, AllSequenceTypes)
 
     EXPECT_TRUE(j.is_array());
     EXPECT_FALSE(j.empty());
-    EXPECT_EQ(j.size_as(array_t), 10);
+    EXPECT_EQ(j.size_as<array_t>(), 10);
     EXPECT_EQ(j[0].get_int(), 1);
     EXPECT_EQ(j[1].get_int(), 2);
     EXPECT_EQ(j[2].get_string(), "mama"sv);

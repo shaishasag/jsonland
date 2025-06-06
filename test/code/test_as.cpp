@@ -190,14 +190,14 @@ TEST(As, contain_as)
 {
     using type_and_name = std::pair<jsonland::value_type, fstr::fstr15>;
     std::array<type_and_name, 6> all_types
-                                    {
-                                        type_and_name{jsonland::null_t, "null"},
-                                        type_and_name{jsonland::bool_t, "bool"},
-                                        type_and_name{jsonland::string_t, "string"},
-                                        type_and_name{jsonland::number_t, "number"},
-                                        type_and_name{jsonland::array_t, "array"},
-                                        type_and_name{jsonland::object_t, "object"}
-                                    };
+    {
+        type_and_name{jsonland::null_t, "null"},
+        type_and_name{jsonland::bool_t, "bool"},
+        type_and_name{jsonland::string_t, "string"},
+        type_and_name{jsonland::number_t, "number"},
+        type_and_name{jsonland::array_t, "array"},
+        type_and_name{jsonland::object_t, "object"}
+    };
     jsonland::json_node jn(jsonland::object_t);
     jn["null"] = jsonland::null_t;
     jn["bool"] = true;

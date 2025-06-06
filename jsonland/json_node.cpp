@@ -11,41 +11,41 @@ using namespace jsonland;
 #if JSONLAND_DEBUG==1
 #endif
 
-inline bool is_white_space_not_new_line(const char in_c)
+[[nodiscard]] inline bool is_white_space_not_new_line(const char in_c)
 {
     return ' ' == in_c  || '\r' == in_c || '\t' == in_c;
 }
 
-inline bool is_whitespace(const char in_c)
+[[nodiscard]] inline bool is_whitespace(const char in_c)
 {
     return is_white_space_not_new_line(in_c) || '\n' == in_c;
 }
 
-inline bool is_digit(const char in_c)
+[[nodiscard]] inline bool is_digit(const char in_c)
 {
     const bool retVal = ('0' <= in_c && '9' >= in_c);
     return retVal;
 }
 
-inline bool is_hex_digit(const char in_c)
+[[nodiscard]] inline bool is_hex_digit(const char in_c)
 {
     const bool retVal = is_digit(in_c) || ('a' <= in_c && 'f' >= in_c) || ('A' <= in_c && 'F' >= in_c);
     return retVal;
 }
 
-inline bool is_num_char(const char in_c)
+[[nodiscard]] inline bool is_num_char(const char in_c)
 {
     const bool retVal = ('0' <= in_c && '9' >= in_c) || '.' == in_c || '-' == in_c || '+' == in_c || 'e' == in_c || 'E' == in_c;
     return retVal;
 }
 
-inline bool is_illegal_string_char(const char in_c)
+[[nodiscard]] inline bool is_illegal_string_char(const char in_c)
 {
     const bool retVal = '\0' == in_c;
     return retVal;
 }
 
-inline bool is_escapable_char(const char in_c)
+[[nodiscard]] inline bool is_escapable_char(const char in_c)
 {
     const bool retVal = '\\' == in_c ||
                         '/' == in_c ||
@@ -59,7 +59,7 @@ inline bool is_escapable_char(const char in_c)
     return retVal;
 }
 
-inline bool is_a_char_that_must_be_escaped(const char in_c)
+[[nodiscard]] inline bool is_a_char_that_must_be_escaped(const char in_c)
 {
     const bool retVal = '"' == in_c ||
                         '\\' == in_c ||
@@ -71,38 +71,36 @@ inline bool is_a_char_that_must_be_escaped(const char in_c)
     return retVal;
 }
 
-inline const char* escapable_to_escaped(const char* in_c, size_t& out_chars_to_copy)
+[[nodiscard]] inline std::string_view escapable_to_escaped(const char* in_c)
 {
-    const char* retVal = in_c;
-    out_chars_to_copy = 2;
+    std::string_view retVal(in_c, 1);
 
     switch(*in_c)
     {
-        case '"':  retVal = "\\\""; break;
-        case '\\':  retVal = "\\\\"; break;
-        case '\n': retVal = "\\n"; break;
-        case '\r': retVal = "\\r"; break;
-        case '\t': retVal = "\\t"; break;
-        case '\b': retVal = "\\b"; break;
-        case '\f': retVal = "\\f"; break;
+        case '"':  retVal = "\\\""sv; break;
+        case '\\':  retVal = "\\\\"sv; break;
+        case '\n': retVal = "\\n"sv; break;
+        case '\r': retVal = "\\r"sv; break;
+        case '\t': retVal = "\\t"sv; break;
+        case '\b': retVal = "\\b"sv; break;
+        case '\f': retVal = "\\f"sv; break;
         default:
-            out_chars_to_copy = 1;
             break;
     }
 
     return retVal;
 }
 
-static const char* name_of_control_char(const char in_c)
+[[nodiscard]] static std::string_view name_of_control_char(const char in_c)
 {
-    const char* retVal = "unknown";
+    std::string_view retVal = "unknown"sv;
     switch(in_c)
     {
-        case '\b': retVal = "backspace"; break;
-        case '\f': retVal = "formfeed"; break;
-        case '\n': retVal = "linefeed"; break;
-        case '\r': retVal = "carriage return"; break;
-        case '\t': retVal = "horizontal tab"; break;
+        case '\b': retVal = "backspace"sv; break;
+        case '\f': retVal = "formfeed"sv; break;
+        case '\n': retVal = "linefeed"sv; break;
+        case '\r': retVal = "carriage return"sv; break;
+        case '\t': retVal = "horizontal tab"sv; break;
     }
     return retVal;
 }
@@ -236,7 +234,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
                 std::cout << io->m_key.sv() << std::endl;
             }
             out_str += ':';
-            if (!io->empty_as(object_t) || !io->empty_as(array_t))
+            if (!io->empty_as<object_t>() || !io->empty_as<array_t>())
             {
                 out_str += '\n';
                 indent(out_str, level);
@@ -257,7 +255,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
                 out_str += '"';
 
                 out_str += ':';
-                if (!io->empty_as(object_t) || !io->empty_as(array_t))
+                if (!io->empty_as<object_t>() || !io->empty_as<array_t>())
                 {
                     out_str += '\n';
                     indent(out_str, level);
@@ -554,18 +552,18 @@ void json_node::take_ownership() noexcept
 namespace jsonland
 {
 
-const char* value_type_name(jsonland::value_type in_type)
+constexpr std::string_view value_type_name(jsonland::value_type in_type)
 {
-    const char* retVal = "Unknown";
+    std::string_view retVal = "Unknown"sv;
     switch (in_type)
     {
-        case jsonland::value_type::uninitialized_t: retVal = "uninitialized_t"; break;
-        case jsonland::value_type::null_t: retVal = "null_t"; break;
-        case jsonland::value_type::bool_t: retVal = "bool_t"; break;
-        case jsonland::value_type::number_t: retVal = "number_t"; break;
-        case jsonland::value_type::string_t: retVal = "string_t"; break;
-        case jsonland::value_type::array_t: retVal = "array_t"; break;
-        case jsonland::value_type::object_t: retVal = "object_t"; break;
+        case jsonland::value_type::uninitialized_t: retVal = "uninitialized_t"sv; break;
+        case jsonland::value_type::null_t: retVal = "null_t"sv; break;
+        case jsonland::value_type::bool_t: retVal = "bool_t"sv; break;
+        case jsonland::value_type::number_t: retVal = "number_t"sv; break;
+        case jsonland::value_type::string_t: retVal = "string_t"sv; break;
+        case jsonland::value_type::array_t: retVal = "array_t"sv; break;
+        case jsonland::value_type::object_t: retVal = "object_t"sv; break;
     }
     return retVal;
 }
@@ -695,10 +693,10 @@ namespace parser_impl
 
         Parser(json_doc& in_top_node, char* in_start, char* in_end)
         : m_top_node(in_top_node)
-        , m_str_size(in_end-in_start)
         , m_start(in_start)
-        , m_end(in_end)
         , m_curr_char_p(in_start)
+        , m_end(in_end)
+        , m_str_size(in_end-in_start)
         , m_offset_of_line(in_start)
         {
             prepare_char_to_token_table();
@@ -730,7 +728,7 @@ namespace parser_impl
 
         inline void skip_chars(size_t in_num_chars_to_skip)
         {
-            for (int i = 0; i < static_cast<int>(in_num_chars_to_skip) && next_char2(); ++i)
+            for (int i = 0; i < static_cast<int>(in_num_chars_to_skip) && next_char(); ++i)
             {
             }
         }
@@ -837,14 +835,14 @@ namespace parser_impl
             char* str_start = m_curr_char_p;
 
             out_node.m_value_type = jsonland::value_type::string_t;
-            while (next_char2())  [[likely]]
+            while (next_char())  [[likely]]
             {
                 if (m_curr_char == '"') {
                     break;
                 }
                 if (m_curr_char == '\\')
                 {
-                    next_char2();
+                    next_char();
                     if (! is_there_more_data()) [[unlikely]] // the '\' was  the last char
                     {
                         throw parsing_exception(curr_offset(), {"escape char '\\' is the last char"sv});
@@ -864,7 +862,7 @@ namespace parser_impl
                         }
                         for (int i = 0; i < 4; ++i)
                         {
-                            next_char2();
+                            next_char();
                             if (! is_hex_digit(m_curr_char)) [[unlikely]]
                             {
                                 throw parsing_exception(curr_offset(),
@@ -892,7 +890,7 @@ namespace parser_impl
             {
                 size_t str_size = m_curr_char_p-str_start-1;
                 out_node.parser_direct_set(std::string_view(str_start, str_size), jsonland::value_type::string_t);
-                next_char2();
+                next_char();
                 retVal = true;
             }
             else [[unlikely]]
@@ -913,7 +911,7 @@ namespace parser_impl
             // and end_marker is not a valid char for a number
 
             // json number should start with '-' or a digit
-            if ('-' == m_curr_char && !next_char2())
+            if ('-' == m_curr_char && !next_char())
             {
                 throw parsing_exception(curr_offset(), {"unexpected end of data during number parsing"sv});
             }
@@ -922,7 +920,7 @@ namespace parser_impl
             {
                 // number started with zero
                 // so only '.' or 'e' or 'E' are expected, not more digits
-                if (!next_char2()) // single token single digit "0"
+                if (!next_char()) // single token single digit "0"
                     goto scan_number_done;
 
                 if ('.' == m_curr_char)
@@ -938,7 +936,7 @@ namespace parser_impl
                     goto scan_number_done;
             }
             else if (isdigit(m_curr_char)) { // number started with 1-9
-                while (next_char2() && isdigit(m_curr_char)){} // skip digits
+                while (next_char() && isdigit(m_curr_char)){} // skip digits
 
                 if ('.' == m_curr_char)
                     goto after_decimal_point;
@@ -958,7 +956,7 @@ namespace parser_impl
 after_decimal_point:
             num_is_int = false;
             // after a '.' only a digit is expected
-            next_char2();
+            next_char();
             if (!isdigit(m_curr_char))  [[unlikely]]
             {
                 throw parsing_exception(curr_offset(),
@@ -966,7 +964,7 @@ after_decimal_point:
                                         std::string_view(&m_curr_char, 1),
                                         "' instead"sv});
             }
-            while (next_char2() && isdigit(m_curr_char)){} // skip digits
+            while (next_char() && isdigit(m_curr_char)){} // skip digits
 
             if ('e' == m_curr_char || 'E' == m_curr_char)
                 goto after_exponent;
@@ -976,13 +974,13 @@ after_decimal_point:
 after_exponent:
             num_is_int = false;
             // after 'e' or 'E'
-            next_char2();
+            next_char();
             if ('-' == m_curr_char || '+' == m_curr_char)
-                next_char2();
+                next_char();
 
             if (isdigit(m_curr_char))
             {
-                while (next_char2() && isdigit(m_curr_char)){} // skip digits
+                while (next_char() && isdigit(m_curr_char)){} // skip digits
                 goto scan_number_done;
             }
             else  [[unlikely]]
@@ -996,7 +994,7 @@ after_exponent:
             }
 
 scan_number_done:
-            std::string_view sov(str_start, m_curr_char_p-str_start);
+            std::string_view sov(str_start, m_curr_char_p-str_start-1);
 #if JSONLAND_DEBUG==1
 // in release build the number is translated from text only when to_double/to_int is called
             out_node.m_num = std::atof((const char*)sov.data());
@@ -1059,7 +1057,7 @@ scan_number_done:
 
         bool parse_control_char(json_node&)
         {
-            next_char2();
+            next_char();
             return true;
         }
 
@@ -1074,7 +1072,7 @@ scan_number_done:
             // skip_new_line should be called only if m_curr_char is '\n'
             assert('\n' == m_curr_char);
 
-            while (next_char2())
+            while (next_char())
             {
                 ++m_current_line;
                 m_offset_of_line = m_curr_char_p;
@@ -1094,7 +1092,7 @@ scan_number_done:
             // skip_whilespace should be called only if m_curr_char is whitespace (but not newline)
             assert(is_white_space_not_new_line(m_curr_char));
 
-            while (next_char2())
+            while (next_char())
             {
                 if (!is_white_space_not_new_line(m_curr_char))
                 {
@@ -1123,7 +1121,7 @@ scan_number_done:
 
             parsing_value_type expecting = _value_or_array_close;
 
-            if (!next_char2()) {
+            if (!next_char()) {
                 throw parsing_exception(curr_offset(), {"unexpected end of data during array parsing"sv});
             }
 
@@ -1184,7 +1182,7 @@ scan_number_done:
 
             bool expecting_key = true;
 
-            if (!next_char2()) {
+            if (!next_char()) {
                 throw parsing_exception(curr_offset(), {"unexpected end of data during array parsing"sv});
             }
 
@@ -1259,7 +1257,15 @@ scan_number_done:
             return false;
         }
 
-        inline bool next_char2()
+        /// Advances to the next character in the input buffer.
+        ///
+        /// If the current character pointer `m_curr_char_p` is less than `m_end`,
+        /// this function updates `m_curr_char` with the character at the current pointer,
+        /// advances the pointer, and returns `true`.
+        /// Otherwise, it sets `m_curr_char` to `end_mark` and returns `false`.
+        ///
+        /// @return `true` if a valid character was read; `false` if the end of the buffer was reached.
+       inline bool next_char()
         {
             bool retVal = m_curr_char_p < m_end;
             m_curr_char = retVal ? *m_curr_char_p++ : end_mark;
@@ -1274,7 +1280,7 @@ public:
 
             try
             {
-                if (next_char2()) [[likely]]
+                if (next_char()) [[likely]]
                 {
                     // there should be one and only one top level json node
                     // get_next_node will return false if no valid json was found
@@ -1284,7 +1290,7 @@ public:
                     {
                         // check that remaing characters are only whitespace
                         while (is_whitespace(m_curr_char)) {
-                            next_char2();
+                            next_char();
                         }
 
                         if (m_curr_char != end_mark) // found non white space chars

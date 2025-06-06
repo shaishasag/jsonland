@@ -113,12 +113,12 @@ public:
     /// @param[in] other the #json_node to compare.
     /// @return true if the two given #json_node's values are identical, i.e. both have same JSON value type and same value. <br> return false otherwise.
     /// Note: converted to member function because VisualStudio C++20 does not recognize friend operator==
-    bool operator==(const json_node& other) const;
+    [[nodiscard]] bool operator==(const json_node& other) const;
 
     /// Decide if two #json_node object are not equal.
     /// @param[in] other the #json_node to compare.
     /// @return false if the two given #json_node's are identical, true otherwise
-    bool operator!=(const json_node& other) const;
+    [[nodiscard]] bool operator!=(const json_node& other) const;
 
 
 public:
@@ -298,7 +298,8 @@ public:
         if (m_value_type == number_t) {
             set_hint(_num_in_string);
             // (C++23): in_str_value.contains('.')
-            if (auto pos = in_str_value.find('.'); pos==std::string_view::npos)
+            if (auto pos = in_str_value.find('.');
+                pos==std::string_view::npos)
             {
                 set_hint(_num_is_int);
             }
@@ -312,8 +313,8 @@ public:
     : m_value_type(string_t)
     , m_value(in_str_value)
     {
-        m_value = in_str_value;
     }
+
     /// Assign a new value from std::string, #value_type to set to #string_t
     /// @param in_str_value the new string value.<br>
     /// Efficiency note: a copy of in_str_value will be created, requiring an allocation (most likely).
@@ -447,40 +448,40 @@ public:
 
 
     /// Returns the #value_type of this instance
-    jsonland::value_type get_value_type() const noexcept {return m_value_type;}
+    [[nodiscard]] inline jsonland::value_type get_value_type() const noexcept {return m_value_type;}
 
     /// Returns true if and only if the JSON value type is #null_t.
-    bool is_null() const noexcept {return null_t == m_value_type;}
+    [[nodiscard]] inline bool is_null() const noexcept {return null_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #object_t.
-    bool is_object() const noexcept {return object_t == m_value_type;}
+    [[nodiscard]] inline bool is_object() const noexcept {return object_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #array_t.
-    bool is_array() const noexcept {return array_t == m_value_type;}
+    [[nodiscard]] inline bool is_array() const noexcept {return array_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #string_t.
-    bool is_string() const noexcept {return string_t == m_value_type;}
+    [[nodiscard]] inline bool is_string() const noexcept {return string_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t (float or integer).
-    bool is_number() const noexcept {return number_t == m_value_type;}
+    [[nodiscard]] inline bool is_number() const noexcept {return number_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t, and the value is an integer (signed or unsigned).
-    bool is_int() const noexcept {return number_t == m_value_type && (get_hint(_num_is_int));}
+    [[nodiscard]] inline bool is_int() const noexcept {return number_t == m_value_type && (get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #number_t, and the value is floating point (float, double).
-    bool is_float() const noexcept {return number_t == m_value_type && (!get_hint(_num_is_int));}
+    [[nodiscard]] inline bool is_float() const noexcept {return number_t == m_value_type && (!get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #bool_t.
-    bool is_bool() const noexcept {return bool_t == m_value_type;}
+    [[nodiscard]] inline bool is_bool() const noexcept {return bool_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #bool_t, #number_t or #string_t.
-    bool is_scalar() const noexcept {return is_string() || is_number() || is_bool();}
+    [[nodiscard]] inline bool is_scalar() const noexcept {return is_string() || is_number() || is_bool();}
     /// Returns true if and only if the JSON value is set, i.e. not #uninitialized_t.
-    bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
+    [[nodiscard]] inline bool is_valid() const noexcept {return is_scalar() || is_array() || is_object() || is_null();}
     /// Returns true if and only if the JSON type is structured (#array_t or #object_t).
-    bool is_structured() const noexcept { return is_array() || is_object(); }
+    [[nodiscard]] inline bool is_structured() const noexcept { return is_array() || is_object(); }
 
     /// Returns true if and only if the JSON type is the same as given in param #in_type
     /// @param[in] check_for_type the type in question.
-    bool is_type(jsonland::value_type check_for_type) const noexcept {return check_for_type == m_value_type;}
+    [[nodiscard]] inline bool is_type(jsonland::value_type check_for_type) const noexcept {return check_for_type == m_value_type;}
 
     /// functions for JSON value types #object_t or array_t
 
     /// Number of elements in a object or array
     /// @return the number of elements if JSON value type is #object_t or #array_t. 0 for all other types.
-    size_t num_elements() const noexcept
+    [[nodiscard]] size_t num_elements() const noexcept
     {
         size_t retVal = 0;
         switch (get_value_type())
@@ -506,7 +507,29 @@ public:
     // 1 is always returned for number_t and bool_t
     // 0 is always returned for null_t
     // If the actual type does not match in_expected_type, 0 is returned
-    size_t size_as(const enum value_type in_expected_type) const noexcept
+
+    template<enum value_type JTYPE>
+    [[nodiscard]] size_t size_as() const noexcept
+    {
+        if constexpr (JTYPE == value_type::object_t || JTYPE == value_type::array_t) {
+            return (m_value_type == JTYPE) ? m_values.size() : 0;
+        }
+        else if constexpr (JTYPE == value_type::string_t) {
+            return (m_value_type == JTYPE) ? m_value.size() : 0;
+        }
+        else if constexpr (JTYPE == value_type::bool_t || JTYPE == value_type::number_t) {
+            return (m_value_type == JTYPE) ? 1 : 0;
+        }
+        else if constexpr (JTYPE == value_type::null_t) {
+            return (m_value_type == JTYPE) ? 0 : 0;
+        }
+        else {
+            return 0;
+        }
+
+    }
+
+    [[nodiscard]] size_t size_as(const enum value_type in_expected_type) const noexcept
     {
         size_t retVal = 0;
         if (in_expected_type == get_value_type())
@@ -514,11 +537,11 @@ public:
             switch (get_value_type())
             {
                 case object_t:
-                    retVal = m_values.size(); break;
+                    retVal = size_as<object_t>(); break;
                 case array_t:
-                    retVal = m_values.size(); break;
+                    retVal =  size_as<array_t>(); break;
                 case string_t:
-                    retVal = m_value.size(); break;
+                    retVal = size_as<string_t>(); break;
                 case bool_t:
                 case number_t:
                     retVal = 1; break;
@@ -540,7 +563,13 @@ public:
     // true is always returned for null_t
     // @param in_expected_type the type to be checked
     // If the actual type does not match in_expected_type, true is returned
-    bool empty_as(const enum value_type in_expected_type) const noexcept
+    template<enum value_type JTYPE>
+    [[nodiscard]] inline bool empty_as() const noexcept
+    {
+        bool retVal = 0 == size_as<JTYPE>();
+        return retVal;
+    }
+    [[nodiscard]] inline bool empty_as(const enum value_type in_expected_type) const noexcept
     {
         bool retVal = 0 == size_as(in_expected_type);
         return retVal;
@@ -551,7 +580,7 @@ public:
     // length of string == 0  for string_t
     // false is always returned for number_t and bool_t, since they always hold some value
     // true is always returned for null_t, and for uninitialized_t
-    bool empty() const noexcept
+    [[nodiscard]] inline bool empty() const noexcept
     {
         bool retVal = empty_as(get_value_type());
         return retVal;
@@ -560,7 +589,7 @@ public:
     /// @brief Returns the number of elements that the object or array has currently allocated space for,
     /// similiar to std::vector::capacity().
     /// @return Capacity of the currently allocated storage.
-    size_t capacity() noexcept
+    [[nodiscard]] inline size_t capacity() noexcept
     {
         size_t capa = 0;
         if (is_array() || is_object()) [[likely]]
@@ -612,7 +641,7 @@ public:
     /// int i2 = an_object.get_value("one-by-one", 123)  // i2 == 123 since since object does contains "one", and so default value is returned.
     /// @endcode
     template<typename TGETTYPE>
-    TGETTYPE get_value(std::string_view key, const TGETTYPE in_default={}) const noexcept
+    [[nodiscard]] TGETTYPE get_value(std::string_view key, const TGETTYPE in_default={}) const noexcept
     {
         TGETTYPE retVal = in_default;
         if (contains(key))  // contains return false if this is not an object_t
@@ -639,9 +668,11 @@ public:
     }
 
     /// @return
-    /// Number of child elements with given key if JSON value type of this object is #object_t. This is either 1 or 0 since #object_t does not allow duplicates.
+    /// Number of child elements with given key if JSON value type of this object is #object_t.
     /// <br>Otherwise: 0.
-    size_t count(std::string_view in_key) const noexcept
+    /// Return vlaue is always either 1 or 0 since #object_t does not allow duplicates, and all
+    /// other value_types would return 0.
+    [[nodiscard]] size_t count(std::string_view in_key) const noexcept
     {
         size_t retVal = 0;
         if (is_object())
@@ -656,7 +687,7 @@ public:
     /// @return <b>true</b> if JSON value type of this object is #object_t AND the object contains
     /// child element with the given key.
     /// <br> <b>false</b> otherwise
-    bool contains(std::string_view in_key) const noexcept
+    [[nodiscard]] bool contains(std::string_view in_key) const noexcept
     {
         bool retVal = 1 == count(in_key);
         return retVal;
@@ -666,7 +697,7 @@ public:
     /// @return <b>true</b> if JSON value type of this object is #object_t AND the object contains
     /// child element with the given key, and the child element is of the given type.
     /// <br> <b>false</b> otherwise
-    bool contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
+    [[nodiscard]] bool contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
     {
         bool retVal{false};
 
@@ -821,9 +852,10 @@ public:
 
     /// @return a list of the object's keys in the order they were parsed or inserted,
     /// or empty list if #this is not an #object_t
-    std::vector<std::string_view> keys()
+    [[nodiscard]] std::vector<std::string_view> keys()
     {
         std::vector<std::string_view> retVal;
+        retVal.reserve(m_obj_key_to_index.size());
         for (auto& key2indexItem : m_obj_key_to_index) {
             retVal.push_back(key2indexItem.first.sv());
         }
@@ -848,7 +880,7 @@ public:
         {
             clear(array_t);
         }
-        m_values.push_back(in_node);
+        m_values.emplace_back(in_node);
         return m_values.back();
     }
 
@@ -872,7 +904,7 @@ public:
         return m_values.back();
     }
 
-    json_node& operator[](const IsInteger auto in_dex) noexcept
+    [[nodiscard]] json_node& operator[](const IsInteger auto in_dex) noexcept
     {
         if (is_array() || is_object()) [[likely]]
         {
@@ -905,7 +937,7 @@ public:
     ///          may represent an invalid or empty state. The caller should verify that the index is
     ///          within bounds or check the returned node's validity before use.
 
-    const json_node& operator[](IsInteger auto in_dex) const noexcept
+    [[nodiscard]] const json_node& operator[](IsInteger auto in_dex) const noexcept
     {
         if (size_as(array_t) > static_cast<size_t>(in_dex))
         {
@@ -969,27 +1001,27 @@ public:
     using iterator = iterator_template<json_node>;
     using const_iterator = iterator_template<const json_node>;
 
-    iterator begin()
+    [[nodiscard]] inline iterator begin()
     {
         return iterator(*this, 0);
     }
 
-    iterator end()
+    [[nodiscard]] inline iterator end()
     {
         return iterator(*this, m_values.size());
     }
-    const_iterator begin() const
+    [[nodiscard]] inline const_iterator begin() const
     {
         return const_iterator(*this, 0);
     }
 
-    const_iterator end() const
+    [[nodiscard]] inline const_iterator end() const
     {
         return const_iterator(*this, m_values.size());
     }
 
-    /// Estimates the amount of heap memory allocated by the object.
-    size_t memory_consumption() const noexcept;
+    /// Estimates the amount of heap memory allocated by the this instance and its sub-values.
+    [[nodiscard]] size_t memory_consumption() const noexcept;
 
     /// Serialize json to text and appends the text to #out_str.
     /// @param out_str text will be appended to this string, previous content will not be erased.
@@ -1013,7 +1045,7 @@ public:
     /// <br>If JSON value type is #string_t: the string, unquoted, with escaped characters if/where needed.
     /// <br>If JSON value type is #number_t: if the number was parsed as string, will return that string, otherwise empty string.
     /// <br>If JSON value type is #array_t or #object_t: empty string.
-    const std::string_view as_string_view() const noexcept
+    [[nodiscard]] inline const std::string_view as_string_view() const noexcept
     {
         return m_value.sv();
     }
@@ -1036,7 +1068,7 @@ public:
     /// std::string_view s3 = float_node.get_string();         // s3 == "", since float_node does not hold a string value.
     /// std::string_view s4 = float_node.get_string("rama");   // s4 == "rama", since float_node does not hold a string value, so explicit default value ("rama") is ignored.
     /// @endcode
-    std::string_view get_string(std::string_view in_default_str={}) const noexcept
+    [[nodiscard]] std::string_view get_string(std::string_view in_default_str={}) const noexcept
     {
         if (is_string())
         {
@@ -1069,7 +1101,7 @@ public:
     /// float f4 = string_node.get_float<float>(23.23); // f4 == 23.23f, since string_node does not hold a number value, and explicit default value (23.23) is used.
     /// @endcode
     template<IsFloat TFLOAT=float>
-    TFLOAT get_float(const TFLOAT in_default_fp=0.0f) const noexcept
+    [[nodiscard]] TFLOAT get_float(const TFLOAT in_default_fp=0.0f) const noexcept
     {
         TFLOAT retVal = in_default_fp;
         if (is_number())  [[likely]]
@@ -1088,7 +1120,7 @@ public:
     }
 
     // shortcut for get_float<double>
-    double get_double(const double in_default_dbl=0.0) const noexcept
+    [[nodiscard]] inline double get_double(const double in_default_dbl=0.0) const noexcept
     {
         return get_float<double>(in_default_dbl);
     }
@@ -1111,7 +1143,7 @@ public:
     /// uint64_t i4 = string_node.get_int(23); // i4 == uint64_t(23), since string_node does not hold a number value, and explicit default value (23) is used.
     /// @endcode
     template<IsInteger TINT=int>
-    TINT get_int(const TINT in_default_int=0) const noexcept
+    [[nodiscard]] TINT get_int(const TINT in_default_int=0) const noexcept
     {
         TINT retVal = in_default_int;
         if (is_number()) [[likely]]
@@ -1145,7 +1177,7 @@ public:
     /// bool b3 = string_node.get_bool();    // b3 == false, since string_node does not hold a boolean value, and implicit default value (false) is used.
     /// bool b4 = string_node.get_bool(true); // b4 == true, since string_node does not hold a boolean value, and explicit default value (true) is used.
     /// @endcode
-    bool get_bool(const bool in_default_bool=false) const noexcept
+    [[nodiscard]] bool get_bool(const bool in_default_bool=false) const noexcept
     {
         if (is_bool()) [[likely]]
         {
@@ -1170,7 +1202,7 @@ public:
     /// jsonland::json_node string_node{"a string"};
     /// auto n2 = string_node.get_null();    // n2 == nullptr, because nullptr is returned regardless of JSON value type.
     /// @endcode
-    nullptr_t get_null() const noexcept
+    [[nodiscard]] inline nullptr_t get_null() const noexcept
     {
         return nullptr;
     }
@@ -1197,7 +1229,7 @@ public:
     /// @endcode
 
     template<IsJsonScalarType TASTYPE>
-    TASTYPE get(const TASTYPE in_default={}) const noexcept
+    [[nodiscard]] TASTYPE get(const TASTYPE in_default={}) const noexcept
     {
         if constexpr (IsBool<TASTYPE>) {
             return get_bool(in_default);
@@ -1237,7 +1269,7 @@ public:
     /// bool f3 = number_node.get_as<bool>();       // f3 == false
     /// @endcode
     template<IsJsonScalarType TASTYPE>
-    TASTYPE get_as() const noexcept
+    [[nodiscard]] TASTYPE get_as() const noexcept
     {
         TASTYPE retVal{};
         if constexpr (IsNullPtr<TASTYPE>) {
@@ -1260,7 +1292,7 @@ public:
                 case string_t:
                 {
                     std::string_view str_val = get_string();
-                    if (str_val == "true") {
+                    if (str_val == "true"sv) {
                         retVal = true;
                     }
                     else {
@@ -1371,14 +1403,14 @@ public:
         return retVal;
     }
 
-    std::string_view key() const noexcept
+    [[nodiscard]] std::string_view key() const noexcept
     {
         //m_key.unescape(); key should be unescaped
         return m_key.sv();
     }
 
-    bool refers_to_external_memory() const noexcept;
-    bool is_full_owner() const noexcept;
+    [[nodiscard]] bool refers_to_external_memory() const noexcept;
+    [[nodiscard]] bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
 
 
@@ -1460,8 +1492,8 @@ private:
     // null, bool, and string are all represented in m_str_view, even when new value is assigned programatically.
     // the only place where there could be a value without string representation is when a number value is assigned
     // programatically (i.e. not when read from a string).
-    // One solution could be to convert the number to text upon assignment, but this could be inefficiant if get_float()
-    // is called - requiring the number to be converted again from text to binary form. Another inefficiantiancly could
+    // One solution could be to convert the number to text upon assignment, but this could be inefficient if get_float()
+    // is called - requiring the number to be converted again from text to binary form. Another inefficiency could
     // occur in the same json_node is repeatadly assigned number values. The compromise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
     bool is_num_in_string() const {return get_hint(_num_in_string);}
@@ -1469,7 +1501,7 @@ private:
 
 };
 
-const char* value_type_name(jsonland::value_type in_type);
+[[nodiscard]] constexpr std::string_view value_type_name(jsonland::value_type in_type);
 
 class DllExport json_doc : public json_node
 {
@@ -1501,8 +1533,8 @@ public:
     void set_max_nesting_level(const size_t in_nesting_level);
     void dump_tokens(std::ostream& os, char* in_json_str, char* in_json_str_end);
 
-    int parse_error() { return m_parse_error; }
-    std::string parse_error_message() { return m_parse_error_message; }
+    [[nodiscard]] int parse_error() { return m_parse_error; }
+    [[nodiscard]] std::string_view parse_error_message() { return m_parse_error_message; }
     size_t byte_position() { return 0; }   // todo return the byte position where error was discovered
     size_t memory_consumption();
 

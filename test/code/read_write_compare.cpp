@@ -54,15 +54,13 @@ static bool compare_files(const std::filesystem::path& lhp, const std::filesyste
 }
 
 // parse a test file with all kinds of special chars, escapes and unicode
-// dump in 2 styles: tight and pretty, compare against reference files
-TEST(ReadWriteCompare, file)
+// dump tight compare against reference files
+TEST(ReadWriteCompare, file_dump_tight)
 {
     std::filesystem::path test_files_folder = std::filesystem::path(__FILE__).parent_path().parent_path();
     std::filesystem::path file_to_read = test_files_folder / "test.source.json"sv;
     std::filesystem::path reference_tight_file_path =  test_files_folder / "test.reference.tight.json"sv;
-    std::filesystem::path reference_pretty_file_path = file_to_read;
     std::filesystem::path output_tight_file_path = test_files_folder / "test.output.tight.json"sv;
-    std::filesystem::path output_pretty_file_path = test_files_folder / "test.output.pretty.json"sv;
 
     jsonland::json_doc jdoc;
     std::ifstream ifs(file_to_read);
@@ -73,12 +71,32 @@ TEST(ReadWriteCompare, file)
     {
         std::ofstream out_tight(output_tight_file_path);
         out_tight << jdoc.dump(jsonland::dump_style::tight);
+    }
+
+    EXPECT_TRUE(compare_files(reference_tight_file_path, output_tight_file_path)) << reference_tight_file_path.native() << " != " << output_tight_file_path.native();
+}
+
+// parse a test file with all kinds of special chars, escapes and unicode
+// dump pretty compare against reference files
+TEST(ReadWriteCompare, file_dump_pretty)
+{
+    std::filesystem::path test_files_folder = std::filesystem::path(__FILE__).parent_path().parent_path();
+    std::filesystem::path file_to_read = test_files_folder / "test.source.json"sv;
+    std::filesystem::path reference_pretty_file_path = file_to_read;
+    std::filesystem::path output_pretty_file_path = test_files_folder / "test.output.pretty.json"sv;
+
+    jsonland::json_doc jdoc;
+    std::ifstream ifs(file_to_read);
+    std::string contents((std::istreambuf_iterator<char>(ifs)), {});
+    int parse_result = jdoc.parse_insitu(contents);
+    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+
+    {
         std::ofstream out_pretty(output_pretty_file_path);
         out_pretty << jdoc.dump(jsonland::dump_style::pretty);
     }
 
-    EXPECT_TRUE(compare_files(reference_tight_file_path, output_tight_file_path)) << "dump(tight) output!=reference";
-    EXPECT_TRUE(compare_files(reference_pretty_file_path, output_pretty_file_path)) << "dump(pretty) output!=reference";
+    EXPECT_TRUE(compare_files(reference_pretty_file_path, output_pretty_file_path)) << reference_pretty_file_path.native() << " != " << output_pretty_file_path.native();
 }
 
 // access the keys with escaped char programatically
