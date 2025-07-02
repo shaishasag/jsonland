@@ -102,34 +102,52 @@ TEST(Erase, from_object_containing)
         json_node jObj{object_t};
         jObj["Itsik"] = "Manger";
         jObj["Motti"] = "Shneor";
-        EXPECT_EQ(jObj.num_elements(), 2);
+        jObj["Ben"] = "Porat-Yosef";
+        jObj["Alexander"] = "Hamilton";
+        EXPECT_EQ(jObj.num_elements(), 4);
         EXPECT_TRUE(jObj.contains("Itsik"));
         EXPECT_TRUE(jObj.contains("Motti"));
+        EXPECT_TRUE(jObj.contains("Ben"));
+        EXPECT_TRUE(jObj.contains("Alexander"));
 
         size_t num_erased = jObj.erase(0);// erase by index should not effect object
-        EXPECT_EQ(jObj.num_elements(), 2);
+        EXPECT_EQ(num_erased, 0);
+        EXPECT_EQ(jObj.num_elements(), 4);
         EXPECT_TRUE(jObj.contains("Itsik"));
         EXPECT_TRUE(jObj.contains("Motti"));
+        EXPECT_TRUE(jObj.contains("Ben"));
+        EXPECT_TRUE(jObj.contains("Alexander"));
         num_erased = jObj.erase(1);// erase by index should not effect object
-        EXPECT_EQ(jObj.num_elements(), 2);
+        EXPECT_EQ(num_erased, 0);
+        EXPECT_EQ(jObj.num_elements(), 4);
         EXPECT_TRUE(jObj.contains("Itsik"));
         EXPECT_TRUE(jObj.contains("Motti"));
+        EXPECT_TRUE(jObj.contains("Ben"));
+        EXPECT_TRUE(jObj.contains("Alexander"));
 
         
         num_erased = jObj.erase("Motti");
         EXPECT_EQ(num_erased, 1);
         EXPECT_TRUE(jObj.contains("Itsik"));
         EXPECT_FALSE(jObj.contains("Motti"));
-        EXPECT_EQ(jObj.num_elements(), 1);
+        EXPECT_TRUE(jObj.contains("Ben"));
+        EXPECT_TRUE(jObj.contains("Alexander"));
+        EXPECT_EQ(jObj.num_elements(), 3);
         EXPECT_EQ(jObj["Itsik"].get_string(), "Manger");
-        
+        EXPECT_EQ(jObj["Ben"].get_string(), "Porat-Yosef");
+        EXPECT_EQ(jObj["Alexander"].get_string(), "Hamilton");
+
         // erase twice
         num_erased = jObj.erase("Motti");
         EXPECT_EQ(num_erased, 0);
         EXPECT_TRUE(jObj.contains("Itsik"));
         EXPECT_FALSE(jObj.contains("Motti"));
-        EXPECT_EQ(jObj.num_elements(), 1);
+        EXPECT_TRUE(jObj.contains("Ben"));
+        EXPECT_TRUE(jObj.contains("Alexander"));
+        EXPECT_EQ(jObj.num_elements(), 3);
         EXPECT_EQ(jObj["Itsik"].get_string(), "Manger");
+        EXPECT_EQ(jObj["Ben"].get_string(), "Porat-Yosef");
+        EXPECT_EQ(jObj["Alexander"].get_string(), "Hamilton");
     }
 }
 

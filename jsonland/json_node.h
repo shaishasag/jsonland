@@ -791,6 +791,16 @@ public:
                 int index = iKey->second;
                 m_obj_key_to_index.erase(iKey);
                 m_values.erase(m_values.begin() + index);
+                
+                // reassign indexis
+                for (auto& [aKey, anIndex] : m_obj_key_to_index)
+                {
+                    if (anIndex > index)
+                    {
+                        --anIndex;
+                    }
+                }
+                
                 retVal = 1;
             }
         }
