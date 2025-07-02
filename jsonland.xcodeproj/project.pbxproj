@@ -33,7 +33,6 @@
 		F64C7EFA26D79256006E4F12 /* test_ctors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61C26D2723A0035D17F /* test_ctors.cpp */; };
 		F64C7EFC26D79256006E4F12 /* test_assign.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F60CC61F26D272C40035D17F /* test_assign.cpp */; };
 		F64C7F0E26D7971E006E4F12 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
-		F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = F6625B7E2C2C607B00C66A2A /* json_creator.h */; };
 		F676E46D2CAAFF240067F654 /* test_as.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F676E46C2CAAFF240067F654 /* test_as.cpp */; };
 		F687C5D92CAC73EE0044F4D0 /* test_ownership.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F687C5D82CAC73EE0044F4D0 /* test_ownership.cpp */; };
 		F6930AE62CDE4E2800D75684 /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
@@ -44,7 +43,6 @@
 		F6AA89A82C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89A92C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
 		F6AA89AB2C2CA11100D5ED6E /* json_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6AA89A62C2CA11100D5ED6E /* json_creator.cpp */; };
-		F6AA89B82C2D9CB500D5ED6E /* fstring.h in Headers */ = {isa = PBXBuildFile; fileRef = F6AA89B72C2D9CB500D5ED6E /* fstring.h */; };
 		F6ABDE332B065AFC007ACD9A /* libjsonland.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6963C6526D51C1700C71771 /* libjsonland.a */; };
 		F6CB98082D4236FA008302A1 /* read_write_compare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6CB98072D4236FA008302A1 /* read_write_compare.cpp */; };
 		F6CC78FC2DE899B600456276 /* test_parse_strings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6CC78FB2DE899B600456276 /* test_parse_strings.cpp */; };
@@ -99,63 +97,6 @@
 			remoteInfo = jsonland;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		F60CC62D26D3F8930035D17F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		F638E7732C80C38B00DCF533 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		F648C9B62B3AEE550061D302 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		F64C7EE126D7921C006E4F12 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		F6930AE72CDE4E2800D75684 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		F6ABDE282B065AB3007ACD9A /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F6020A992CCEA397004A630B /* test_copy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = test_copy.cpp; path = test/code/test_copy.cpp; sourceTree = "<group>"; };
@@ -442,18 +383,6 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		F6963C6126D51C1700C71771 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F6AA89B82C2D9CB500D5ED6E /* fstring.h in Headers */,
-				F6625B7F2C2C607B00C66A2A /* json_creator.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		F60CC62E26D3F8930035D17F /* benchmark */ = {
 			isa = PBXNativeTarget;
@@ -461,7 +390,6 @@
 			buildPhases = (
 				F60CC62B26D3F8930035D17F /* Sources */,
 				F60CC62C26D3F8930035D17F /* Frameworks */,
-				F60CC62D26D3F8930035D17F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -479,7 +407,6 @@
 			buildPhases = (
 				F638E7612C80C38B00DCF533 /* Sources */,
 				F638E7712C80C38B00DCF533 /* Frameworks */,
-				F638E7732C80C38B00DCF533 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -497,7 +424,6 @@
 			buildPhases = (
 				F648C9B22B3AEE550061D302 /* Sources */,
 				F648C9B42B3AEE550061D302 /* Frameworks */,
-				F648C9B62B3AEE550061D302 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -515,7 +441,6 @@
 			buildPhases = (
 				F64C7EDF26D7921C006E4F12 /* Sources */,
 				F64C7EE026D7921C006E4F12 /* Frameworks */,
-				F64C7EE126D7921C006E4F12 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -533,7 +458,6 @@
 			buildPhases = (
 				F6930AE22CDE4E2800D75684 /* Sources */,
 				F6930AE52CDE4E2800D75684 /* Frameworks */,
-				F6930AE72CDE4E2800D75684 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -549,7 +473,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F6963C6626D51C1700C71771 /* Build configuration list for PBXNativeTarget "jsonland" */;
 			buildPhases = (
-				F6963C6126D51C1700C71771 /* Headers */,
 				F6963C6226D51C1700C71771 /* Sources */,
 				F6963C6326D51C1700C71771 /* Frameworks */,
 			);
@@ -568,7 +491,6 @@
 			buildPhases = (
 				F6ABDE262B065AB3007ACD9A /* Sources */,
 				F6ABDE272B065AB3007ACD9A /* Frameworks */,
-				F6ABDE282B065AB3007ACD9A /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -891,7 +813,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = /;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -977,7 +898,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
-				DSTROOT = /;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
