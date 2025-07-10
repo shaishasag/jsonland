@@ -267,7 +267,7 @@ json_node& json_node::operator[](std::string_view in_key) noexcept
     else
         return *this;  // what to return here?
 }
- 
+
  const json_node& json_node::operator[](std::string_view in_str) const noexcept
  {
      if (is_object()) [[likely]]
@@ -404,8 +404,8 @@ json_node& json_node::push_back(json_node&& in_node) noexcept
 }
 
 
- 
- 
+
+
 // dummy uninitialized json_node to be returned from operator[] const; where the
 // object/array doe snot contain the key/index
 const json_node& json_node::const_uninitialized_json_node() const
@@ -897,7 +897,7 @@ void json_node::assign_from(const json_node& src)
     if (this == std::addressof(src)) {
         return;
     }
-    
+
     m_value_type = src.m_value_type;
     m_value = src.m_value;
     m_num = src.m_num;
@@ -916,14 +916,14 @@ void json_node::assign_from(json_node&& src)
     if (this == std::addressof(src)) {
         return;
     }
-    
+
     m_value_type = src.m_value_type;
     m_value = std::move(src.m_value);
     m_num = src.m_num;
     std::swap(m_values, src.m_values);
     m_obj_key_to_index = std::move(src.m_obj_key_to_index);
     m_hints = src.m_hints;
-    
+
     src.clear();
 }
 
@@ -932,7 +932,7 @@ void json_node::merge_from(const json_node& in_to_merge)
     if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
         return;
     }
-    
+
     for (auto& item : in_to_merge)
     {
         this->operator[](item.key()).assign_from(item);
@@ -944,7 +944,7 @@ void json_node::merge_from(json_node&& in_to_merge)
     if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
         return;
     }
-    
+
     for (auto& item : in_to_merge)
     {
         this->operator[](item.key()).assign_from(std::move(item));

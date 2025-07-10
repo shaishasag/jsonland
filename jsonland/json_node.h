@@ -361,7 +361,7 @@ public:
     : m_value_type(bool_t)
     , m_value(in_bool ? the_true_string_view : the_false_string_view, 0)
     {}
-    
+
     // assign bool
     json_node& operator=(const IsBool auto in_bool) noexcept
     {
@@ -374,7 +374,7 @@ public:
     //--- null constructor
     explicit json_node(IsNullPtr auto) noexcept : json_node()
     {}
-    
+
     // assign null
     json_node& operator=(IsNullPtr auto)
     {
@@ -620,7 +620,7 @@ public:
     /// If key object does not contain the key, do nothing and return 0
     /// If not an object, do nothing and return 0
     size_t erase(std::string_view in_key);
-    
+
     /// Erase from array by index and return the number of items erased (0 or 1)
     /// If key array does not contain the index, do nothing and return 0
     /// If not an array, do nothing and return 0
@@ -762,20 +762,20 @@ public:
 
     /// Estimates the amount of heap memory allocated by the this instance and its sub-values.
     [[nodiscard]] size_t memory_consumption() const noexcept;
-    
+
     // ---
 
     /// Serialize json to text and appends the text to #out_str.
     /// @param out_str text will be appended to this string, previous content will not be erased.
     void dump(std::string& out_str,
               dump_style in_style=dump_style::tight) const noexcept;
-    
+
     // ---
 
     /// Serialize json to text and return as std::string.
     /// @return Text represntation of this json object.
     std::string dump(dump_style in_style=dump_style::tight) const noexcept;
-    
+
     // ---
 
     /// Serilize json to text and append the text to a stream.
@@ -783,7 +783,7 @@ public:
     /// @return os.
     std::ostream& dump(std::ostream& os,
                        dump_style in_style=dump_style::tight) const noexcept;
-    
+
     // ---
 
     /// Get the string value as std::string_view
@@ -797,7 +797,7 @@ public:
     {
         return m_value.sv();
     }
-    
+
     // ---
 
     /// @brief If JSON value type is #string_t, return the string value (without quoates). Otherwise returns the given default value.
@@ -819,7 +819,7 @@ public:
     /// std::string_view s4 = float_node.get_string("rama");   // s4 == "rama", since float_node does not hold a string value, so explicit default value ("rama") is ignored.
     /// @endcode
     [[nodiscard]] std::string_view get_string(std::string_view in_default_str={}) const noexcept;
-    
+
     // ---
 
     /// @brief If JSON value type is #number_t, returns the number as a floating point. Otherwise returns the given default value.
@@ -841,7 +841,7 @@ public:
     /// @endcode
     template<IsFloat TFLOAT=float>
     [[nodiscard]] TFLOAT get_float(const TFLOAT in_default_fp=0.0f) const noexcept;
-    
+
     // ---
 
     // shortcut for get_float<double>
@@ -849,7 +849,7 @@ public:
     {
         return get_float<double>(in_default_dbl);
     }
-    
+
     // ---
 
     /// @brief If JSON value type is number, returns the number as an integer. Otherwise returns the given default value.
@@ -871,7 +871,7 @@ public:
     /// @endcode
     template<IsInteger TINT=int>
     [[nodiscard]] TINT get_int(const TINT in_default_int=0) const noexcept;
-    
+
     // ---
 
     /// @brief If JSON value type is #bool_t, returns the boolean value (true/false). Otherwise returns the given default value.
@@ -901,7 +901,7 @@ public:
             return in_default_bool;
         }
     }
-    
+
     // ---
 
     /// @brief Return nullptr
@@ -921,7 +921,7 @@ public:
     {
         return nullptr;
     }
-    
+
     // ---
 
     /// @brief Get the value according the the type of #TASTYPE.
@@ -947,7 +947,7 @@ public:
 
     template<IsJsonScalarType TASTYPE>
     [[nodiscard]] TASTYPE get(const TASTYPE in_default={}) const noexcept;
-    
+
     // ---
 
     /// @brief Get the value according the the type of #TASTYPE or try to convert the value to #TASTYPE
@@ -966,7 +966,7 @@ public:
     /// @endcode
     template<IsJsonScalarType TASTYPE>
     [[nodiscard]] TASTYPE get_as() const noexcept;
-    
+
     // ---
 
     [[nodiscard]] inline std::string_view key() const noexcept
@@ -977,7 +977,7 @@ public:
     [[nodiscard]] bool refers_to_external_memory() const noexcept;
     [[nodiscard]] bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
-    
+
     // ---
 
     /// @brief Assigns this JSON node from a source node by deep copy.
@@ -987,7 +987,7 @@ public:
     ///
     /// @param src The source `json_node` to copy from.
     void assign_from(const json_node& src);
-    
+
     // ---
 
     /// @brief Assigns this JSON node from another by move.
@@ -1003,30 +1003,30 @@ public:
     ///
     /// @param src The `json_node` to move from (rvalue reference).
     void assign_from(json_node&& src);
-    
+
     // ---
 
     // Extend function for key-value containers (JSON objects)
     template<KeyValueContainer TContainer>
     void extend(const TContainer& container);
-    
+
     // ---
 
     // Extend function for sequence containers (JSON arrays)
     template<SequenceContainer TContainer>
     void extend(const TContainer& container);
-    
+
     // ---
 
     // Extract function for sequence containers (JSON arrays)
     template<SequenceContainer TContainer>
     void extract(TContainer& container) const;
-    
+
     // ---
 
     template<KeyValueContainer TContainer>
     void extract(TContainer& container) const;
-    
+
     // ---
 
 
@@ -1040,9 +1040,9 @@ public:
     ///
     /// @param in_to_merge A constant reference to the JSON object to merge into this one.
     void merge_from(const json_node& in_to_merge);
-    
+
     // ---
-    
+
     /// @brief Merges another JSON object into this one by move.
     ///
     /// If both this node and the input node are objects, all key-value pairs from
@@ -1054,7 +1054,7 @@ public:
     ///
     /// @param in_to_merge An rvalue reference to the JSON object to merge into this one.
     void merge_from(json_node&& in_to_merge);
-    
+
 protected:
 
     void parser_direct_set(const std::string_view in_str, jsonland::value_type in_type);
