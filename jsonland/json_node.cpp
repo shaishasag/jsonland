@@ -105,6 +105,307 @@ using namespace jsonland;
     return retVal;
 }
 
+json_node::json_node(jsonland::value_type in_type, size_t in_reserve) noexcept
+: m_value_type(in_type)
+{
+    switch (m_value_type)
+    {
+        case null_t:
+            m_value.set_without_ownership(the_null_string_view);
+        break;
+        case number_t:
+            m_value.set_without_ownership(the_empty_string_view);
+        break;
+        case bool_t:
+            m_value.set_without_ownership(the_false_string_view);
+        break;
+        case object_t:
+            reserve(in_reserve);
+        break;
+        case array_t:
+            reserve(in_reserve);
+        break;
+        default:
+            m_value.set_without_ownership(the_empty_string_view);
+        break;
+    }
+}
+
+json_node::json_node(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
+: m_value_type(in_type)
+, m_value(in_str_value)
+{
+    if (m_value_type == number_t) {
+        set_hint(_num_in_string);
+        // (C++23): in_str_value.contains('.')
+        if (auto pos = in_str_value.find('.');
+            pos==std::string_view::npos)
+        {
+            set_hint(_num_is_int);
+        }
+    }
+}
+
+void json_node::clear(const value_type in_new_type) noexcept
+{
+    m_value_type = in_new_type;
+    m_obj_key_to_index.clear();
+    m_values.clear();
+
+    switch (m_value_type)
+    {
+        case null_t:
+            m_value.set_without_ownership(the_null_string_view);
+        break;
+        case number_t:
+            m_value.set_without_ownership(the_empty_string_view);
+        break;
+        case bool_t:
+            m_value.set_without_ownership(the_false_string_view);
+        break;
+        default:
+            m_value.set_without_ownership(the_empty_string_view);
+        break;
+    }
+
+    m_num = 0.0;
+    m_hints = _hint_none;
+}
+
+size_t json_node::num_elements() const noexcept
+{
+    size_t retVal = 0;
+    switch (get_value_type())
+    {
+        case object_t: retVal = m_values.size(); break;
+        case array_t: retVal = m_values.size(); break;
+        default:
+            break;
+
+    }
+    return retVal;
+}
+
+size_t json_node::size_as(const enum value_type in_expected_type) const noexcept
+{
+    size_t retVal = 0;
+    if (in_expected_type == get_value_type())
+    {
+        switch (get_value_type())
+        {
+            case object_t:
+                retVal = size_as<object_t>(); break;
+            case array_t:
+                retVal =  size_as<array_t>(); break;
+            case string_t:
+                retVal = size_as<string_t>(); break;
+            case bool_t:
+            case number_t:
+                retVal = 1; break;
+            case null_t:
+                retVal = 0; break;
+            default:
+                retVal = 0;
+                break;
+
+        }
+    }
+    return retVal;
+}
+
+void json_node::reserve(const size_t new_cap) noexcept
+{
+    if (is_array() || is_object()) [[likely]]
+    {
+        m_values.reserve(new_cap);
+        if (is_object())
+        {
+            m_obj_key_to_index.reserve(new_cap);
+        }
+    }
+}
+
+bool json_node::contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
+{
+    bool retVal{false};
+
+    if (contains(in_key))
+    {
+        const json_node& theJ = m_values[m_obj_key_to_index.at(string_and_view(in_key, 0))];
+        retVal = in_expected_type == theJ.m_value_type;
+    }
+
+    return retVal;
+}
+
+json_node& json_node::operator[](std::string_view in_key) noexcept
+{
+    if (is_null())
+    {
+        clear(object_t);
+    }
+
+    if (is_object()) [[likely]]
+    {
+        int index = -1;
+        string_and_view key(in_key, 0);
+
+        if (0 == m_obj_key_to_index.count(key))
+        {
+            index = static_cast<int>(m_values.size());
+            json_node& value = m_values.emplace_back();
+            value.m_key = key;
+
+            m_obj_key_to_index[value.m_key] = index;
+        }
+        else
+        {
+            index = m_obj_key_to_index[key];
+        }
+        return m_values[index];
+    }
+    else
+        return *this;  // what to return here?
+}
+ 
+ const json_node& json_node::operator[](std::string_view in_str) const noexcept
+ {
+     if (is_object()) [[likely]]
+     {
+         string_and_view key(in_str, 0);
+         if (contains(key)) {
+             return m_values[m_obj_key_to_index.at(key)];
+         }
+         else {
+             return const_uninitialized_json_node();
+         }
+     }
+     else
+         return const_uninitialized_json_node();  // what to return here?
+}
+
+size_t json_node::erase(std::string_view in_key)
+{
+    size_t retVal{0};
+    if (is_object()) [[likely]]
+    {
+        string_and_view key(in_key, 0);
+        if (auto iKey = m_obj_key_to_index.find(key);
+        iKey != m_obj_key_to_index.end())
+        {
+            int index = iKey->second;
+            m_obj_key_to_index.erase(iKey);
+            m_values.erase(m_values.begin() + index);
+
+            // reassign indexis
+            for (auto& [aKey, anIndex] : m_obj_key_to_index)
+            {
+                if (anIndex > index)
+                {
+                    --anIndex;
+                }
+            }
+
+            retVal = 1;
+        }
+    }
+
+    return retVal;
+}
+
+size_t json_node::erase(size_t in_index)
+{
+    size_t retVal{0};
+    if (is_array()) [[likely]]
+    {
+        if (in_index < m_values.size())
+        {
+            m_values.erase(m_values.begin() + in_index);
+            retVal = 1;
+        }
+    }
+
+ return retVal;
+}
+
+// append object to object
+json_node& json_node::append_object(std::string_view in_key, size_t in_reserve)
+{
+ if (is_object()) [[likely]]
+ {
+     json_node& retVal = this->operator[](in_key);
+     retVal = object_t;
+     retVal.reserve(in_reserve);
+
+     return retVal;
+ }
+ else
+     return *this;  // what to return here?
+}
+
+// append array to object
+json_node& json_node::append_array(std::string_view in_key, size_t in_reserve)
+{
+    if (is_object()) [[likely]]
+    {
+        json_node& retVal = this->operator[](in_key);
+        retVal = array_t;
+        retVal.reserve(in_reserve);
+
+        return retVal;
+    }
+    else
+        return *this;  // what to return here?
+}
+
+/// @return a list of the object's keys in the order they were parsed or inserted,
+/// or empty list if #this is not an #object_t
+[[nodiscard]] std::vector<std::string_view> json_node::keys()
+{
+    std::vector<std::string_view> retVal;
+    retVal.reserve(m_obj_key_to_index.size());
+    for (auto& key2indexItem : m_obj_key_to_index)
+    {
+        retVal.push_back(key2indexItem.first.sv());
+    }
+    return retVal;
+}
+
+/// functions for JSON value type #array_t
+
+json_node& json_node::emplace_back() noexcept
+{
+    if (is_null())
+    {
+        clear(array_t);
+    }
+    m_values.emplace_back();
+    return m_values.back();
+}
+
+json_node& json_node::push_back(const json_node& in_node) noexcept
+{
+    if (is_null())
+    {
+        clear(array_t);
+    }
+    m_values.emplace_back(in_node);
+    return m_values.back();
+}
+
+json_node& json_node::push_back(json_node&& in_node) noexcept
+{
+    if (is_null())
+    {
+        clear(array_t);
+    }
+    m_values.emplace_back(std::move(in_node));
+    return m_values.back();
+}
+
+
+ 
+ 
 // dummy uninitialized json_node to be returned from operator[] const; where the
 // object/array doe snot contain the key/index
 const json_node& json_node::const_uninitialized_json_node() const
@@ -112,6 +413,33 @@ const json_node& json_node::const_uninitialized_json_node() const
     static const json_node the_const_uninitialized_json_node(jsonland::uninitialized_t);
     return the_const_uninitialized_json_node;
 }
+
+json_node& json_node::append_object(size_t in_reserve)
+{
+    if (is_array()) [[likely]]
+    {
+        json_node& retVal = m_values.emplace_back(object_t);
+        retVal.reserve(in_reserve);
+
+        return retVal;
+    }
+    else
+        return *this;  // what to return here?
+}
+
+json_node& json_node::append_array(size_t in_reserve)
+{
+    if (is_array())  [[likely]]
+    {
+        json_node& retVal = m_values.emplace_back(array_t);
+        retVal.reserve(in_reserve);
+
+        return retVal;
+    }
+    else
+        return *this;  // what to return here?
+}
+
 
 std::ostream& json_node::dump(std::ostream& os,
                               dump_style in_style) const noexcept
@@ -415,6 +743,34 @@ std::string json_node::dump(dump_style in_style) const noexcept
     return retVal;
 }
 
+std::string_view json_node::get_string(std::string_view in_default_str) const noexcept
+{
+    if (is_string())
+    {
+        if (get_hint(_might_contain_escaped_chars))
+        {
+            m_value.unescape_json_string_internal(); // will not allocate if string does not contain escapes
+            unset_hint(_might_contain_escaped_chars);
+        }
+        return as_string_view();
+    }
+    else
+        return in_default_str;
+}
+
+void json_node::parser_direct_set(const std::string_view in_str, jsonland::value_type in_type)
+{
+    // add asserts that m_obj_key_to_index & m_values are empty
+    m_value_type = in_type;
+    m_value.set_without_ownership(in_str);
+}
+
+void json_node::json_node::parser_direct_set(jsonland::value_type in_type)
+{
+    // add asserts that m_obj_key_to_index & m_values are empty
+    m_value_type = in_type;
+}
+
 size_t json_node::memory_consumption() const noexcept
 {
     size_t retVal{0};
@@ -534,6 +890,66 @@ void json_node::take_ownership() noexcept
             }
         break;
     }
+}
+
+void json_node::assign_from(const json_node& src)
+{
+    if (this == std::addressof(src)) {
+        return;
+    }
+    
+    m_value_type = src.m_value_type;
+    m_value = src.m_value;
+    m_num = src.m_num;
+    m_values.reserve(src.m_values.size());
+    for (auto& jn : src.m_values)
+    {
+        m_values.push_back(jn.clone());
+    }
+
+    m_obj_key_to_index = src.m_obj_key_to_index;
+    m_hints = src.m_hints;
+}
+
+void json_node::assign_from(json_node&& src)
+{
+    if (this == std::addressof(src)) {
+        return;
+    }
+    
+    m_value_type = src.m_value_type;
+    m_value = std::move(src.m_value);
+    m_num = src.m_num;
+    std::swap(m_values, src.m_values);
+    m_obj_key_to_index = std::move(src.m_obj_key_to_index);
+    m_hints = src.m_hints;
+    
+    src.clear();
+}
+
+void json_node::merge_from(const json_node& in_to_merge)
+{
+    if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
+        return;
+    }
+    
+    for (auto& item : in_to_merge)
+    {
+        this->operator[](item.key()).assign_from(item);
+    }
+}
+
+void json_node::merge_from(json_node&& in_to_merge)
+{
+    if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
+        return;
+    }
+    
+    for (auto& item : in_to_merge)
+    {
+        this->operator[](item.key()).assign_from(std::move(item));
+    }
+    in_to_merge.clear();
 }
 
 namespace jsonland
