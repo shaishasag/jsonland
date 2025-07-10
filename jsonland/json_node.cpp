@@ -113,19 +113,6 @@ const json_node& json_node::const_uninitialized_json_node() const
     return the_const_uninitialized_json_node;
 }
 
-json_node& json_node::operator=(json_node&& in_node) noexcept
-{
-    m_value_type = in_node.m_value_type;
-
-    m_value = std::move(in_node.m_value);
-    m_num = in_node.m_num;
-    m_values = std::move(in_node.m_values);
-    m_obj_key_to_index = std::move(in_node.m_obj_key_to_index);
-    m_hints = in_node.m_hints;
-
-    return *this;
-}
-
 std::ostream& json_node::dump(std::ostream& os,
                               dump_style in_style) const noexcept
 {

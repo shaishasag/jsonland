@@ -213,7 +213,7 @@ public:
 
     /// Move assignment
     /// @param in_node the #json_node to move
-    json_node& operator=(json_node&& in_node) noexcept;
+    json_node& operator=(json_node&& in_node) noexcept = default;
 
     /// Constructor by value_type
     /// @param in_type the JSON value type this instance will have.
@@ -791,7 +791,7 @@ public:
                 int index = iKey->second;
                 m_obj_key_to_index.erase(iKey);
                 m_values.erase(m_values.begin() + index);
-                
+
                 // reassign indexis
                 for (auto& [aKey, anIndex] : m_obj_key_to_index)
                 {
@@ -800,7 +800,7 @@ public:
                         --anIndex;
                     }
                 }
-                
+
                 retVal = 1;
             }
         }
@@ -1423,6 +1423,58 @@ public:
     [[nodiscard]] bool is_full_owner() const noexcept;
     void take_ownership() noexcept;
 
+    /// @brief Assigns this JSON node from a source node by deep copy.
+    ///
+    /// Copies all data fields from the source node `src` into this node.
+    /// If `src` is the same object as `*this`, the function does nothing.
+    ///
+    /// @param src The source `json_node` to copy from.
+    void assign_from(const json_node& src)
+    {
+        if (this == std::addressof(src)) {
+            return;
+        }
+        
+        m_value_type = src.m_value_type;
+        m_value = src.m_value;
+        m_num = src.m_num;
+        m_values.reserve(src.m_values.size());
+        for (auto& jn : src.m_values)
+        {
+            m_values.push_back(jn.clone());
+        }
+
+        m_obj_key_to_index = src.m_obj_key_to_index;
+        m_hints = src.m_hints;
+    }
+    
+    /// @brief Assigns this JSON node from another by move.
+    ///
+    /// Moves all data fields from the source node `src` into this node for efficiency:
+    /// - Value type and scalar/numeric values are directly moved.
+    /// - Internal vector of children is swapped for exception safety and performance.
+    /// - Object key index map and hints are moved.
+    ///
+    /// After the move, `src` is cleared and left in a valid but empty state.
+    ///
+    /// If `src` is the same object as `*this`, the function does nothing.
+    ///
+    /// @param src The `json_node` to move from (rvalue reference).
+    void assign_from(json_node&& src)
+    {
+        if (this == std::addressof(src)) {
+            return;
+        }
+        
+        m_value_type = src.m_value_type;
+        m_value = std::move(src.m_value);
+        m_num = src.m_num;
+        std::swap(m_values, src.m_values);
+        m_obj_key_to_index = std::move(src.m_obj_key_to_index);
+        m_hints = src.m_hints;
+        
+        src.clear();
+    }
 
     // Extend function for key-value containers (JSON objects)
     template<KeyValueContainer TContainer>
@@ -1479,6 +1531,50 @@ public:
         }
     }
 
+
+    /// @brief Merges another JSON object into this one by copy.
+    ///
+    /// If both this node and the input node are objects, all key-value pairs from
+    /// the input are inserted into this node. For existing keys, their values are
+    /// replaced using `assign_from(const json_node&)`.
+    ///
+    /// This performs a deep copy of the values from `in_to_merge`.
+    ///
+    /// @param in_to_merge A constant reference to the JSON object to merge into this one.
+    void merge_from(const json_node& in_to_merge)
+    {
+        if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
+            return;
+        }
+        
+        for (auto& item : in_to_merge)
+        {
+            this->operator[](item.key()).assign_from(item);
+        }
+    }
+    
+    /// @brief Merges another JSON object into this one by move.
+    ///
+    /// If both this node and the input node are objects, all key-value pairs from
+    /// the input are moved into this node. For existing keys, their values are
+    /// replaced using `assign_from(json_node&&)`.
+    ///
+    /// This allows efficient transfer of data from `in_to_merge` without deep copying.
+    /// After the merge, `in_to_merge` is cleared and left in a valid but empty state.
+    ///
+    /// @param in_to_merge An rvalue reference to the JSON object to merge into this one.
+    void merge_from(json_node&& in_to_merge)
+    {
+        if (this == std::addressof(in_to_merge) || !is_object() || !in_to_merge.is_object()) {
+            return;
+        }
+        
+        for (auto& item : in_to_merge)
+        {
+            this->operator[](item.key()).assign_from(std::move(item));
+        }
+        in_to_merge.clear();
+    }
 
 protected:
 
