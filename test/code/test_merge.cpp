@@ -205,3 +205,55 @@ TEST(Merge, merge_deep)
     }
 
 }
+
+TEST(Merge, merge_parsed_insitu)
+{
+    {   // merge-clone
+        
+        std::string_view to_source = R"({"one":"one","two": 2, "three": 3.0})";
+        json_doc to;
+        to.parse_insitu(to_source);
+        
+        std::string_view from_source = R"({"music": {"guitar":"string","trumpet": "brass", "drums":"percussion"}})";
+        json_doc from;
+        from.parse_insitu(from_source);
+
+        to.merge_from(from);
+        std::cout << to.dump() << std::endl;
+        
+        EXPECT_TRUE(to["one"].get_string() == "one");
+        EXPECT_TRUE(to["two"].get_int() == 2);
+        EXPECT_TRUE(to["three"].get_double() == 3.0);
+        
+        auto& to_sub_obj1 = from["music"];
+        EXPECT_EQ(to_sub_obj1.size_as(object_t), 3);
+        EXPECT_TRUE(to_sub_obj1["guitar"].get_string() == "string");
+        EXPECT_TRUE(to_sub_obj1["trumpet"].get_string() == "brass");
+        EXPECT_TRUE(to_sub_obj1["drums"].get_string() == "percussion");
+    }
+    {   // merge-move
+        std::string_view to_source = R"({"one":"one","two": 2, "three": 3.0})";
+        json_doc to;
+        to.parse_insitu(to_source);
+        
+        std::string_view from_source = R"({"music": {"guitar":"string","trumpet": "brass", "drums":"percussion"}})";
+        json_doc from;
+        from.parse_insitu(from_source);
+
+        to.merge_from(std::move(from));
+        
+        EXPECT_TRUE(to["one"].get_string() == "one");
+        EXPECT_TRUE(to["two"].get_int() == 2);
+        EXPECT_TRUE(to["three"].get_double() == 3.0);
+        
+        auto& to_sub_obj1 = to["music"];
+        EXPECT_EQ(to_sub_obj1.size_as(object_t), 3);
+        EXPECT_TRUE(to_sub_obj1["guitar"].get_string() == "string");
+        EXPECT_TRUE(to_sub_obj1["trumpet"].get_string() == "brass");
+        EXPECT_TRUE(to_sub_obj1["drums"].get_string() == "percussion");
+        
+        // merged-from object should be empty
+        EXPECT_TRUE(from.empty());
+    }
+    
+}

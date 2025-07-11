@@ -42,11 +42,11 @@ TEST(Write, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), "[1]");
     oss.str("");
     
-    ajn.push_back("Motish");
-    ajn.push_back("Neor");
+    ajn.push_back("Moti");
+    ajn.push_back("Shneor");
     oss << ajn;
     std::string m(oss.str().c_str());
-    EXPECT_STREQ(oss.str().c_str(), R"([1,"Motish","Neor"])");
+    EXPECT_STREQ(oss.str().c_str(), R"([1,"Moti","Shneor"])");
     oss.str("");
 
     json_node ojn(jsonland::value_type::object_t);
@@ -54,14 +54,14 @@ TEST(Write, to_ostream)
     EXPECT_STREQ(oss.str().c_str(), "{}");
     oss.str("");
     
-    ojn["Shmoti"] = "Neor";
+    ojn["Moti"] = "Shneor";
     oss << ojn;
-    EXPECT_STREQ(oss.str().c_str(), R"({"Shmoti":"Neor"})");
+    EXPECT_STREQ(oss.str().c_str(), R"({"Moti":"Shneor"})");
     oss.str("");
 
     ojn["array"].assign_from(std::move(ajn));
     oss << ojn;
-    EXPECT_STREQ(oss.str().c_str(), R"({"Shmoti":"Neor","array":[1,"Motish","Neor"]})");
+    EXPECT_STREQ(oss.str().c_str(), R"({"Moti":"Shneor","array":[1,"Moti","Shneor"]})");
     oss.str("");
 }
 

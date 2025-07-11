@@ -901,6 +901,7 @@ void json_node::assign_from(const json_node& src)
     m_value_type = src.m_value_type;
     m_value = src.m_value;
     m_num = src.m_num;
+    m_values.clear();
     m_values.reserve(src.m_values.size());
     for (auto& jn : src.m_values)
     {
