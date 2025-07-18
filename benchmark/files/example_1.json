@@ -1,7 +1,7 @@
 {
-    "string #1": "1st string",
-    "an int": 12345678,
-    "an float": 13.12345678,
+    "string #1": "1st string" ,
+    "an int": 12345678  ,
+    "an float" : 13.12345678  ,
     "an bool": true,
     "a null": null,
     "an array": [
@@ -14,13 +14,13 @@
             "string #3": "3rd string",
             "an int": 12345678,
             "an float": 13.12345678,
-            "an bool": true,
+            "an bool" : true,
             "a null": null
         }
     ],
     "an object": {
         "1": 1,
-        "2": "2",
+        "2" : "2" ,
         "an array": [
             null,
             false,
@@ -31,10 +31,10 @@
             []
         ],
         "true": true,
-        "false": false,
+        "false"  : false,
         "null": null
     },
-    "empty object": {},
-    "empty array": [],
+    "empty object" : {          },
+    "empty array": [   ],
     "empty string": ""
 }

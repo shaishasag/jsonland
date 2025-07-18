@@ -1,0 +1,244 @@
+#ifndef __JsOnBenchMarker_h__
+#define __JsOnBenchMarker_h__
+
+#include <sstream>
+
+#include "JsonBenchmarker.h"
+#include "jsonland/JsOn.h"
+
+using namespace jsonland;
+
+class JsOn_benchmarker : public JsonBenchmarker
+{
+public:
+    JsOn_benchmarker()
+    {
+        parser_name = "JsOn";
+    }
+    
+    void parse_text(Benchmark_results& results) override
+    {
+        auto before = std::chrono::steady_clock::now();
+        JsOn the_json;
+        results.error = the_json.parse_inplace(results.contents);
+        auto after = std::chrono::steady_clock::now();
+        results.file_parse_duration_milli = after - before;
+    }
+    
+    void recursive_copy(Benchmark_results& results) override
+    {
+        auto before = std::chrono::steady_clock::now();
+        recursive_copy_self(jdoc, jdoc_copy);
+        auto after = std::chrono::steady_clock::now();
+        results.resusive_copy_duration_milli = after - before;
+        jdoc.clear(); // make sure no allocation from jdoc were used by jdoc_copy
+//        std::cout << "is_null_count: " << is_null_count << "\n";
+//        std::cout << "is_bool_count: " << is_bool_count << "\n";
+//        std::cout << "is_float_count: " << is_float_count << "\n";
+//        std::cout << "is_int_count: " << is_int_count << "\n";
+//        std::cout << "is_string_count: " << is_string_count << "\n";
+//        std::cout << "is_array_count: " << is_array_count << "\n";
+//        std::cout << "is_object_count: " << is_object_count << "\n";
+//        std::cout << "total_count: " << is_object_count+is_array_count+is_string_count+is_int_count+is_float_count+is_bool_count+is_null_count << "\n";
+//        std::cout << "---" << "\n";
+    }
+    
+    size_t is_null_count{0};
+    size_t is_bool_count{0};
+    size_t is_float_count{0};
+    size_t is_int_count{0};
+    size_t is_string_count{0};
+    size_t is_array_count{0};
+    size_t is_object_count{0};
+    void recursive_copy_self(const JsOn& jdoc,
+                             JsOn& jNodeOut)
+    {
+        if (jdoc.is_type(string_t))
+        {
+            ++is_string_count;
+            std::string the_string(jdoc.get_string());
+            jNodeOut = the_string;
+        }
+        else if (jdoc.is_type(bool_t))
+        {
+            ++is_bool_count;
+            const bool b = jdoc.get_bool();
+            jNodeOut = b;
+        }
+        else if (jdoc.is_float())
+        {
+            ++is_float_count;
+            const double d = jdoc.get_double();
+            jNodeOut = d;
+        }
+        else if (jdoc.is_int())
+        {
+            ++is_int_count;
+            const int64_t i = jdoc.get_int();
+            jNodeOut = i;
+        }
+
+        else if (jdoc.is_object())
+        {
+            ++is_object_count;
+            jNodeOut = JsOn(object_t);
+
+            for (auto& [key, inItem] : jdoc.object_range())
+            {
+                JsOn objItem;
+                recursive_copy_self(inItem, objItem);
+                jNodeOut[key] = std::move(objItem);
+            }
+        }
+        else if (jdoc.is_array())
+        {
+            ++is_array_count;
+            jNodeOut = array_t;
+            for (auto& inItem : jdoc.array_range())
+            {
+                JsOn arrayItem;
+                recursive_copy_self(inItem, arrayItem);
+                jNodeOut.push_back(std::move(arrayItem));
+            }
+        }
+
+        else if (jdoc.is_type(null_t))
+        {
+            ++is_null_count;
+            jNodeOut = null_t;
+        }
+
+    }
+    
+    
+    void acumulate_object(const jsonland::JsOn& in_obj_node,
+                          jl_fixed::sub_object_json_creator_t& out_acum) const noexcept
+    {
+        for (const auto& [key, val] : in_obj_node.object_range())
+        {
+            if (val.is_object())
+            {
+                auto sub_obj = out_acum.append_object(key);
+                acumulate_object(val, sub_obj);
+            }
+            else if (val.is_array())
+            {
+                auto sub_array = out_acum.append_array(key);
+                acumulate_array(val, sub_array);
+            }
+            else if (val.is_int())
+            {
+                out_acum.append_value(key, val.get_int());
+            }
+            else if (val.is_float())
+            {
+                out_acum.append_value(key, val.get_float());
+            }
+            else if (val.is_string())
+            {
+                out_acum.append_value(key, val.get_string());
+            }
+            else if (val.is_bool())
+            {
+                out_acum.append_value(key, val.get_bool());
+            }
+            else if (val.is_null())
+            {
+                out_acum.append_value(key, val.get_null());
+            }
+        }
+    }
+    
+    void acumulate_array(const jsonland::JsOn& in_array_node,
+                         jl_fixed::sub_array_json_creator_t& out_acum) const noexcept
+    {
+
+        for (auto& val : in_array_node.array_range())
+        {
+            if (val.is_object())
+            {
+                auto sub_obj = out_acum.append_object();
+                acumulate_object(val, sub_obj);
+            }
+            else if (val.is_array())
+            {
+                auto sub_array = out_acum.append_array();
+                acumulate_array(val, sub_array);
+            }
+            else if (val.is_int())
+            {
+                out_acum.append_value(val.get_int());
+            }
+            else if (val.is_float()) // distiguish float/int ??
+            {
+                out_acum.append_value(val.get_float());
+            }
+            else if (val.is_string())
+            {
+                out_acum.append_value(val.get_string());
+            }
+            else if (val.is_bool())
+            {
+                out_acum.append_value(val.get_bool());
+            }
+            else if (val.is_null())
+            {
+                out_acum.append_value(val.get_null());
+            }
+        }
+    }
+    
+    void acumulate_doc(const jsonland::JsOn& in_doc,
+                       std::string& out_str) const noexcept
+    {
+
+        if (in_doc.is_object())
+        {
+            jl_fixed::object_json_creator<100'000> obj_acum;
+            acumulate_object(in_doc, obj_acum);
+            out_str = obj_acum;
+        }
+        else if (in_doc.is_array())
+        {
+            jl_fixed::array_json_creator<100'000> array_acum;
+            acumulate_array(in_doc, array_acum);
+            out_str = array_acum;
+        }
+
+    }
+
+    void write_copy_to_file(Benchmark_results& results) override
+    {
+        auto out_file = std::filesystem::path(results.file_path);
+        auto out_file2 = out_file;
+        std::string new_extension = parser_name;
+        new_extension += ".out.json";
+        out_file.replace_extension(new_extension);
+        out_file2.replace_extension("acum.json");
+        {
+            auto before = std::chrono::steady_clock::now();
+            std::string jstr;
+            jdoc_copy.dump(jstr);
+            auto after = std::chrono::steady_clock::now();
+            results.write_to_string_duration_milli = after - before;
+            
+            std::ofstream ffs(out_file);
+            ffs.write(jstr.c_str(), jstr.size());
+
+            before = std::chrono::steady_clock::now();
+            std::string acum_str;
+            acum_str.reserve(results.file_size*2);
+            acumulate_doc(jdoc_copy, acum_str);
+            after = std::chrono::steady_clock::now();
+            results.write_to_string_duration_milli_2 = after - before;
+            
+            std::ofstream ffs2(out_file2);
+            ffs2.write(acum_str.c_str(), acum_str.size());
+        }
+    }
+
+    jsonland::JsOn jdoc;
+    jsonland::JsOn jdoc_copy;
+
+};
+#endif // __JsOnBenchMarker_h__

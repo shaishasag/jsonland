@@ -58,9 +58,9 @@ static const char* NlohmannTypeName(nlohmann::detail::value_t in_type)
 }
 
 
-static void string_as_array()
+static void string_array_range()
 {
-    std::cout << "--- " << "!string_as_array" << std::endl;
+    std::cout << "--- " << "!string_array_range" << std::endl;
     // what happens when creating a string node and treating it like an array?
     try
     {   // nlohmann throws unless object is an array or null

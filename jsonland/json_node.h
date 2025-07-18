@@ -15,10 +15,7 @@
 #include "jsonland/json_node.h"
 */
 
-#ifndef DllExport
-    #define DllExport
-#endif
-
+#include "jsonland_defs.h"
 #include "string_and_view.h"
 
 // #define JSONLAND_DEBUG
@@ -30,70 +27,6 @@
 
 namespace jsonland
 {
-
-/// JSON value type
-enum value_type : uint32_t
-{
-    /// JSON value type was not set
-    uninitialized_t = 0,
-    /// JSON value type is null
-    null_t = 1<<0,
-    /// JSON value type is boolean
-    bool_t = 1<<1,
-    /// JSON value type is a number
-    number_t = 1<<2,
-    /// JSON value type is a string
-    string_t = 1<<3,
-    /// JSON value type is an array
-    array_t = 1<<4,
-    /// JSON value type is an object
-    object_t = 1<<5,
-};
-
-
-template <typename TBool>   concept IsBool = std::same_as<std::decay_t<TBool>, bool>;
-template<typename TCHAR>    concept IsChar = std::same_as<std::decay_t<TCHAR>, char>;
-template<typename NUM>      concept IsInteger = std::integral<NUM> && !IsBool<NUM> && !IsChar<NUM>;
-template<typename FNUM>     concept IsFloat = std::floating_point<FNUM>;
-template<typename FNUM>     concept IsNumber = IsInteger<FNUM> || IsFloat<FNUM>;
-template<typename FSTR>     concept IsString = std::convertible_to<FSTR, std::string_view>;
-template<typename TNULLPTR> concept IsNullPtr = std::is_null_pointer_v<TNULLPTR>;
-template<typename TENUM>    concept IsEnum = std::is_enum_v<TENUM>;
-
-template<typename TJSONABLE> concept IsJsonScalarType = IsBool<TJSONABLE>
-                                                        || IsInteger<TJSONABLE>
-                                                        || IsFloat<TJSONABLE>
-                                                        || IsNullPtr<TJSONABLE>
-                                                        || IsEnum<TJSONABLE>
-                                                        || IsString<TJSONABLE>;
-
-// Concept to check if a type is iterable
-template<typename T>
-concept Iterable = requires(T container) {
-    { container.begin() } -> std::same_as<typename T::iterator>;
-    { container.end() } -> std::same_as<typename T::iterator>;
-};
-
-// Concept to check if a type is a key-value container
-template<typename T>
-concept KeyValueContainer = Iterable<T> &&
-    requires(T container) {
-        typename T::value_type;
-        { container.begin()->first } -> std::convertible_to<std::string_view>;
-        { container.begin()->second };
-    };
-
-// Concept to check if a type is a sequence container (but not a key-value container)
-template<typename T>
-concept SequenceContainer = Iterable<T> && !KeyValueContainer<T>;
-
-namespace parser_impl { class Parser; }
-
-enum class dump_style : int32_t
-{
-    tight = 0,
-    pretty = 1,
-};
 
 class DllExport json_node
 {
@@ -153,39 +86,8 @@ private:
     /// The key of this JSON value in case it is a part of another object.
     mutable string_and_view m_key{the_empty_string_view, 0};
 
-    enum hints : uint32_t
-    {
-        _hint_none = 0,
-        _num_is_int = 1<<0,
-        _num_in_string = 1<<1,
-        _might_contain_escaped_chars = 1<<2
-    };
 
-    mutable hints m_hints{_hint_none};
-
-    inline void set_hint(hints in_hint) const noexcept
-    {
-        m_hints =  static_cast<hints>(m_hints | in_hint);
-    }
-    inline void unset_hint(hints in_hint) const noexcept
-    {
-        m_hints =  static_cast<hints>(m_hints & ~in_hint);
-    }
-
-    [[nodiscard]] inline bool get_hint(hints in_hint) const noexcept
-    {
-        return in_hint == (m_hints & in_hint);
-    }
-
-    /// Default value for a string.
-    static constexpr std::string_view the_empty_string_view{""};
-    /// String representation of a boolean with value 'false'.
-    static constexpr std::string_view the_false_string_view{"false"};
-    /// String representation of a boolean with value 'true'.
-    static constexpr std::string_view the_true_string_view{"true"};
-    /// String representation of a null value.
-    static constexpr std::string_view the_null_string_view{"null"};
-
+    mutable hint_carrier m_hints;
 
     friend class parser_impl::Parser;
 
@@ -324,7 +226,7 @@ public:
     {
         clear(number_t);
         m_num = static_cast<double>(in_num);
-        set_hint(_num_is_int);
+        m_hints.set_hint(_num_is_int);
 
         return *this;
     }
@@ -401,9 +303,9 @@ public:
     /// Returns true if and only if the JSON value type is #number_t (float or integer).
     [[nodiscard]] inline bool is_number() const noexcept {return number_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #number_t, and the value is an integer (signed or unsigned).
-    [[nodiscard]] inline bool is_int() const noexcept {return number_t == m_value_type && (get_hint(_num_is_int));}
+    [[nodiscard]] inline bool is_int() const noexcept {return number_t == m_value_type && (m_hints.get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #number_t, and the value is floating point (float, double).
-    [[nodiscard]] inline bool is_float() const noexcept {return number_t == m_value_type && (!get_hint(_num_is_int));}
+    [[nodiscard]] inline bool is_float() const noexcept {return number_t == m_value_type && (!m_hints.get_hint(_num_is_int));}
     /// Returns true if and only if the JSON value type is #bool_t.
     [[nodiscard]] inline bool is_bool() const noexcept {return bool_t == m_value_type;}
     /// Returns true if and only if the JSON value type is #bool_t, #number_t or #string_t.
@@ -1071,7 +973,7 @@ private:
     // is called - requiring the number to be converted again from text to binary form. Another inefficiency could
     // occur in the same json_node is repeatadly assigned number values. The compromise is to store the number as it was
     // given (text when parsed, binary when assigned) and treat it accodingly.
-    bool is_num_in_string() const {return get_hint(_num_in_string);}
+    bool is_num_in_string() const {return m_hints.get_hint(_num_in_string);}
     bool is_string_assigned() const {return m_value.is_owner();}
 
 };
@@ -1125,7 +1027,7 @@ TFLOAT json_node::get_float(const TFLOAT in_default_fp) const noexcept
     TFLOAT retVal = in_default_fp;
     if (is_number())  [[likely]]
     {
-        if (get_hint(_num_in_string))
+        if (m_hints.get_hint(_num_in_string))
         {
             retVal = static_cast<TFLOAT>(std::atof(m_value.sv().data()));
         }
@@ -1143,7 +1045,7 @@ TINT json_node::get_int(const TINT in_default_int) const noexcept
     TINT retVal = in_default_int;
     if (is_number()) [[likely]]
     {
-        if (get_hint(_num_in_string))
+        if (m_hints.get_hint(_num_in_string))
         {
             retVal = static_cast<TINT>(std::atoll(m_value.sv().data()));
         }
@@ -1294,7 +1196,7 @@ template<IsJsonScalarType TASTYPE>
                     std::string out_str;
                     dump(out_str);
                     m_value = std::move(out_str);
-                    set_hint(_num_in_string);
+                    m_hints.set_hint(_num_in_string);
                 }
                 retVal = m_value.sv();
             break;

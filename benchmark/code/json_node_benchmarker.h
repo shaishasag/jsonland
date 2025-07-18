@@ -1,5 +1,5 @@
-#ifndef __JsonlandBenchMarker_h__
-#define __JsonlandBenchMarker_h__
+#ifndef __json_node_benchmarker_h__
+#define __json_node_benchmarker_h__
 
 #include <sstream>
 
@@ -9,24 +9,18 @@
 
 using namespace jsonland;
 
-class JsonlandBenchMarker : public JsonBenchmarker
+class json_node_benchmarker : public JsonBenchmarker
 {
 public:
-    JsonlandBenchMarker()
+    json_node_benchmarker()
     {
         parser_name = "jsonland";
     }
     
-    void parse_file(const std::filesystem::path& in_path, Benchmark_results& results) override
+    void parse_text(Benchmark_results& results) override
     {
-        results.file_path = in_path.string();
-        
-        std::ifstream ifs(in_path);
-        contents = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-        results.file_size = contents.size();
-        
         auto before = std::chrono::steady_clock::now();
-        results.error = jdoc.parse_insitu(contents);
+        results.error = jdoc.parse_insitu(results.contents);
         auto after = std::chrono::steady_clock::now();
         results.file_parse_duration_milli = after - before;
     }
@@ -37,10 +31,8 @@ public:
         recursive_copy_self(jdoc, jdoc_copy);
         auto after = std::chrono::steady_clock::now();
         results.resusive_copy_duration_milli = after - before;
-        for (char& c : contents) { // and no references to contents remain
-            c = '|';
-        }
-        contents.clear();
+
+        results.contents = std::string_view();
         jdoc.clear(); // make sure no allocation from jdoc were used by jdoc_copy
 //        std::cout << "is_null_count: " << is_null_count << "\n";
 //        std::cout << "is_bool_count: " << is_bool_count << "\n";
@@ -60,7 +52,8 @@ public:
     size_t is_string_count{0};
     size_t is_array_count{0};
     size_t is_object_count{0};
-    void recursive_copy_self(const json_node& jdoc, json_node& jNodeOut)
+    void recursive_copy_self(const json_node& jdoc,
+                             json_node& jNodeOut)
     {
         if (jdoc.is_string())
         {
@@ -118,7 +111,8 @@ public:
     }
     
     
-    void acumulate_object(const jsonland::json_node& in_obj_node, jl_fixed::sub_object_json_creator_t& out_acum) const noexcept
+    void acumulate_object(const jsonland::json_node& in_obj_node,
+                          jl_fixed::sub_object_json_creator_t& out_acum) const noexcept
     {
         for (const auto& key_val : in_obj_node)
         {
@@ -155,7 +149,8 @@ public:
         }
     }
     
-    void acumulate_array(const jsonland::json_node& in_array_node, jl_fixed::sub_array_json_creator_t& out_acum) const noexcept
+    void acumulate_array(const jsonland::json_node& in_array_node,
+                         jl_fixed::sub_array_json_creator_t& out_acum) const noexcept
     {
         for (auto& val : in_array_node)
         {
@@ -192,7 +187,8 @@ public:
         }
     }
     
-    void acumulate_doc(const jsonland::json_node& in_doc, std::string& out_str) const noexcept
+    void acumulate_doc(const jsonland::json_node& in_doc,
+                       std::string& out_str) const noexcept
     {
         if (in_doc.is_object())
         {
@@ -208,10 +204,10 @@ public:
         }
     }
 
-    void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
+    void write_copy_to_file(Benchmark_results& results) override
     {
-        auto out_file = in_path;
-        auto out_file2 = in_path;
+        auto out_file = std::filesystem::path(results.file_path);
+        auto out_file2 = out_file;
         std::string new_extension = parser_name;
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);
@@ -242,4 +238,4 @@ public:
     jsonland::json_node jdoc_copy;
 
 };
-#endif // __JsonlandBenchMarker_h__
+#endif // __json_node_benchmarker_h__

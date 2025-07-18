@@ -257,3 +257,19 @@ TEST(Merge, merge_parsed_insitu)
     }
     
 }
+
+TEST(Experiment, test_something)
+{
+    json_node to(object_t);
+    to["one"] = "one";
+    to["two"] = 2;
+    to["three"] = 3.0;
+    
+    for (auto& key_value : to)
+    {
+        std::cout << "---"  << std::endl;
+        std::cout << key_value.key() << ": " << key_value.get_as<std::string_view>() << std::endl;
+        std::cout << key_value.dump()  << std::endl;
+        std::cout << "..."  << std::endl;
+    }
+}

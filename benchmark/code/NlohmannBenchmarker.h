@@ -85,8 +85,8 @@ public:
 
     void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
     {
-        auto out_file = in_path;
-        auto out_file2 = in_path;
+        auto out_file = std::filesystem::path(results.file_path);
+        auto out_file2 = out_file;
         std::string new_extension = parser_name;
         new_extension += ".out.json";
         out_file.replace_extension(new_extension);

@@ -1,3 +1,4 @@
+#define JSONLAND_INTERNAL_PARSING_FUNCTIONS
 #include "jsonland/json_node.h"
 
 #include <array>
@@ -11,99 +12,6 @@ using namespace jsonland;
 #if JSONLAND_DEBUG==1
 #endif
 
-[[nodiscard]] inline bool is_white_space_not_new_line(const char in_c)
-{
-    return ' ' == in_c  || '\r' == in_c || '\t' == in_c;
-}
-
-[[nodiscard]] inline bool is_whitespace(const char in_c)
-{
-    return is_white_space_not_new_line(in_c) || '\n' == in_c;
-}
-
-[[nodiscard]] inline bool is_digit(const char in_c)
-{
-    const bool retVal = ('0' <= in_c && '9' >= in_c);
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_hex_digit(const char in_c)
-{
-    const bool retVal = is_digit(in_c) || ('a' <= in_c && 'f' >= in_c) || ('A' <= in_c && 'F' >= in_c);
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_num_char(const char in_c)
-{
-    const bool retVal = ('0' <= in_c && '9' >= in_c) || '.' == in_c || '-' == in_c || '+' == in_c || 'e' == in_c || 'E' == in_c;
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_illegal_string_char(const char in_c)
-{
-    const bool retVal = '\0' == in_c;
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_escapable_char(const char in_c)
-{
-    const bool retVal = '\\' == in_c ||
-                        '/' == in_c ||
-                        '"' == in_c ||
-                        'b' == in_c ||
-                        'f' == in_c ||
-                        'n' == in_c ||
-                        'r' == in_c ||
-                        't' == in_c ||
-                        'u' == in_c;
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_a_char_that_must_be_escaped(const char in_c)
-{
-    const bool retVal = '"' == in_c ||
-                        '\\' == in_c ||
-                        '\n' == in_c ||
-                        '\r' == in_c ||
-                        '\t' == in_c ||
-                        '\b' == in_c ||
-                        '\f' == in_c ;
-    return retVal;
-}
-
-[[nodiscard]] inline std::string_view escapable_to_escaped(const char* in_c)
-{
-    std::string_view retVal(in_c, 1);
-
-    switch(*in_c)
-    {
-        case '"':  retVal = "\\\""sv; break;
-        case '\\':  retVal = "\\\\"sv; break;
-        case '\n': retVal = "\\n"sv; break;
-        case '\r': retVal = "\\r"sv; break;
-        case '\t': retVal = "\\t"sv; break;
-        case '\b': retVal = "\\b"sv; break;
-        case '\f': retVal = "\\f"sv; break;
-        default:
-            break;
-    }
-
-    return retVal;
-}
-
-[[nodiscard]] static std::string_view name_of_control_char(const char in_c)
-{
-    std::string_view retVal = "unknown"sv;
-    switch(in_c)
-    {
-        case '\b': retVal = "backspace"sv; break;
-        case '\f': retVal = "formfeed"sv; break;
-        case '\n': retVal = "linefeed"sv; break;
-        case '\r': retVal = "carriage return"sv; break;
-        case '\t': retVal = "horizontal tab"sv; break;
-    }
-    return retVal;
-}
 
 json_node::json_node(jsonland::value_type in_type, size_t in_reserve) noexcept
 : m_value_type(in_type)
@@ -136,12 +44,12 @@ json_node::json_node(const std::string_view in_str_value, jsonland::value_type i
 , m_value(in_str_value)
 {
     if (m_value_type == number_t) {
-        set_hint(_num_in_string);
+        m_hints.set_hint(_num_in_string);
         // (C++23): in_str_value.contains('.')
         if (auto pos = in_str_value.find('.');
             pos==std::string_view::npos)
         {
-            set_hint(_num_is_int);
+            m_hints.set_hint(_num_is_int);
         }
     }
 }
@@ -225,7 +133,8 @@ void json_node::reserve(const size_t new_cap) noexcept
     }
 }
 
-bool json_node::contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
+bool json_node::contains_as(std::string_view in_key,
+                            const enum value_type in_expected_type) const noexcept
 {
     bool retVal{false};
 
@@ -517,17 +426,6 @@ void json_node::dump(std::string& out_str,
     }
 }
 
-const size_t indent_factor = 4;
-static void indent(std::string& out_str, size_t level)
-{
-    out_str.append(level*indent_factor, ' ');
-}
-static void nl_indent(std::string& out_str, size_t level)
-{
-    out_str += '\n';
-    out_str.append(level*indent_factor, ' ');
-}
-
 void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
 {
     if (is_object())
@@ -617,7 +515,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
         else
         {
             char buff[128]{'\0'};
-            if (get_hint(_num_is_int)) {
+            if (m_hints.get_hint(_num_is_int)) {
                 size_t num_chars = __printf(buff, 127, get_int<int64_t>());
                 out_str.append(buff, num_chars);
             }
@@ -635,7 +533,7 @@ void json_node::dump_pretty(std::string& out_str, size_t level) const noexcept
     else if (is_string())
     {
         out_str += '"';
-        if (get_hint(_might_contain_escaped_chars))
+        if (m_hints.get_hint(_might_contain_escaped_chars))
         {
             out_str += m_value.sv();
         }
@@ -702,7 +600,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
         else
         {
             char buff[128]{'\0'};
-            if (get_hint(_num_is_int)) {
+            if (m_hints.get_hint(_num_is_int)) {
                 size_t num_chars = __printf(buff, 127, get_int<int64_t>());
                 out_str.append(buff, num_chars);
             }
@@ -720,7 +618,7 @@ void json_node::dump_tight(std::string& out_str) const noexcept
     else if (is_string())
     {
         out_str += '"';
-        if (get_hint(_might_contain_escaped_chars))
+        if (m_hints.get_hint(_might_contain_escaped_chars))
         {
             out_str += m_value.sv();
         }
@@ -747,10 +645,10 @@ std::string_view json_node::get_string(std::string_view in_default_str) const no
 {
     if (is_string())
     {
-        if (get_hint(_might_contain_escaped_chars))
+        if (m_hints.get_hint(_might_contain_escaped_chars))
         {
             m_value.unescape_json_string_internal(); // will not allocate if string does not contain escapes
-            unset_hint(_might_contain_escaped_chars);
+            m_hints.unset_hint(_might_contain_escaped_chars);
         }
         return as_string_view();
     }
@@ -1225,7 +1123,7 @@ namespace parser_impl
                         throw parsing_exception(curr_offset(), {"json syntax error: unexpected token"sv});
                     }
                 }
-                out_node.set_hint(json_node::_might_contain_escaped_chars);
+                out_node.m_hints.set_hint(jsonland::_might_contain_escaped_chars);
             }
             return retVal;
         }
@@ -1310,11 +1208,12 @@ namespace parser_impl
             char* str_start = m_curr_char_p-1;
             bool num_is_int{true};
 
-            // this function calls next_char2() without checking return value
+            // this function calls next_char() without checking return value
             // this works before if ens-of-data was reached, m_curr_char==end_marker
             // and end_marker is not a valid char for a number
 
-            // json number should start with '-' or a digit
+            // json number could start with '-' or a digit
+            // but '-' cannot be the only character
             if ('-' == m_curr_char && !next_char())
             {
                 throw parsing_exception(curr_offset(), {"unexpected end of data during number parsing"sv});
@@ -1404,10 +1303,10 @@ scan_number_done:
             out_node.m_num = std::atof((const char*)sov.data());
 #endif
             out_node.parser_direct_set(sov, jsonland::value_type::number_t);
-            out_node.set_hint(json_node::_num_in_string);
+            out_node.m_hints.set_hint(jsonland::_num_in_string);
             if (num_is_int)
             {
-                out_node.set_hint(json_node::_num_is_int);
+                out_node.m_hints.set_hint(jsonland::_num_is_int);
             }
             return true;
         }
@@ -1421,13 +1320,13 @@ scan_number_done:
             switch (m_curr_char)
             {
                 case 'f':
-                    out_node.parser_direct_set(json_node::the_false_string_view, jsonland::bool_t);
+                    out_node.parser_direct_set(jsonland::the_false_string_view, jsonland::bool_t);
                 break;
                 case 't':
-                    out_node.parser_direct_set(json_node::the_true_string_view, jsonland::bool_t);
+                    out_node.parser_direct_set(jsonland::the_true_string_view, jsonland::bool_t);
                 break;
                 case 'n':
-                    out_node.parser_direct_set(json_node::the_null_string_view, jsonland::null_t);
+                    out_node.parser_direct_set(jsonland::the_null_string_view, jsonland::null_t);
                 break;
                 default: [[unlikely]]
                 {
