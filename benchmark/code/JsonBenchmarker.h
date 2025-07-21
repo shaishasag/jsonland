@@ -61,7 +61,8 @@ public:
     std::string_view contents;
     virtual void parse_text(Benchmark_results& results) = 0;
     virtual void recursive_copy(Benchmark_results& results) = 0;
-    virtual void write_copy_to_file(Benchmark_results& results) = 0;
+    virtual void write_copy_to_string(Benchmark_results& results,
+                                      std::string& out_str) = 0;
 
     void benchmark_file(Benchmark_results& results)
     {
@@ -69,9 +70,41 @@ public:
         results.test_name += " ";
         //results.test_name += results.file_path.filename();
 
-        parse_text(results);
-        recursive_copy(results);
-        write_copy_to_file(results);
+        {
+            auto before = std::chrono::steady_clock::now();
+            parse_text(results);
+            auto after = std::chrono::steady_clock::now();
+            results.file_parse_duration_milli = after - before;
+        }
+
+        {
+            auto before = std::chrono::steady_clock::now();
+            recursive_copy(results);
+            auto after = std::chrono::steady_clock::now();
+            results.resusive_copy_duration_milli = after - before;
+        }
+
+        {
+            std::string out_str;
+            auto before = std::chrono::steady_clock::now();
+            write_copy_to_string(results, out_str);
+            auto after = std::chrono::steady_clock::now();
+            results.write_to_string_duration_milli = after - before;
+
+            std::filesystem::path results_dir = results.file_path;
+            std::string results_file_name = results_dir.stem();
+            
+            std::filesystem::path results_file_path = results_dir.parent_path().parent_path();
+            results_file_path.append("results");
+            results_file_path.append(results_file_name);
+            std::string new_extension = parser_name;
+            new_extension += ".out.json";
+            results_file_path.replace_extension(new_extension);
+
+            std::ofstream fs(results_file_path);
+            fs.write(out_str.data(), out_str.size());
+        }
+
     }
 
 };

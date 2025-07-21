@@ -43,33 +43,16 @@ public:
     
     void recursive_copy(Benchmark_results& results) override
     {
-        auto before = std::chrono::steady_clock::now();
         document_copy = document;
-        auto after = std::chrono::steady_clock::now();
-        results.resusive_copy_duration_milli = after - before;
-        for (char& c : contents) { // and no references to contents remain
-            c = '|';
-        }
-        contents.clear();
         document.clear(); // make sure no allocation from document were used by document_copy
     }
     
-    void write_copy_to_file(const std::filesystem::path& in_path, Benchmark_results& results) override
+    void write_copy_to_string(Benchmark_results& results,
+                              std::string& out_str) override
     {
-        auto out_file = std::filesystem::path(results.file_path);
-        std::string new_extension = parser_name;
-        new_extension += ".out.json";
-        out_file.replace_extension(new_extension);
-
-        std::string jstr;
-        auto before = std::chrono::steady_clock::now();
-        serializeJson(document_copy, jstr);
-        auto after = std::chrono::steady_clock::now();
-        results.write_to_string_duration_milli = after - before;
-
-        std::ofstream ffs(out_file);
-        ffs.write(jstr.data(), jstr.size());
+        serializeJson(document_copy, out_str);
     }
+
     DynamicJsonDocument document;
     DynamicJsonDocument document_copy;
 

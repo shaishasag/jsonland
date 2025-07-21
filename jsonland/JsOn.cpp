@@ -48,14 +48,14 @@ public:
     , m_msg(std::move(message))
     {
     }
-    
+
     int error_num()  const noexcept  { return m_err_num; }
-    
+
     const char* what() const noexcept override
     {
         return m_msg.c_str();
     }
-    
+
 private:
     int32_t m_err_num{0};
     std::string m_msg;
@@ -71,10 +71,10 @@ private:
     size_t m_line = 1;
     const char* m_curr_line_ptr = nullptr;
     size_t m_curr_line_offset = 0;
-    
-    
+
+
 public:
-    
+
     JsOn_parser(const std::string_view in_text, JsOn& out_j)
     : m_top_level_json(out_j)
     , m_original_text(in_text)
@@ -85,7 +85,7 @@ public:
             m_curr_line_ptr = m_original_text.begin();
         }
     }
-    
+
     template<typename... Args>
     JsOn_parser_exception create_exception(std::source_location loc,
                                            int32_t err_num,
@@ -95,21 +95,21 @@ public:
         ((oss << std::forward<Args>(args) << ' '), ...);
         oss << "\nat line " << m_line << " column " << m_current_text.begin() - m_curr_line_ptr;
         oss << "\nC++ source file: " << loc.file_name() << " line " << loc.line();
-        
+
         return JsOn_parser_exception(err_num, oss.str());
     }
-    
-    
+
+
     void parse()
     {
         parse(m_top_level_json);
     }
-    
+
     void inline skip_one()
     {
         m_current_text = m_current_text.substr(1);
     }
-    
+
     void parse(JsOn& out_j)
     {
         skip_whitespace();
@@ -117,14 +117,14 @@ public:
         {
             return;
         }
-        
+
         char curr_char = m_current_text.front();
         switch (curr_char)
         {
             case '{':
             {
                 parse_object(out_j);
-                
+
             }
                 break;
             case '[':
@@ -164,14 +164,14 @@ public:
                 break;
         }
     }
-    
+
     inline void parse_object(JsOn& out_j)
     {
         assert(!m_current_text.empty());
         assert(m_current_text.front() == '{');
-        
+
         out_j.m_value_type = object_t;
-        
+
         skip_one(); // skip the '{' and whitespace
         enum obj_parse_states {before_key, after_key, before_value, after_value};
         obj_parse_states _state{before_key};
@@ -239,46 +239,69 @@ public:
                     }
             }
         }
-        
+
         throw create_exception(std::source_location::current(),
                                object_not_terminated,
                                "object was not terminated");
     }
-    
+
     inline void parse_array(JsOn& out_j)
     {
         assert(!m_current_text.empty());
         assert(m_current_text.front() == '[');
-        
+
         out_j.m_value_type = array_t;
-        
+
         skip_one(); // skip the '['
+        enum array_parse_states {before_value, after_value};
+        array_parse_states _state{before_value};
+
         while (!m_current_text.empty())
         {
             skip_whitespace();
             char sep = m_current_text.front(); // ']'? ','
-            if (']' == sep)
+            switch (_state)
             {
-                skip_one();
-                return; // this is where the function should return if all is OK
-            }
-            else if (',' == sep) // todo: detect leading or trailing ','
-            {
-                skip_one();
-            }
-            else
-            {
-                parse(out_j.m_array_values.emplace_back());
+                case before_value:
+                    if (']' == sep)
+                    {
+                        skip_one();
+                        return; // this is where the function should return if all is OK
+                    }
+                    else
+                    {
+                        parse(out_j.m_array_values.emplace_back());
+                        _state = after_value;
+                    }
+                    break;
+                case after_value:
+                    if (']' == sep)
+                    {
+                        skip_one();
+                        return; // this is where the function should return if all is OK
+                    }
+                    else if (',' == sep) // todo: detect leading or trailing ','
+                    {
+                        skip_one();
+                        _state = before_value;
+                    }
+                    else
+                    {
+                        throw create_exception(std::source_location::current(),
+                                               unexpected_char,
+                                               "']' or ','", "were expeced not", sep);
+                    }
+                    break;
             }
         }
         assert(m_current_text.front() == ']');
-        
+
         throw create_exception(std::source_location::current(),
                                array_not_terminated,
                                "']'", "was expeced");
-        
+
     }
-    
+
     inline void skip_whitespace()
     {
         const char* pc{nullptr};
@@ -298,12 +321,12 @@ public:
             }
         }
     }
-       
+
     inline void parse_string(JsOn& out_j)
     {
         assert(!m_current_text.empty());
         out_j.m_value_type = string_t;
-        
+
         struct error_info
         {
             std::source_location loc;
@@ -311,29 +334,27 @@ public:
         };
         error_info last_error_info{std::source_location::current(),
             "unexpected error during string parsing"sv};
-        
-        std::string_view starting_text = m_current_text;
-        
+
         enum string_parse_states {
-            got_a_char,
+            expected_char_or_end,
             started_escape,
             expected_hex_char,
             scan_string_done,
             scan_string_failed
         };
-        string_parse_states _state{got_a_char};
+        string_parse_states _state{expected_char_or_end};
         char current_char = m_current_text.front();
-        
         int hex_char_counter{0}; // after \u 4 hex chars are expected
-        
+
         skip_one();
-        
+        const char* starting_text = m_current_text.begin();
+
         while (!m_current_text.empty())
         {
             current_char = m_current_text.front();
             switch(_state)
             {
-                case got_a_char: [[likely]]
+                case expected_char_or_end: [[likely]]
                     if ('"' == current_char) {
                         _state = scan_string_done;
                         skip_one();
@@ -366,12 +387,12 @@ public:
                     }
                     else { [[likely]] // another char
                         skip_one();
-                        _state = got_a_char;
+                        _state = expected_char_or_end;
                     }
                     break;
                 case expected_hex_char:
                     if (is_hex_digit(current_char)) {
-                        _state = --hex_char_counter == 0 ? got_a_char : expected_hex_char;
+                        _state = --hex_char_counter == 0 ?             expected_char_or_end : expected_hex_char;
                         skip_one();
                     }
                     else {
@@ -383,8 +404,8 @@ public:
                     break;
                 case scan_string_done:
                 {
-                    auto _str_size = m_current_text.begin() - starting_text.begin();
-                    out_j.m_value = std::string_view(starting_text.begin(), _str_size);
+                    auto _str_size = std::distance(starting_text, m_current_text.begin())-1;
+                    out_j.m_value = std::string_view(starting_text, _str_size);
                     //std::cout << "String: " << out_j.m_value << std::endl;
                 }
                     return;
@@ -394,14 +415,14 @@ public:
                                            invalid_string,
                                            last_error_info.error_msg,
                                            "; string parsed:>"sv,
-                                           starting_text.substr(0, 10),
+                                           std::string_view(starting_text, 10),
                                            "<"sv);
-                    
+
                 }
                     break;
             }
         }
-        
+
         // If we got here it's unexpected error not handled in the code.
         // The expected flow to end parse_string is either to get to:
         // - scan_string_done and return
@@ -410,9 +431,9 @@ public:
         throw create_exception(last_error_info.loc,
                                invalid_number,
                                last_error_info.error_msg);
-        
+
     }
-        
+
     // Note: JSON numbers must have at least one digit before and after the decimal point when a fraction is used, and must have digits before the exponent as well.
     void parse_number(JsOn& out_node)
     {
@@ -420,7 +441,7 @@ public:
         out_node.m_value_type = number_t;
         out_node.m_hints.set_hint(_num_is_int);
         out_node.m_hints.set_hint(_num_in_string);
-                
+
         struct error_info
         {
             std::source_location loc;
@@ -428,9 +449,9 @@ public:
         };
         error_info last_error_info{std::source_location::current(),
                                     "unexpected error during number parsing"sv};
-        
+
         std::string_view starting_text = m_current_text;
-        
+
         enum number_parse_states {
             got_a_digit,
             started_minus,
@@ -447,7 +468,7 @@ public:
         char current_char = m_current_text.front();
         if ('0' == current_char) _state = started_zero;
         else if ('-' == current_char) _state = started_minus;
-        
+
         skip_one();
 
         while (!m_current_text.empty())
@@ -574,7 +595,7 @@ public:
                                                "; number parsed:>"sv,
                                                starting_text.substr(0, 10),
                                                "<"sv);
-                        
+
                     }
                     break;
             }
@@ -591,12 +612,12 @@ public:
 
     }
 
-    
+
     inline void parse_constant(std::string_view the_const, JsOn& out_j)
     {
         assert(!m_current_text.empty());
         assert(m_current_text.front() == the_const.front());
-        
+
         out_j.m_value = m_current_text.substr(0, the_const.size());
         m_current_text = m_current_text.substr(the_const.size());
         if (out_j.m_value != the_const)
@@ -678,7 +699,7 @@ double JsOn::get_double(const double in_default_fp) const noexcept
             }
         }
     }
-    
+
     return retVal;
 
 }
@@ -707,7 +728,7 @@ int64_t JsOn::get_int(const int64_t in_default_int) const noexcept
             }
         }
     }
-    
+
     return retVal;
 }
 
@@ -729,7 +750,7 @@ size_t JsOn::size_as(const value_type in_expected_type) const noexcept
     {
         return 0;
     }
-    
+
     switch (m_value_type)
     {
         case object_t:
@@ -810,7 +831,7 @@ using namespace parser_helper;
 int JsOn::parse_inplace(const std::string_view in_text) noexcept
 {
     int retVal = 0;
-    
+
     try
     {
         JsOn_parser parser(in_text, *this);
@@ -821,7 +842,7 @@ int JsOn::parse_inplace(const std::string_view in_text) noexcept
         std::cout << "Error: " << err.what() << std::endl;
         retVal = err.error_num();
     }
-    
+
     return retVal;
 }
 
@@ -830,17 +851,17 @@ void JsOn::dump(std::string& out_str,  size_t level) const
     if (is_type(object_t))
     {
         out_str += '{';
-        
+
         if (!m_obj_values.empty())
         {
             ++level;
             nl_indent(out_str, level);
-            
+
             auto io = m_obj_values.begin();
             out_str += '"';
             out_str += io->first; // io->m_key.escape_json_string_external(out_str);
             out_str += '"';
-            
+
             out_str += ':';
             if (!io->second.empty_as(object_t) || !io->second.empty_as(array_t))
             {
@@ -852,16 +873,16 @@ void JsOn::dump(std::string& out_str,  size_t level) const
                 out_str += ' ';
             }
             io->second.dump(out_str, level);
-            
+
             for (++io; io != m_obj_values.end(); ++io)
             {
                 out_str += ',';
                 nl_indent(out_str, level);
-                
+
                 out_str += '"';
                 out_str += io->first; // io->m_key.escape_json_string_external(out_str);
                 out_str += '"';
-                
+
                 out_str += ':';
                 if (!io->second.empty_as(object_t) || !io->second.empty_as(array_t))
                 {
@@ -886,10 +907,10 @@ void JsOn::dump(std::string& out_str,  size_t level) const
         {
             ++level;
             nl_indent(out_str, level);
-            
+
             auto ai = m_array_values.begin();
             ai->dump(out_str, level);
-            
+
             for (++ai; ai != m_array_values.end(); ++ai)
             {
                 out_str += ',';

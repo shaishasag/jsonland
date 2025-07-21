@@ -19,30 +19,13 @@ public:
     
     void parse_text(Benchmark_results& results) override
     {
-        auto before = std::chrono::steady_clock::now();
         results.error = jdoc.parse_insitu(results.contents);
-        auto after = std::chrono::steady_clock::now();
-        results.file_parse_duration_milli = after - before;
-    }
+     }
     
-    void recursive_copy(Benchmark_results& results) override
+    void recursive_copy(Benchmark_results&) override
     {
-        auto before = std::chrono::steady_clock::now();
         recursive_copy_self(jdoc, jdoc_copy);
-        auto after = std::chrono::steady_clock::now();
-        results.resusive_copy_duration_milli = after - before;
-
-        results.contents = std::string_view();
         jdoc.clear(); // make sure no allocation from jdoc were used by jdoc_copy
-//        std::cout << "is_null_count: " << is_null_count << "\n";
-//        std::cout << "is_bool_count: " << is_bool_count << "\n";
-//        std::cout << "is_float_count: " << is_float_count << "\n";
-//        std::cout << "is_int_count: " << is_int_count << "\n";
-//        std::cout << "is_string_count: " << is_string_count << "\n";
-//        std::cout << "is_array_count: " << is_array_count << "\n";
-//        std::cout << "is_object_count: " << is_object_count << "\n";
-//        std::cout << "total_count: " << is_object_count+is_array_count+is_string_count+is_int_count+is_float_count+is_bool_count+is_null_count << "\n";
-//        std::cout << "---" << "\n";
     }
     
     size_t is_null_count{0};
@@ -52,58 +35,65 @@ public:
     size_t is_string_count{0};
     size_t is_array_count{0};
     size_t is_object_count{0};
-    void recursive_copy_self(const json_node& jdoc,
+    void recursive_copy_self(const json_node& jNodeIn,
                              json_node& jNodeOut)
     {
-        if (jdoc.is_string())
+        if (jNodeIn.is_string())
         {
             ++is_string_count;
-            std::string the_string(jdoc.get_string());
+            std::string the_string(jNodeIn.get_string());
             jNodeOut = the_string;
         }
-        else if (jdoc.is_bool())
+        else if (jNodeIn.is_bool())
         {
             ++is_bool_count;
-            const bool b = jdoc.get_bool();
+            const bool b = jNodeIn.get_bool();
             jNodeOut = b;
         }
-        else if (jdoc.is_float())
+        else if (jNodeIn.is_float())
         {
             ++is_float_count;
-            const double d = jdoc.get_float<double>();
+            const double d = jNodeIn.get_float<double>();
             jNodeOut = d;
         }
-        else if (jdoc.is_int())
+        else if (jNodeIn.is_int())
         {
             ++is_int_count;
-            const int64_t i = jdoc.get_int<int64_t>();
+            const int64_t i = jNodeIn.get_int<int64_t>();
             jNodeOut = i;
         }
-        else if (jdoc.is_object())
+        else if (jNodeIn.is_object())
         {
             ++is_object_count;
-            jNodeOut = json_node(object_t);
+            jNodeOut = object_t;
 
-            for (auto& inItem : jdoc)
+            for (auto& inItem : jNodeIn)
             {
-                json_node objItem;
-                recursive_copy_self(inItem, objItem);
                 std::string_view the_key = inItem.key();
-                jNodeOut[the_key] = std::move(objItem);
+                if (the_key == "an object")
+                {
+                    std::cout << "an object? " << the_key << std::endl;
+                }
+                json_node& objItem = jNodeOut[the_key];
+                recursive_copy_self(inItem, objItem);
+                if (objItem.key().empty())
+                {
+                    std::cout << "why empty? " << inItem.key() << std::endl;
+                }
             }
         }
-        else if (jdoc.is_array())
+        else if (jNodeIn.is_array())
         {
             ++is_array_count;
             jNodeOut = array_t;
-            for (auto& inItem : jdoc)
+            for (auto& inItem : jNodeIn)
             {
                 json_node arrayItem;
                 recursive_copy_self(inItem, arrayItem);
                 jNodeOut.push_back(std::move(arrayItem));
             }
         }
-        else if (jdoc.is_null())
+        else if (jNodeIn.is_null())
         {
             ++is_null_count;
             jNodeOut = null_t;
@@ -204,34 +194,10 @@ public:
         }
     }
 
-    void write_copy_to_file(Benchmark_results& results) override
+    void write_copy_to_string(Benchmark_results&,
+                              std::string& out_str) override
     {
-        auto out_file = std::filesystem::path(results.file_path);
-        auto out_file2 = out_file;
-        std::string new_extension = parser_name;
-        new_extension += ".out.json";
-        out_file.replace_extension(new_extension);
-        out_file2.replace_extension("acum.json");
-        {
-            auto before = std::chrono::steady_clock::now();
-            std::string jstr;
-            jdoc_copy.dump(jstr);
-            auto after = std::chrono::steady_clock::now();
-            results.write_to_string_duration_milli = after - before;
-            
-            std::ofstream ffs(out_file);
-            ffs.write(jstr.c_str(), jstr.size());
-
-            before = std::chrono::steady_clock::now();
-            std::string acum_str;
-            acum_str.reserve(results.file_size*2);
-            acumulate_doc(jdoc_copy, acum_str);
-            after = std::chrono::steady_clock::now();
-            results.write_to_string_duration_milli_2 = after - before;
-            
-            std::ofstream ffs2(out_file2);
-            ffs2.write(acum_str.c_str(), acum_str.size());
-        }
+        jdoc_copy.dump(out_str, jsonland::dump_style::pretty);
     }
 
     jsonland::json_doc jdoc;

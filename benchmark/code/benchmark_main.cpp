@@ -11,18 +11,21 @@
 
 static void prepare_file_list(std::vector<std::filesystem::path>& path_vec)
 {
-    std::filesystem::path file_in_folder = std::filesystem::path(__FILE__);
+    std::filesystem::path this_file = std::filesystem::path(__FILE__);
 
-    file_in_folder = file_in_folder.parent_path().parent_path();
-    file_in_folder.append("files");
-
-    file_in_folder.append("valid_strings.json");
+    std::filesystem::path input_files = this_file.parent_path().parent_path();
+    input_files.append("files");
     
-    path_vec.push_back(file_in_folder);
-    
-    path_vec.push_back(file_in_folder.replace_filename("example_2.json"));
-    path_vec.push_back(file_in_folder.replace_filename("example_3.json"));
+    std::filesystem::path results = this_file.parent_path().parent_path();
+    results.append("results");
+    std::filesystem::create_directory(results);
 
+    input_files.append("dummy.json");
+    path_vec.push_back(input_files.replace_filename("valid_strings.json"));
+    path_vec.push_back(input_files.replace_filename("valid_numbers.json"));
+    path_vec.push_back(input_files.replace_filename("example_1.json"));
+    path_vec.push_back(input_files.replace_filename("example_2.json"));
+    path_vec.push_back(input_files.replace_filename("example_3.json"));
 }
 
 int main(int argc, char* argv[])
