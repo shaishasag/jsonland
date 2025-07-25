@@ -337,7 +337,6 @@
 				F6CC79012DE8C13100456276 /* test_parse_object.cpp */,
 				F6B0AEA12E1ED3A7008DAD13 /* test_merge.cpp */,
 				F6EA99CD2E3225B5006143A2 /* test_emplace_back.cpp */,
-				F6EA99CF2E322F42006143A2 /* 2TypesTestsCommon.h */,
 			);
 			name = test;
 			sourceTree = "<group>";
@@ -433,6 +432,7 @@
 		F6EA99D02E323CD7006143A2 /* 2 typed tests */ = {
 			isa = PBXGroup;
 			children = (
+				F6EA99CF2E322F42006143A2 /* 2TypesTestsCommon.h */,
 				F6020A992CCEA397004A630B /* test_copy.cpp */,
 				F676E46C2CAAFF240067F654 /* test_as.cpp */,
 			);

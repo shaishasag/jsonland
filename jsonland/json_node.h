@@ -1008,8 +1008,9 @@ public:
 
     // parse json string without copying it. Original string lifetime must be at lease
     // as long as this json_doc lifetime is
-    int parse_insitu(std::string_view in_json_str);
-
+    int parse_insitu(std::string_view in_json_str) { return parse_inplace(in_json_str); }
+    int parse_inplace(std::string_view in_json_str);
+    
     // parse a copy of a json string. Original string can be discarded.
     int parse(const std::string_view in_json_str);
 

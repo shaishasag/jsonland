@@ -10,7 +10,8 @@ protected:
     using JsonType = T;
 };
 
-using JsonImplementations = ::testing::Types<jsonland::json_node, jsonland::JsOn>;
+using json_node_andJsOn = ::testing::Types<jsonland::JsOn, jsonland::json_node>;
+using json_doc_andJsOn = ::testing::Types<jsonland::JsOn, jsonland::json_doc, jsonland::JsOn>;
 
 
 #endif // __2TypesTestsCommon_h__

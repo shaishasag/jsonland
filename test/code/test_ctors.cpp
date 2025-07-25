@@ -6,7 +6,7 @@ using namespace jsonland;
 template <typename T>
 class ConstructorTypedTests : public JsonTypedTest<T> {};
 
-TYPED_TEST_SUITE(ConstructorTypedTests, JsonImplementations);
+TYPED_TEST_SUITE(ConstructorTypedTests, json_node_andJsOn);
 
 TYPED_TEST(ConstructorTypedTests, obj_ctor_value_type)
 {
@@ -342,14 +342,14 @@ TYPED_TEST(ConstructorTypedTests, ctor_enum)
             j_t false_j(bool_enum_class::its_false);
             EXPECT_TRUE(false_j.is_bool());
             EXPECT_EQ(false_j.get_bool(), static_cast<bool>(bool_enum_class::its_false));
-            EXPECT_EQ(false_j. get_as(), 0);
+            EXPECT_EQ(false_j.get_int(), 0);
         }
 
         {
             j_t true_j(bool_enum_class::its_true);
             EXPECT_TRUE(true_j.is_bool());
             EXPECT_EQ(true_j.get_bool(), static_cast<bool>(bool_enum_class::its_true));
-            EXPECT_EQ(true_j.get_as(), 1);
+            EXPECT_EQ(true_j.get_int(), 1);
         }
     }
 }

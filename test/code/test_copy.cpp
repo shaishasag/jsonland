@@ -8,7 +8,7 @@ using namespace jsonland;
 template <typename T>
 class CopyTypedTests : public JsonTypedTest<T> {};
 
-TYPED_TEST_SUITE(CopyTypedTests, JsonImplementations);
+TYPED_TEST_SUITE(CopyTypedTests, json_node_andJsOn);
 
 TYPED_TEST(CopyTypedTests, size_as)
 {

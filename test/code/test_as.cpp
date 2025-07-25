@@ -12,7 +12,7 @@ using namespace jsonland;
 template <typename T>
 class AsTypedTests : public JsonTypedTest<T> {};
 
-TYPED_TEST_SUITE(AsTypedTests, JsonImplementations);
+TYPED_TEST_SUITE(AsTypedTests, json_node_andJsOn);
 
 TYPED_TEST(AsTypedTests, size_as)
 {

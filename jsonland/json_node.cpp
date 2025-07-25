@@ -1617,7 +1617,7 @@ void json_doc::set_max_nesting_level(const size_t in_max_nesting_level)
     m_max_nesting_level = in_max_nesting_level;
 }
 
-int json_doc::parse_insitu(std::string_view in_json_str)
+int json_doc::parse_inplace(std::string_view in_json_str)
 {
     parser_impl::Parser pa(*this, const_cast<char*>(in_json_str.data()), const_cast<char*>(in_json_str.data()) + in_json_str.size());
     int retVal = pa.parse(m_max_nesting_level);
@@ -1627,7 +1627,7 @@ int json_doc::parse_insitu(std::string_view in_json_str)
 int json_doc::parse(const std::string_view in_json_str)
 {
     m_json_text = in_json_str;
-    int retVal = parse_insitu(m_json_text);
+    int retVal = parse_inplace(m_json_text);
     return retVal;
 }
 

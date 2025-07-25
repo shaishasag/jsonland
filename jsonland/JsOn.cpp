@@ -110,6 +110,12 @@ public:
         m_current_text = m_current_text.substr(1);
     }
 
+    struct error_info
+    {
+        std::source_location loc;
+        std::string_view error_msg;
+    };
+
     void parse(JsOn& out_j)
     {
         skip_whitespace();
@@ -162,6 +168,11 @@ public:
                 out_j.m_value_type = null_t;
             }
                 break;
+            default:
+                throw create_exception(std::source_location::current(),
+                                       unexpected_char,
+                                       "unexpected char ", curr_char);
+                break;
         }
     }
 
@@ -170,10 +181,8 @@ public:
         assert(!m_current_text.empty());
         assert(m_current_text.front() == '{');
 
-        out_j.m_value_type = object_t;
-
         skip_one(); // skip the '{' and whitespace
-        enum obj_parse_states {before_key, after_key, before_value, after_value};
+        enum obj_parse_states {before_key, after_key, before_value, after_value, parse_object_done};
         obj_parse_states _state{before_key};
         JsOn key; // JsOn object just for the m_value that will be used as the key
         while (!m_current_text.empty())
@@ -186,7 +195,7 @@ public:
                     if ('}' == sep)
                     {
                         skip_one();
-                        return;
+                        _state = parse_object_done;
                     }
                     else if ('"' == sep)
                     {
@@ -229,7 +238,7 @@ public:
                     else if ('}' == sep)
                     {
                         skip_one();
-                        return; // this is where the function should return if all is OK
+                        _state = parse_object_done;
                     }
                     else
                     {
@@ -237,6 +246,12 @@ public:
                                                unexpected_char,
                                                "'}' or ','", "were expeced not", sep);
                     }
+                case parse_object_done:
+                {
+                    out_j.m_value_type = object_t;
+                    return; // this is where the function should return if all is OK
+                }
+                    break;
             }
         }
 
@@ -249,12 +264,14 @@ public:
     {
         assert(!m_current_text.empty());
         assert(m_current_text.front() == '[');
-
-        out_j.m_value_type = array_t;
+        
+        error_info last_error_info{std::source_location::current(),
+                                    "unexpected error during array parsing"sv};
 
         skip_one(); // skip the '['
-        enum array_parse_states {before_value, after_value};
-        array_parse_states _state{before_value};
+        enum array_parse_states {first_value, subsequent_value, after_value,
+                                    parse_array_done, parse_array_failed};
+        array_parse_states _state{first_value};
 
         while (!m_current_text.empty())
         {
@@ -262,39 +279,58 @@ public:
             char sep = m_current_text.front(); // ']'? ','
             switch (_state)
             {
-                case before_value:
+                case first_value:
                     if (']' == sep)
                     {
-                        skip_one();
-                        return; // this is where the function should return if all is OK
+                        _state = parse_array_done;
                     }
-                    else
+                    else [[likely]]
+                    {
+                        parse(out_j.m_array_values.emplace_back());
+                        _state = after_value;
+                    }
+                    break;
+                case subsequent_value:
                     {
                         parse(out_j.m_array_values.emplace_back());
                         _state = after_value;
                     }
                     break;
                 case after_value:
-                    if (']' == sep)
+                    if (',' == sep) [[likely]]
                     {
                         skip_one();
-                        return; // this is where the function should return if all is OK
+                        _state = subsequent_value;
                     }
-                    else if (',' == sep) // todo: detect leading or trailing ','
+                    else if (']' == sep)
                     {
-                        skip_one();
-                        _state = before_value;
+                        _state = parse_array_done;
                     }
                     else
                     {
-                        throw create_exception(std::source_location::current(),
-                                               unexpected_char,
-                                               "']' or ','", "were expeced not", sep);
+                        last_error_info = {std::source_location::current(),
+                                            "unexcaped char"sv};
+                        _state = parse_array_failed;
                     }
+                    break;
+                case parse_array_done:
+                {
+                    skip_one();
+                    out_j.m_value_type = array_t;
+                    return; // this is where the function should return if all is OK
+                }
+                    break;
+                case parse_array_failed:
+                {
+                    throw create_exception(last_error_info.loc,
+                                           unexpected_char,
+                                           last_error_info.error_msg,
+                                           "']' or ','", "were expeced not", sep);
+                }
                     break;
             }
         }
-        assert(m_current_text.front() == ']');
+//        assert(m_current_text.front() == ']');
 
         throw create_exception(std::source_location::current(),
                                array_not_terminated,
@@ -325,13 +361,7 @@ public:
     inline void parse_string(JsOn& out_j)
     {
         assert(!m_current_text.empty());
-        out_j.m_value_type = string_t;
 
-        struct error_info
-        {
-            std::source_location loc;
-            std::string_view error_msg;
-        };
         error_info last_error_info{std::source_location::current(),
             "unexpected error during string parsing"sv};
 
@@ -406,6 +436,7 @@ public:
                 {
                     auto _str_size = std::distance(starting_text, m_current_text.begin())-1;
                     out_j.m_value = std::string_view(starting_text, _str_size);
+                    out_j.m_value_type = string_t;
                     //std::cout << "String: " << out_j.m_value << std::endl;
                 }
                     return;
@@ -417,7 +448,6 @@ public:
                                            "; string parsed:>"sv,
                                            std::string_view(starting_text, 10),
                                            "<"sv);
-
                 }
                     break;
             }
@@ -438,7 +468,6 @@ public:
     void parse_number(JsOn& out_node)
     {
         assert(!m_current_text.empty());
-        out_node.m_value_type = number_t;
         out_node.m_hints.set_hint(_num_is_int);
         out_node.m_hints.set_hint(_num_in_string);
 
@@ -584,6 +613,7 @@ public:
                     {
                         auto number_str_size = m_current_text.begin() - starting_text.begin();
                         out_node.m_value = std::string_view(starting_text.begin(), number_str_size);
+                        out_node.m_value_type = number_t;
                         //std::cout << "Number: " << out_node.m_value << std::endl;
                     }
                     return;
@@ -938,6 +968,7 @@ int JsOn::parse_inplace(const std::string_view in_text) noexcept
     }
     catch (const JsOn_parser_exception& err)
     {
+        m_value_type = uninitialized_t;
         std::cout << "Error: " << err.what() << std::endl;
         retVal = err.error_num();
     }

@@ -8,7 +8,7 @@ using namespace jsonland;
 template <typename T>
 class EmplaceBackTests : public JsonTypedTest<T> {};
 
-TYPED_TEST_SUITE(EmplaceBackTests, JsonImplementations);
+TYPED_TEST_SUITE(EmplaceBackTests, json_node_andJsOn);
 
 TYPED_TEST(EmplaceBackTests, EmplaceStringType)
 {
