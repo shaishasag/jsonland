@@ -18,7 +18,8 @@ public:
     
     void parse_text(Benchmark_results& results) override
     {
-        results.error = jdoc.parse_inplace(results.contents);
+        jsonland::ParseResult parsimony = jdoc.parse_inplace(results.contents);
+        results.error = parsimony.error_code();
     }
     
     void recursive_copy(Benchmark_results&) override

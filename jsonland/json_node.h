@@ -1008,17 +1008,15 @@ public:
 
     // parse json string without copying it. Original string lifetime must be at lease
     // as long as this json_doc lifetime is
-    int parse_insitu(std::string_view in_json_str) { return parse_inplace(in_json_str); }
-    int parse_inplace(std::string_view in_json_str);
+    ParseResult parse_insitu(std::string_view in_json_str) { return parse_inplace(in_json_str); }
+    ParseResult parse_inplace(std::string_view in_json_str);
     
     // parse a copy of a json string. Original string can be discarded.
-    int parse(const std::string_view in_json_str);
+    ParseResult parse(const std::string_view in_json_str);
 
     void set_max_nesting_level(const size_t in_nesting_level);
     void dump_tokens(std::ostream& os, char* in_json_str, char* in_json_str_end);
 
-    [[nodiscard]] int parse_error() { return m_parse_error; }
-    [[nodiscard]] std::string_view parse_error_message() { return m_parse_error_message; }
     size_t byte_position() { return 0; }   // todo return the byte position where error was discovered
     size_t memory_consumption();
 
@@ -1027,8 +1025,6 @@ public:
 private:
     std::string m_json_text;
     size_t m_max_nesting_level = 64;
-    int m_parse_error = 0;
-    std::string m_parse_error_message;
 };
 
 template<IsFloat TFLOAT>

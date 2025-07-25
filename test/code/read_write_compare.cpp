@@ -65,8 +65,8 @@ TEST(ReadWriteCompare, file_dump_tight)
     jsonland::json_doc jdoc;
     std::ifstream ifs(file_to_read);
     std::string contents((std::istreambuf_iterator<char>(ifs)), {});
-    int parse_result = jdoc.parse_insitu(contents);
-    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+    jsonland::ParseResult parse_result = jdoc.parse_insitu(contents);
+    ASSERT_TRUE(parse_result.ok()) << parse_result.error_message();
 
     {
         std::ofstream out_tight(output_tight_file_path);
@@ -88,8 +88,8 @@ TEST(ReadWriteCompare, file_dump_pretty)
     jsonland::json_doc jdoc;
     std::ifstream ifs(file_to_read);
     std::string contents((std::istreambuf_iterator<char>(ifs)), {});
-    int parse_result = jdoc.parse_insitu(contents);
-    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+    jsonland::ParseResult parse_result = jdoc.parse_insitu(contents);
+    ASSERT_TRUE(parse_result.ok()) << parse_result.error_message();
 
     {
         std::ofstream out_pretty(output_pretty_file_path);
@@ -107,8 +107,8 @@ TEST(ReadWriteCompare, access_weird_keys)
     jsonland::json_doc jdoc;
     std::ifstream ifs(file_to_read);
     std::string contents((std::istreambuf_iterator<char>(ifs)), {});
-    int parse_result = jdoc.parse_insitu(contents);
-    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+    jsonland::ParseResult parse_result = jdoc.parse_insitu(contents);
+    ASSERT_TRUE(parse_result.ok()) << parse_result.error_message();
 
     auto& escaped_keys_j = jdoc["object_keys_variations"]["escaped_characters"];
 
@@ -143,8 +143,8 @@ TEST(ReadWriteCompare, ownership_after_parse)
     jsonland::json_doc jdoc;
     std::ifstream ifs(file_to_read);
     std::string contents((std::istreambuf_iterator<char>(ifs)), {});
-    int parse_result = jdoc.parse_insitu(contents);
-    ASSERT_EQ(parse_result, 0) << jdoc.parse_error_message();
+    jsonland::ParseResult parse_result = jdoc.parse_insitu(contents);
+    ASSERT_TRUE(parse_result.ok()) << parse_result.error_message();
 
     ASSERT_TRUE(jdoc.refers_to_external_memory());
     ASSERT_FALSE(jdoc.is_full_owner());

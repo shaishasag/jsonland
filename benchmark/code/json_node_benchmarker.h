@@ -19,7 +19,8 @@ public:
     
     void parse_text(Benchmark_results& results) override
     {
-        results.error = jdoc.parse_insitu(results.contents);
+        ParseResult parsimony = jdoc.parse_insitu(results.contents);
+        results.error = parsimony.error_code();
      }
     
     void recursive_copy(Benchmark_results&) override

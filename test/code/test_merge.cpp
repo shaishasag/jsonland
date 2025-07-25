@@ -219,7 +219,7 @@ TEST(Merge, merge_parsed_insitu)
         from.parse_insitu(from_source);
 
         to.merge_from(from);
-        std::cout << to.dump() << std::endl;
+        //std::cout << to.dump() << std::endl;
         
         EXPECT_TRUE(to["one"].get_string() == "one");
         EXPECT_TRUE(to["two"].get_int() == 2);

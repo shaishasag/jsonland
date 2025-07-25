@@ -118,48 +118,105 @@ enum class dump_style : int32_t
     pretty = 1,
 };
 
+struct ParseResult
+{
+    int error_code() const noexcept { return m_error_code; }
+    std::string_view error_message() const noexcept { return m_message; }
+    constexpr explicit operator int() const noexcept { return m_error_code; }
+    constexpr bool ok() const noexcept { return m_error_code == 0; }
+    constexpr explicit operator bool() const noexcept { return ok(); }
+
+    //ParseResult(int error=0) : m_error_code(error) {}
+    ParseResult() = default;
+
+    ParseResult(int error, std::string&& message)
+    : m_error_code(error)
+    , m_message(std::move(message)) {}
+    
+    ParseResult(int error, std::string_view message)
+    : m_error_code(error)
+    , m_message(message) {}
+
+private:
+    friend class parser_exception;
+    
+    const char* c_str() const noexcept { return m_message.c_str(); }
+    
+    int m_error_code{0}; // 0 = success
+    std::string m_message;
+
+};
+
 #ifdef JSONLAND_INTERNAL_PARSING_FUNCTIONS
 
-[[nodiscard]] inline bool is_white_space_not_new_line(const char in_c)
+
+class parser_exception : public std::exception
+{
+public:
+    parser_exception(int32_t err_num, std::string&& message)
+    : m_p_result(err_num, std::move(message))
+    {
+    }
+    
+    int error_num()  const noexcept  { return m_p_result.error_code(); }
+    
+    const char* what() const noexcept override
+    {
+        return m_p_result.c_str();
+    }
+    
+    explicit operator ParseResult() const noexcept { return m_p_result; }
+
+private:
+    ParseResult m_p_result;
+};
+
+
+[[nodiscard]] inline bool is_white_space_not_new_line(char in_c)
 {
     return ' ' == in_c  || '\r' == in_c || '\t' == in_c;
 }
 
-[[nodiscard]] inline bool is_whitespace(const char in_c)
+[[nodiscard]] inline bool is_whitespace(char in_c)
 {
     return is_white_space_not_new_line(in_c) || '\n' == in_c;
 }
 
-[[nodiscard]] inline bool is_digit(const char in_c)
+[[nodiscard]] inline bool is_digit(char in_c)
 {
-    const bool retVal = ('0' <= in_c && '9' >= in_c);
+    return static_cast<unsigned char>(in_c) - '0' < 10;
+}
+
+[[nodiscard]] inline bool is_hex_digit(char in_c)
+{
+    const unsigned char c = static_cast<unsigned char>(in_c);
+    return is_digit(in_c) || ((c | 0x20) >= 'a' && (c | 0x20) <= 'f');
+}
+
+[[nodiscard]] inline bool is_exponential_e(char in_c)
+{
+    return (static_cast<unsigned char>(in_c) | 0x20) == 'e';
+}
+
+[[nodiscard]] inline bool is_num_char(char in_c)
+{
+    const bool retVal = is_digit(in_c) || '.' == in_c || '-' == in_c || '+' == in_c || is_exponential_e(in_c);
     return retVal;
 }
 
-[[nodiscard]] inline bool is_hex_digit(const char in_c)
-{
-    const bool retVal = is_digit(in_c) || ('a' <= in_c && 'f' >= in_c) || ('A' <= in_c && 'F' >= in_c);
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_num_char(const char in_c)
-{
-    const bool retVal = ('0' <= in_c && '9' >= in_c) || '.' == in_c || '-' == in_c || '+' == in_c || 'e' == in_c || 'E' == in_c;
-    return retVal;
-}
-
-[[nodiscard]] inline bool is_separator(const char in_c)
+[[nodiscard]] inline bool is_separator(char in_c)
 {
     const bool retVal = in_c == '"' || in_c == ',' || in_c == ':' || in_c == ']' || in_c == '}';
     return retVal;
 }
-[[nodiscard]] inline bool is_illegal_string_char(const char in_c)
+
+[[nodiscard]] inline bool is_illegal_string_char(char in_c)
 {
     const bool retVal = '\0' == in_c;
     return retVal;
 }
 
-[[nodiscard]] inline bool is_escapable_char(const char in_c)
+[[nodiscard]] inline bool is_escapable_char(char in_c)
 {
     const bool retVal = '\\' == in_c ||
     '/' == in_c ||
@@ -173,7 +230,7 @@ enum class dump_style : int32_t
     return retVal;
 }
 
-[[nodiscard]] inline bool is_a_char_that_must_be_escaped(const char in_c)
+[[nodiscard]] inline bool is_a_char_that_must_be_escaped(char in_c)
 {
     const bool retVal = '"' == in_c ||
     '\\' == in_c ||
@@ -205,7 +262,7 @@ enum class dump_style : int32_t
     return retVal;
 }
 
-[[nodiscard]] static std::string_view name_of_control_char(const char in_c)
+[[maybe_unused]] [[nodiscard]] static std::string_view name_of_control_char(char in_c)
 {
     std::string_view retVal = "unknown"sv;
     switch(in_c)
@@ -231,7 +288,6 @@ static inline void nl_indent(std::string& out_str, size_t level)
 }
 
 #endif
-
 }
 
 #endif // __jsonland_defs_h__

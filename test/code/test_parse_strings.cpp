@@ -32,8 +32,8 @@ TEST(ParseStrings, good_strings)
     for (auto str_str : str_array)
     {
         jsonland::json_doc doc;
-        int parse_err = doc.parse(str_str);
-        ASSERT_EQ(0, parse_err) << "parsing '" << str_str << "' should succeed";
+        jsonland::ParseResult parse_result = doc.parse(str_str);
+        ASSERT_TRUE(parse_result.ok())  << "parsing '" << str_str << "' should succeed";
         ASSERT_TRUE(doc.is_valid());
         ASSERT_TRUE(doc.is_string()) << "parsing '" << str_str << "' should yield a string";;
         ASSERT_FALSE(doc.is_number()) << "parsing '" << str_str << "' should not yield a number";;
@@ -57,8 +57,8 @@ TEST(ParseStrings, bad_strings)
     for (auto str_str : str_array)
     {
         jsonland::json_doc doc;
-        int parse_err = doc.parse(str_str);
-        ASSERT_NE(0, parse_err) << "parsing '" << str_str << "' should fail";
+        jsonland::ParseResult parse_result = doc.parse(str_str);
+        ASSERT_FALSE(parse_result.ok()) << "parsing '" << str_str << "' should fail";
         ASSERT_FALSE(doc.is_valid());
         ASSERT_FALSE(doc.is_number());
         ASSERT_FALSE(doc.is_string()) << "parsing '" << str_str << "' should not yield a string_t";;

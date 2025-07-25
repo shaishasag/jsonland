@@ -274,11 +274,11 @@ int main(int argc, char* argv[])
     std::string content{std::istreambuf_iterator<char>(input_file), std::istreambuf_iterator<char>()};
 
     jsonland::json_doc j;
-    j.parse_insitu(content);
-    if (j.parse_error() != 0)
+    jsonland::ParseResult parse_result = j.parse_insitu(content);
+    if (!parse_result.ok())
     {
-        std::cout << "parse error: "<< j.parse_error() << std::endl;
-        std::cout << "error message: "<< j.parse_error_message() << std::endl;
+        std::cout << "parse error: "<< parse_result.error_code << std::endl;
+        std::cout << "error message: "<< parse_result.message << std::endl;
         return -1;
 
     }

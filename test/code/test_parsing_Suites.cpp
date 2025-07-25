@@ -62,7 +62,7 @@ TEST(Suite, JSON)
             std::string contents((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
             
             jsonland::json_doc doc;
-            int parse_err = doc.parse_insitu(contents);
+            jsonland::ParseResult parse_result = doc.parse_insitu(contents);
             
             if ('y' == file_name[0])
                 EXPECT_TRUE(0 == parse_err) << "parsing " << file_name << " should not fail";
@@ -91,7 +91,7 @@ TEST(Suite, ORG)
             
             jsonland::json_doc doc;
             doc.set_max_nesting_level(19); // fail18.json has 20 nesting levels
-            int parse_err = doc.parse_insitu(contents);
+            jsonland::ParseResult parse_result = doc.parse_insitu(contents);
             
             if ('p' == file_name[0])
                 EXPECT_TRUE(0 == parse_err) << "parsing " << file_name << " should not fail";

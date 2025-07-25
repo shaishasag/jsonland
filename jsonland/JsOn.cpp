@@ -38,29 +38,8 @@ enum ParseErrors : int32_t
     invalid_constant = -6,
     invalid_number = -7,
     invalid_string = -8,
+    unexpected_ending = -9
 };
-
-class JsOn_parser_exception : public std::exception
-{
-public:
-    JsOn_parser_exception(int32_t err_num, std::string&& message)
-    : m_err_num(err_num)
-    , m_msg(std::move(message))
-    {
-    }
-
-    int error_num()  const noexcept  { return m_err_num; }
-
-    const char* what() const noexcept override
-    {
-        return m_msg.c_str();
-    }
-
-private:
-    int32_t m_err_num{0};
-    std::string m_msg;
-};
-
 
 class JsOn_parser
 {
@@ -87,7 +66,7 @@ public:
     }
 
     template<typename... Args>
-    JsOn_parser_exception create_exception(std::source_location loc,
+    parser_exception create_exception(std::source_location loc,
                                            int32_t err_num,
                                            Args&&... args)
     {
@@ -96,13 +75,22 @@ public:
         oss << "\nat line " << m_line << " column " << m_current_text.begin() - m_curr_line_ptr;
         oss << "\nC++ source file: " << loc.file_name() << " line " << loc.line();
 
-        return JsOn_parser_exception(err_num, oss.str());
+        return parser_exception(err_num, oss.str());
     }
 
 
     void parse()
     {
         parse(m_top_level_json);
+        skip_whitespace();
+        if (!m_current_text.empty())
+        {
+            throw create_exception(std::source_location::current(),
+                                   unexpected_ending,
+                                   "uexpeced ending to json string: ",
+                                   m_current_text.substr(0, 10));
+        }
+
     }
 
     void inline skip_one()
@@ -181,20 +169,19 @@ public:
         assert(!m_current_text.empty());
         assert(m_current_text.front() == '{');
 
-        skip_one(); // skip the '{' and whitespace
+        skip_one(); // skip the '{'
+        skip_whitespace(); //
         enum obj_parse_states {before_key, after_key, before_value, after_value, parse_object_done};
         obj_parse_states _state{before_key};
-        JsOn key; // JsOn object just for the m_value that will be used as the key
+        JsOn key(uninitialized_t); // JsOn object just for the m_value that will be used as the key
         while (!m_current_text.empty())
         {
-            skip_whitespace();
             char sep = m_current_text.front(); // '}'? ','
             switch (_state)
             {
                 case before_key:
                     if ('}' == sep)
                     {
-                        skip_one();
                         _state = parse_object_done;
                     }
                     else if ('"' == sep)
@@ -225,6 +212,7 @@ public:
                 case before_value:
                 {
                     JsOn& value_j = out_j.m_obj_values[key.m_value];
+                    value_j.clear(uninitialized_t); // deafult contructed JsOn is null_t
                     parse(value_j);
                     _state = after_value;
                 }
@@ -237,7 +225,6 @@ public:
                     }
                     else if ('}' == sep)
                     {
-                        skip_one();
                         _state = parse_object_done;
                     }
                     else
@@ -246,13 +233,17 @@ public:
                                                unexpected_char,
                                                "'}' or ','", "were expeced not", sep);
                     }
+                    break;
                 case parse_object_done:
                 {
+                    skip_one();
                     out_j.m_value_type = object_t;
                     return; // this is where the function should return if all is OK
                 }
                     break;
             }
+            
+            skip_whitespace();
         }
 
         throw create_exception(std::source_location::current(),
@@ -269,13 +260,13 @@ public:
                                     "unexpected error during array parsing"sv};
 
         skip_one(); // skip the '['
+        skip_whitespace();
         enum array_parse_states {first_value, subsequent_value, after_value,
                                     parse_array_done, parse_array_failed};
         array_parse_states _state{first_value};
 
         while (!m_current_text.empty())
         {
-            skip_whitespace();
             char sep = m_current_text.front(); // ']'? ','
             switch (_state)
             {
@@ -286,13 +277,12 @@ public:
                     }
                     else [[likely]]
                     {
-                        parse(out_j.m_array_values.emplace_back());
-                        _state = after_value;
+                        _state = subsequent_value;
                     }
                     break;
                 case subsequent_value:
                     {
-                        parse(out_j.m_array_values.emplace_back());
+                        parse(out_j.m_array_values.emplace_back(uninitialized_t));
                         _state = after_value;
                     }
                     break;
@@ -329,6 +319,7 @@ public:
                 }
                     break;
             }
+            skip_whitespace();
         }
 //        assert(m_current_text.front() == ']');
 
@@ -347,7 +338,7 @@ public:
             {
                 m_curr_line_offset = pc - m_curr_line_ptr;
                 m_current_text = m_current_text.substr(std::distance(m_current_text.begin(), pc));
-                return;
+                break;
             }
             else if (*pc == '\n')
             {
@@ -356,6 +347,7 @@ public:
                 m_curr_line_offset = 0;
             }
         }
+        m_current_text = m_current_text.substr(std::distance(m_current_text.begin(), pc));
     }
 
     inline void parse_string(JsOn& out_j)
@@ -422,7 +414,9 @@ public:
                     break;
                 case expected_hex_char:
                     if (is_hex_digit(current_char)) {
-                        _state = --hex_char_counter == 0 ?             expected_char_or_end : expected_hex_char;
+                        _state = --hex_char_counter == 0
+                                ? expected_char_or_end
+                                : expected_hex_char;
                         skip_one();
                     }
                     else {
@@ -510,7 +504,7 @@ public:
                         _state = first_decimal_digit;
                         skip_one();
                     }
-                    else if ('e' == current_char || 'E' == current_char) {
+                    else if (is_exponential_e(current_char)) {
                         _state = exponent_started;
                         skip_one();
                     }
@@ -542,7 +536,7 @@ public:
                         _state = first_decimal_digit;
                         skip_one();
                     }
-                    else if ('e' == current_char || 'E' == current_char) {
+                    else if (is_exponential_e(current_char)) {
                         _state = exponent_started;
                         skip_one();
                     }
@@ -566,7 +560,7 @@ public:
                     if (isdigit(current_char)) [[likely]] {
                         skip_one();
                     }
-                    else if ('e' == current_char || 'E' == current_char) {
+                    else if (is_exponential_e(current_char)) {
                         _state = exponent_started;
                         skip_one();
                     }
@@ -586,7 +580,7 @@ public:
                     }
                     else {
                         last_error_info = {std::source_location::current(),
-                                            "digit or '-', '+' are expected after 'E';"sv};
+                                            "digit or '-', '+' are expected after 'E' or 'e';"sv};
                         _state = scan_numer_failed;
                     }
                     break;
@@ -597,7 +591,7 @@ public:
                     }
                     else {
                         last_error_info = {std::source_location::current(),
-                                            "digit are expected after 'E';"sv};
+                                            "digit are expected after 'E' or 'e';"sv};
                         _state = scan_numer_failed;
                     }
                     break;
@@ -759,29 +753,6 @@ double JsOn::get_double(const double in_default_fp) const noexcept
 float JsOn::get_float(const float in_default_fp) const noexcept
 {
     return static_cast<float>(get_double(in_default_fp));
-}
-
-int64_t JsOn::get_int(const int64_t in_default_int) const noexcept
-{
-    int64_t retVal = in_default_int;
-    if (is_type(number_t))  [[likely]]
-    {
-        if (m_hints.get_hint(_num_in_string))
-        {
-            retVal = static_cast<int64_t>(std::atoll(m_value.data()));
-        }
-        else
-        {
-            if (m_hints.get_hint(_num_is_int)) {
-                retVal = m_int;
-            }
-            else {
-                retVal = static_cast<int64_t>(m_float);
-            }
-        }
-    }
-
-    return retVal;
 }
 
 bool JsOn::get_bool(const bool in_default_bool) const noexcept
@@ -957,20 +928,20 @@ void JsOn::push_back(JsOn&& value)
 
 using namespace parser_helper;
 
-int JsOn::parse_inplace(const std::string_view in_text) noexcept
+jsonland::ParseResult JsOn::parse_inplace(const std::string_view in_text) noexcept
 {
-    int retVal = 0;
+    ParseResult retVal;
 
     try
     {
+        m_value_type = uninitialized_t;
         JsOn_parser parser(in_text, *this);
         parser.parse();
     }
-    catch (const JsOn_parser_exception& err)
+    catch (const parser_exception& err)
     {
         m_value_type = uninitialized_t;
-        std::cout << "Error: " << err.what() << std::endl;
-        retVal = err.error_num();
+        retVal = ParseResult(err);
     }
 
     return retVal;

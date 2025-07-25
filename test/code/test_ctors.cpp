@@ -100,7 +100,7 @@ TYPED_TEST(ConstructorTypedTests, num_ctor_with_value)
     EXPECT_TRUE(j_t(17).is_number()) << "j_t(value_type_num).is_number() should return true";
 
     // check that default value is initialized correctly
-    EXPECT_EQ(j_t(17.3).get_float(), 17.3) << "j_t(17.3).get_float() should return 17.3";
+    EXPECT_NEAR(j_t(17.3).get_float(), 17.3, 0.0001) << "j_t(17.3).get_float() should return 17.3";
     EXPECT_EQ(j_t(17.3).get_int(), 17) << "j_t(17.3).get_int() should return 17";
 
     // check that type is not set incorrectly as another value_type
@@ -209,7 +209,7 @@ TYPED_TEST(ConstructorTypedTests, ctor_with_string_and_type)
     
     j_t n2("123.456", number_t);
     EXPECT_EQ(n2.get_int(), 123);
-    EXPECT_EQ(n2.get_float(), 123.456);
+    EXPECT_EQ(n2.get_float(), 123.456f);
     EXPECT_EQ(n2.get_string("shoshana"), "shoshana");  // not a string! so return default value
     EXPECT_TRUE(n2.is_number());
     EXPECT_FALSE(n2.is_int());
@@ -297,12 +297,12 @@ TYPED_TEST(ConstructorTypedTests, ctor_enum)
         {
             j_t something_j(something);
             EXPECT_TRUE(something_j.is_int());
-            EXPECT_EQ(something_j.get_int(), static_cast<int64_t>(something));
+            EXPECT_EQ(something_j.template get_int<int64_t>(), static_cast<int64_t>(something));
         }
         {
             j_t everything_j(everything);
             EXPECT_TRUE(everything_j.is_int());
-            EXPECT_EQ(everything_j.get_int(), static_cast<int64_t>(everything));
+            EXPECT_EQ(everything_j.template get_int<int64_t>(), static_cast<int64_t>(everything));
         }
     }
     {
@@ -342,14 +342,14 @@ TYPED_TEST(ConstructorTypedTests, ctor_enum)
             j_t false_j(bool_enum_class::its_false);
             EXPECT_TRUE(false_j.is_bool());
             EXPECT_EQ(false_j.get_bool(), static_cast<bool>(bool_enum_class::its_false));
-            EXPECT_EQ(false_j.get_int(), 0);
+            EXPECT_EQ(false_j.template get_as<int>(), 0);
         }
 
         {
             j_t true_j(bool_enum_class::its_true);
             EXPECT_TRUE(true_j.is_bool());
             EXPECT_EQ(true_j.get_bool(), static_cast<bool>(bool_enum_class::its_true));
-            EXPECT_EQ(true_j.get_int(), 1);
+            EXPECT_EQ(true_j.template get_as<int>(), 1);
         }
     }
 }

@@ -158,7 +158,7 @@ TEST(EscapeJson, backslashes)
         // from char*
         jo["win_path"] = "c:\\something\\something";
         std::string take_a_dump = jo.dump();
-        std::cout << take_a_dump << std::endl;
+//        std::cout << take_a_dump << std::endl;
         EXPECT_EQ(take_a_dump, "{\"win_path\":\"c:\\\\something\\\\something\"}");
     }
     {
@@ -175,18 +175,18 @@ TEST(EscapeJson, escape_and_copy)
 
     json_node jo(object_t);
     jo["win_path"sv] = some_win_path;
-    std::cout << jo["win_path"sv].dump() << std::endl;
-    std::cout << jo.dump() << std::endl;
+//    std::cout << jo["win_path"sv].dump() << std::endl;
+//    std::cout << jo.dump() << std::endl;
     EXPECT_EQ(jo.dump(), R"({"win_path":"c:\\something\\something"})"sv);
     EXPECT_EQ(jo["win_path"sv].dump(), R"("c:\\something\\something")"sv);
     EXPECT_EQ(jo["win_path"sv].get_string(), R"(c:\something\something)"sv);
 
 
-    std::cout << "jo.dump() " << jo.dump() << std::endl;
-    std::cout << "jo[\"win_path\"].dump() " << jo["win_path"sv].dump() << std::endl;
+//    std::cout << "jo.dump() " << jo.dump() << std::endl;
+//    std::cout << "jo[\"win_path\"].dump() " << jo["win_path"sv].dump() << std::endl;
     jo["copy node"sv] = jo["win_path"sv].clone();
-    std::cout << "jo.dump() " << jo.dump() << std::endl;
-    std::cout << "jo[\"copy node\"].dump() " << jo["copy node"sv].dump() << std::endl;
+//    std::cout << "jo.dump() " << jo.dump() << std::endl;
+//    std::cout << "jo[\"copy node\"].dump() " << jo["copy node"sv].dump() << std::endl;
 
 
     std::string dumps = jo["copy node"sv].dump();

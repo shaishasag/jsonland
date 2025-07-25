@@ -3,61 +3,97 @@
 #include <fstream>
 #include <vector>
 #include "gtest/gtest.h"
-#include "jsonland/json_node.h"
+#include "2TypesTestsCommon.h"
 
-TEST(ParseObjects, good_objects)
+using namespace jsonland;
+
+template <typename T>
+class ParseObjectTests : public JsonTypedTest<T> {};
+
+TYPED_TEST_SUITE(ParseObjectTests, json_doc_andJsOn);
+
+TYPED_TEST(ParseObjectTests, valid_objects)
 {
+    using j_t = typename TestFixture::JsonType;
+
     std::vector<std::string_view> obj_array = {
-        "{}", "  {}",
-        "{} ", " {} ",
-        "{ }", "  {  }",
+        "{}", // 0
+        "  {}",
+        "{} ",
+        " {} ",
+        "{ }",
+        "  {  }",
         "{    }    ",
-        "{\"a\": true}", "{ \"a\":true}",
-        "{\"a\":true }", "{ \"a\" : true }",
+        "{\"a\": true}",
+        "{ \"a\":true}",
+        "{\"a\":true }",
+        "{ \"a\" : true }",  // 10
     };
-    for (auto obj_str : obj_array)
+    int index{0};
+    for (auto object_str : obj_array)
     {
-        jsonland::json_doc doc;
-        int parse_err = doc.parse(obj_str);
-        ASSERT_EQ(0, parse_err) << "parsing '" << obj_str << "' should succeed";
+        j_t doc;
+        jsonland::ParseResult parsimony = doc.parse_inplace(object_str);
+        ASSERT_TRUE(parsimony.ok()) << "parsing #" << index << " '" << object_str << "' should succeed";
+        ASSERT_TRUE(bool(parsimony)) << "parsing #" << index << " '" << object_str << "' should succeed";
+        ASSERT_EQ(0, parsimony.error_code()) << "parsing #" << index << " '" << object_str << "' should succeed";
         ASSERT_TRUE(doc.is_valid());
-        ASSERT_TRUE(doc.is_object()) << "parsing '" << obj_str << "' should not yield an array";;
+        ASSERT_TRUE(doc.is_object()) << "parsing #" << index << " '" << object_str << "' should not yield an array";
+        ++index;
     }
 }
 
-TEST(ParseObjects, bad_objects)
+TYPED_TEST(ParseObjectTests, invalid_objects)
 {
+    using j_t = typename TestFixture::JsonType;
+
     std::vector<std::string_view> object_array = {
-        "{", "  {",
-        "{ ", " { ",
-        "}", "  }",
-        "} ", " } ",
-        "{true,}", "{ true ,}",
-        "{true, }", "{ , true }",
-        "{1:1}", "{ 1.2 : 1.2}",
-        "{3.4  :true }", "{  5.6 : null}",
-        "{true : \"a\"}", "{ \"a\": }",
-        "{ \"a\" : \"a\" ]", "{ \"a\" : \"a\" ",
-        "\"a\",\"a\"", "\"a\":,\"a\"",
+        "{", // 0
+        "  {",
+        "{ ",
+        " { ",
+        "}",
+        "  }",
+        "} ",
+        " } ",
+        "{true,}",
+        "{ true ,}",
+        "{true, }", // 10
+        "{ , true }",
+        "{1:1}",
+        "{ 1.2 : 1.2}",
+        "{3.4  :true }",
+        "{123   ",
+        "{  5.6 : null}",
+        "{true : \"a\"}",
+        "{ \"a\": }",
+        "{ \"a\" : \"a\" ]",
+        "{ \"a\" : \"a\" ", // 20
+        "\"a\",\"a\"",
+        "\"a\":,\"a\"",
         " { \"a\" : 1, \"b\" : false, \"c\":\"mama",     // no closing ", no closing }
         " { \"a\" : 1, \"b\" : false, \"c\":\"mama\"  "  // no closing }
         " { \"a\" : 1, \"b\" : false, \"c\":\"mama}  "   // no closing "
     };
+    int index{0};
     for (auto object_str : object_array)
     {
-        jsonland::json_doc doc;
-        int parse_err = doc.parse(object_str);
-        ASSERT_NE(0, parse_err) << "parsing '" << object_str << "' should not succeed";
+        j_t doc;
+        jsonland::ParseResult parsimony = doc.parse_inplace(object_str);
+        ASSERT_FALSE(parsimony.ok()) << "parsing #" << index << " '" << object_str << "' should not succeed";
+        ASSERT_FALSE(bool(parsimony)) << "parsing #" << index << " '" << object_str << "' should not succeed";
+        ASSERT_NE(0, parsimony.error_code()) << "parsing #" << index << " '" << object_str << "' should not succeed";
         ASSERT_FALSE(doc.is_valid());
-        ASSERT_FALSE(doc.is_object()) << "parsing '" << object_str << "' should not yield an object";
+        ASSERT_FALSE(doc.is_object()) << "parsing #" << index << " '" << object_str << "' should not yield an object";
+        ++index;
     }
 }
 
 TEST(ParseObjects, bad_objects1)
 {
     jsonland::json_doc doc;
-    int parse_err = doc.parse("{");
-    ASSERT_NE(0, parse_err) << "parsing '" << "{" << "' should not succeed";
+    jsonland::ParseResult parsimony = doc.parse_inplace("{");
+    ASSERT_NE(0, parsimony.error_code()) << "parsing '" << "{" << "' should not succeed";
     ASSERT_FALSE(doc.is_valid());
     ASSERT_FALSE(doc.is_object()) << "parsing '" << "{" << "' should not yield an object";
 

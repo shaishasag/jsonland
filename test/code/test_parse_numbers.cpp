@@ -21,8 +21,8 @@ TEST(ParseNumbers, good_numbers)
     for (auto num_str : num_array)
     {
         jsonland::json_doc doc;
-        int parse_err = doc.parse(num_str);
-        ASSERT_EQ(0, parse_err) << "parsing '" << num_str << "' should succeed";
+        jsonland::ParseResult parse_result = doc.parse(num_str);
+        ASSERT_TRUE(parse_result.ok()) << "parsing '" << num_str << "' should succeed";
         ASSERT_TRUE(doc.is_valid());
         ASSERT_TRUE(doc.is_number()) << "parsing '" << num_str << "' should yield a number";;
         ASSERT_EQ(doc.get_float<double>(), std::atof(num_str.data()));
@@ -62,8 +62,8 @@ TEST(ParseNumbers, bad_numbers)
     for (auto num_str : num_array)
     {
         jsonland::json_doc doc;
-        int parse_err = doc.parse(num_str);
-        ASSERT_NE(0, parse_err) << "parsing '" << num_str << "' should fail";
+        jsonland::ParseResult parse_result = doc.parse(num_str);
+        ASSERT_FALSE(parse_result.ok()) << "parsing '" << num_str << "' should fail";
         ASSERT_FALSE(doc.is_valid());
         ASSERT_FALSE(doc.is_number());
         ASSERT_FALSE(doc.is_int());

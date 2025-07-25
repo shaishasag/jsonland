@@ -26,7 +26,7 @@ class DllExport JsOn
 private:
     friend class jsonland::parser_helper::JsOn_parser;
     
-    value_type m_value_type{uninitialized_t};
+    value_type m_value_type{null_t};
     std::string_view m_value;
     union { int64_t m_int; double m_float; };
     std::unordered_map<std::string_view, JsOn> m_obj_values;
@@ -46,9 +46,9 @@ public:
 
     JsOn(const std::string_view in_text);
     explicit JsOn(const std::string_view in_str_value, jsonland::value_type in_type) noexcept;
-
+    
     // #parse from / dump to text#
-    int parse_inplace(const std::string_view in_text) noexcept;
+    ParseResult parse_inplace(const std::string_view in_text) noexcept;
     void dump(std::string& out_j_text, size_t level=0) const;
     
     // #modifiers#
@@ -131,9 +131,15 @@ public:
     [[nodiscard]] std::string_view get_string(std::string_view in_default_str={}) const noexcept;
     [[nodiscard]] double get_double(const double in_default_fp=0.0) const noexcept;
     [[nodiscard]] float get_float(const float in_default_fp=0.0f) const noexcept;
-    [[nodiscard]] int64_t get_int(const int64_t in_default_int=0) const noexcept;
+    
+    template<IsInteger TINT=int>
+    [[nodiscard]] TINT get_int(const TINT in_default_int=0) const noexcept;
+    
     [[nodiscard]] bool get_bool(const bool in_default_bool=false) const noexcept;
     [[nodiscard]] nullptr_t get_null() const noexcept { return nullptr; }
+    
+    template<IsJsonScalarType TASTYPE>
+    [[nodiscard]] TASTYPE get_as() const noexcept;
 
     // #for object_t: range loop - modifiable#
     [[nodiscard]] auto& object_range() { return m_obj_values; }
@@ -202,7 +208,199 @@ public:
 
     // #for array_t: key-based access - non modifiable#
     const JsOn& operator[](size_t index) const;
+
+private:
+    bool is_num_in_string() const {return m_hints.get_hint(_num_in_string);}
 };
+
+
+template<typename From, typename To>
+constexpr To narrow_cast_silent(From value)
+{
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#  pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#elif defined(__GNUC__) || defined(__GNUG__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#elif defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable : 4244) // conversion from 'int64_t' to 'int'
+#endif
+    
+    To result = static_cast<To>(value);
+    
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__) || defined(__GNUG__)
+#  pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
+    
+    return result;
+}
+
+template<IsInteger TINT>
+TINT JsOn::get_int(const TINT in_default_int) const noexcept
+{
+    TINT retVal = in_default_int;
+    if (is_number()) [[likely]]
+    {
+        if (m_hints.get_hint(_num_in_string))
+        {
+            retVal = static_cast<TINT>(std::atoll(m_value.data()));
+        }
+        else
+        {
+            if (m_hints.get_hint(_num_is_int)) {
+                retVal = narrow_cast_silent<decltype(m_int), TINT>(m_int);
+            }
+            else {
+                retVal = static_cast<TINT>(m_float);
+            }
+        }
+    }
+    
+    return retVal;
+}
+
+template<IsJsonScalarType TASTYPE>
+[[nodiscard]] TASTYPE JsOn::get_as() const noexcept
+{
+    TASTYPE retVal{};
+    if constexpr (IsNullPtr<TASTYPE>) {
+        retVal = nullptr;
+    }
+    else if constexpr (IsBool<TASTYPE>)
+    {
+        switch (m_value_type)
+        {
+            case uninitialized_t:
+            case null_t:
+                retVal = false;
+                break;
+            case bool_t:
+                retVal = get_bool();
+                break;
+            case number_t:
+                retVal = get_int<int>() == 0 ? false : true;
+                break;
+            case string_t:
+            {
+                std::string_view str_val = get_string();
+                if (str_val == "true"sv) {
+                    retVal = true;
+                }
+                else {
+                    retVal = false;
+                }
+            }
+                break;
+            case array_t:
+            case object_t:
+            default:
+                retVal = false;
+                break;
+        }
+    }
+    else if constexpr (IsFloat<TASTYPE>)
+    {
+        switch (m_value_type)
+        {
+            case uninitialized_t:
+            case null_t:
+                retVal = 0.0;
+                break;
+            case bool_t:
+                retVal = get_bool() ? TASTYPE{1.0} : TASTYPE{0.0};
+                break;
+            case number_t:
+                retVal = get_float<TASTYPE>();
+                break;
+            case string_t:
+            {
+                std::string_view str_val = get_string();
+                retVal = static_cast<TASTYPE>(std::atof(str_val.data()));
+            }
+                break;
+            case array_t:
+            case object_t:
+            default:
+                retVal = 0.0;
+                break;
+        }
+    }
+    else if constexpr (IsInteger<TASTYPE>)
+    {
+        switch (m_value_type)
+        {
+            case uninitialized_t:
+            case null_t:
+                retVal = 0;
+                break;
+            case bool_t:
+                retVal = get_bool() ? TASTYPE{1} : TASTYPE{0};
+                break;
+            case number_t:
+                retVal = get_int<TASTYPE>();
+                break;
+            case string_t:
+            {
+                std::string_view str_val = get_string();
+                retVal = static_cast<TASTYPE>(std::atoll(str_val.data()));
+            }
+                break;
+            case array_t:
+            case object_t:
+            default:
+                retVal = 0;
+                break;
+        }
+    }
+    else if constexpr (std::convertible_to<TASTYPE, std::string_view>)
+    {
+        switch (m_value_type)
+        {
+            case uninitialized_t:
+                retVal = the_empty_string_view;
+                break;
+            case null_t:
+                retVal = the_null_string_view;
+                break;
+            case bool_t:
+                retVal = get_bool() ? the_true_string_view : the_false_string_view;
+                break;
+            case number_t:
+                if (is_num_in_string())
+                {
+                    retVal = m_value;
+                }
+                else
+                {
+                    assert(false);
+                }
+                break;
+            case string_t:
+            {
+                retVal = static_cast<TASTYPE>(get_string());
+            }
+                break;
+            case array_t:
+            case object_t:
+            default:
+                retVal = the_empty_string_view;
+                break;
+        }
+    }
+    else {
+        static_assert(!std::same_as<TASTYPE, TASTYPE>, "Unsupported type");
+    }
+    
+    return retVal;
+}
+
 }
 
 #endif // __JsOn_h__

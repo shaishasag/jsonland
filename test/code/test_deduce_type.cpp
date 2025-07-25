@@ -156,5 +156,6 @@ TEST(Deduction, read_mixed_types)
     {
         sum += n.get_as<int>();
     }
-    std::cout << sum << std::endl;
+    EXPECT_EQ(sum, 12);
+    //std::cout << sum << std::endl;
 }
