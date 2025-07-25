@@ -639,8 +639,7 @@ JsOn::JsOn(value_type in_type, size_t in_reserve) noexcept
             m_value = the_null_string_view;
             break;
         case number_t:
-            m_hints.set_hint(_num_is_int);
-            m_int = 0;
+            m_float = 0.0;
             break;
         case bool_t:
             m_value = the_false_string_view;
@@ -655,6 +654,29 @@ JsOn::JsOn(value_type in_type, size_t in_reserve) noexcept
             break;
     }
 }
+
+JsOn::JsOn(const std::string_view in_text)
+: m_value_type(string_t)
+, m_value{in_text}
+{
+}
+
+JsOn::JsOn(const std::string_view in_str_value, jsonland::value_type in_type) noexcept
+: m_value_type(in_type)
+, m_value(in_str_value)
+{
+    if (m_value_type == number_t)
+    {
+        m_hints.set_hint(_num_in_string);
+        // (C++23): in_str_value.contains('.')
+        if (auto pos = in_str_value.find('.');
+            pos==std::string_view::npos)
+        {
+            m_hints.set_hint(_num_is_int);
+        }
+    }
+}
+
 JsOn& JsOn::operator=(jsonland::value_type in_type) noexcept
 {
     if (in_type != m_value_type) {
@@ -774,6 +796,21 @@ bool JsOn::empty_as(const value_type in_expected_type) const noexcept
     return retVal;
 }
 
+size_t JsOn::num_elements() const noexcept
+{
+    size_t retVal = 0;
+    switch (get_value_type())
+    {
+        case object_t: retVal = m_obj_values.size(); break;
+        case array_t: retVal = m_array_values.size(); break;
+        default:
+            break;
+            
+    }
+    return retVal;
+
+}
+
 void JsOn::clear(const value_type in_new_type) noexcept
 {
     m_value_type = in_new_type;
@@ -798,11 +835,73 @@ const JsOn& JsOn::operator[](std::string_view key) const
     return null_value;
 }
 
+size_t JsOn::count(std::string_view in_key) const noexcept
+{
+    size_t retVal = 0;
+    if (is_object())
+    {
+        retVal = m_obj_values.count(in_key);
+    }
+    
+    return retVal;
+}
+bool JsOn::contains(std::string_view in_key) const noexcept
+{
+    bool retVal = 1 == count(in_key);
+    return retVal;
+}
+
+bool JsOn::contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept
+{
+    bool retVal{false};
+    
+    if (contains(in_key))
+    {
+        const JsOn& theJ = m_obj_values.at(in_key);
+        retVal = in_expected_type == theJ.m_value_type;
+    }
+    
+    return retVal;
+
+}
+
+size_t JsOn::erase(std::string_view in_key)
+{
+    size_t retVal{0};
+    if (is_object()) [[likely]]
+    {
+        if (auto iKey = m_obj_values.find(in_key);
+                iKey != m_obj_values.end())
+        {
+            m_obj_values.erase(iKey);
+            retVal = 1;
+        }
+    }
+    
+    return retVal;
+}
+
+
 JsOn& JsOn::operator[](size_t index)
 {
     assert(is_array() && "operator[](size_t) requires array_t");
     assert(index < m_array_values.size() && "index out of bounds");
     return m_array_values[index];
+}
+
+size_t JsOn::erase(size_t in_index)
+{
+    size_t retVal{0};
+    if (is_array()) [[likely]]
+    {
+        if (in_index < m_array_values.size())
+        {
+            m_array_values.erase(m_array_values.begin() + in_index);
+            retVal = 1;
+        }
+    }
+    
+    return retVal;
 }
 
 const JsOn& JsOn::operator[](size_t index) const

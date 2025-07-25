@@ -200,7 +200,7 @@ size_t json_node::erase(std::string_view in_key)
     {
         string_and_view key(in_key, 0);
         if (auto iKey = m_obj_key_to_index.find(key);
-        iKey != m_obj_key_to_index.end())
+                 iKey != m_obj_key_to_index.end())
         {
             int index = iKey->second;
             m_obj_key_to_index.erase(iKey);
@@ -281,16 +281,6 @@ json_node& json_node::append_array(std::string_view in_key, size_t in_reserve)
 }
 
 /// functions for JSON value type #array_t
-
-json_node& json_node::emplace_back() noexcept
-{
-    if (is_null())
-    {
-        clear(array_t);
-    }
-    m_values.emplace_back();
-    return m_values.back();
-}
 
 json_node& json_node::push_back(const json_node& in_node) noexcept
 {

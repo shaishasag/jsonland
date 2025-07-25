@@ -545,7 +545,16 @@ public:
 
     /// functions for JSON value type #array_t
 
-    json_node& emplace_back() noexcept;
+    template<typename... Args>
+    json_node& emplace_back(Args&&... args) noexcept
+    {
+        if (is_null())
+        {
+            clear(array_t);
+        }
+        m_values.emplace_back(std::forward<Args>(args)...);
+        return m_values.back();
+    }
 
     json_node& push_back(const json_node& in_node) noexcept;
 

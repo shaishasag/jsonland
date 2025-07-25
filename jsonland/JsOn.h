@@ -22,12 +22,30 @@ namespace parser_helper { class JsOn_parser; }
 
 class DllExport JsOn
 {
+    
+private:
+    friend class jsonland::parser_helper::JsOn_parser;
+    
+    value_type m_value_type{uninitialized_t};
+    std::string_view m_value;
+    union { int64_t m_int; double m_float; };
+    std::unordered_map<std::string_view, JsOn> m_obj_values;
+    std::vector<JsOn> m_array_values;
+    mutable hint_carrier m_hints;
+
 public:
     
     // #constructors#
     JsOn() = default;
-    JsOn(const std::string_view in_text) : JsOn() { parse_inplace(in_text); }
+    JsOn(const JsOn&) = default;
+    JsOn(JsOn&&) = default;
+    JsOn& operator=(const JsOn&) = default;
+    JsOn& operator=(JsOn&&) = default;
+
     explicit JsOn(value_type in_type, size_t in_reserve=0) noexcept;
+
+    JsOn(const std::string_view in_text);
+    explicit JsOn(const std::string_view in_str_value, jsonland::value_type in_type) noexcept;
 
     // #parse from / dump to text#
     int parse_inplace(const std::string_view in_text) noexcept;
@@ -37,6 +55,34 @@ public:
     // ##operator=##
     JsOn& operator=(jsonland::value_type in_type) noexcept;
     JsOn& operator=(const std::string_view in_str_value) noexcept;
+    
+    JsOn(const IsInteger auto in_num) noexcept
+    : m_value_type{number_t}
+    , m_int{in_num}
+    , m_hints{_num_is_int}
+    {
+    }
+    //--- enum constructor, converts to undelying integral type
+    JsOn(const IsEnum auto in_enum) noexcept
+    : JsOn(static_cast<typename std::underlying_type_t<decltype(in_enum)>>(in_enum))
+    {}
+
+    JsOn(const IsFloat auto in_num) noexcept
+    : m_value_type(number_t)
+    , m_float{in_num}
+    {
+        m_hints.unset_hint(_num_is_int);
+    }
+    
+    inline explicit JsOn(const IsBool auto in_bool) noexcept
+    : m_value_type(bool_t)
+    , m_value(in_bool ? the_true_string_view : the_false_string_view)
+    {}
+
+    explicit JsOn(IsNullPtr auto) noexcept
+    : m_value_type(null_t)
+    {}
+
     JsOn& operator=(const IsInteger auto in_num) noexcept
     {
         clear(number_t);
@@ -49,6 +95,7 @@ public:
         operator=(static_cast<typename std::underlying_type_t<decltype(in_enum)>>(in_enum));
         return *this;
     }
+    
     JsOn& operator=(const IsFloat auto in_num) noexcept
     {
         clear(number_t);
@@ -95,8 +142,18 @@ public:
 
     // #for object_t: key-based access - modifiable#
     JsOn& operator[](std::string_view key);
+    /// Erase from object by key and return the number of items erased (0 or 1)
+    /// If key object does not contain the key, do nothing and return 0
+    /// If not an object, do nothing and return 0
+    size_t erase(std::string_view in_key);
+ 
     // #for array_t: index-based access - modifiable#
     JsOn& operator[](size_t index);
+
+    /// Erase from array by index and return the number of items erased (0 or 1)
+    /// If key array does not contain the index, do nothing and return 0
+    /// If not an array, do nothing and return 0
+    size_t erase(size_t in_index);
 
     // #get type#
     /// Returns the #value_type of this instance
@@ -132,24 +189,19 @@ public:
     // #for array_t: range loop - non modifiable#
     [[nodiscard]] const auto& array_range() const { return m_array_values; }
 
-    // #capacity#
+    // #size#
     [[nodiscard]] size_t size_as(const value_type in_expected_type) const noexcept;
-    [[nodiscard]] bool empty_as(const value_type in_expected_type) const noexcept;
-    
+    [[nodiscard]] bool  empty_as(const value_type in_expected_type) const noexcept;
+    [[nodiscard]] size_t num_elements() const noexcept;
+
     // #for object_t: key-based access - non modifiable#
     const JsOn& operator[](std::string_view key) const;
+    [[nodiscard]] inline size_t count(std::string_view in_key) const noexcept;
+    [[nodiscard]] inline bool contains(std::string_view in_key) const noexcept;
+    [[nodiscard]] bool contains_as(std::string_view in_key, const enum value_type in_expected_type) const noexcept;
+
     // #for array_t: key-based access - non modifiable#
     const JsOn& operator[](size_t index) const;
-    
-private:
-    friend class jsonland::parser_helper::JsOn_parser;
-    
-    value_type m_value_type{uninitialized_t};
-    std::string_view m_value;
-    union { int64_t m_int; double m_float; };
-    std::unordered_map<std::string_view, JsOn> m_obj_values;
-    std::vector<JsOn> m_array_values;
-    mutable hint_carrier m_hints;
 };
 }
 
